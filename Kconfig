@@ -45,3 +45,41 @@ config BUTTERFLY_BOOT_ANIM_MS
 	  Duration of the warm amber breathing animation on the 4 butterfly LEDs upon boot.
 
 endif # KEYBOARDIO_BUTTERFLY_STATUS
+
+menuconfig KEYBOARDIO_PREONIC_SOUND
+	bool "Keyboardio Preonic Piezo Sound Support"
+	default y
+	depends on PWM
+	help
+	  Enables piezo buzzer sound effects including Super Mario coin boot greeting
+	  and audio clicky on key press.
+
+if KEYBOARDIO_PREONIC_SOUND
+
+config PREONIC_SOUND_CLICKY_DEFAULT
+	bool "Audio clicky enabled by default on boot"
+	default y
+	help
+	  Whether audio clicky is active upon startup. Can be toggled with Fn + C.
+
+config PREONIC_SOUND_COIN_BOOT
+	bool "Play Super Mario coin sound on boot"
+	default y
+	help
+	  Play Super Mario coin sound on cold boot/startup.
+
+config PREONIC_SOUND_CLICK_FREQ
+	int "Clicky tone frequency in Hz"
+	default 3000
+	range 500 10000
+	help
+	  Frequency of the short click pulse.
+
+config PREONIC_SOUND_CLICK_DURATION_MS
+	int "Clicky tone duration in ms"
+	default 5
+	range 1 50
+	help
+	  Duration of the click pulse in milliseconds.
+
+endif # KEYBOARDIO_PREONIC_SOUND
