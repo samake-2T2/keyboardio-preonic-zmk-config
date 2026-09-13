@@ -24,6 +24,7 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
 * **Low-Latency Debouncing**: Optimized debouncing (1 ms press / 5 ms release) for rapid response and debounce error prevention.
 * **Full NKRO**: N-Key Rollover enabled for simultaneous keypress accuracy.
 * **RGB Underglow**: Keyboardio butterfly logo illuminated on startup with signature cyan breathing effect (`HSV: 195, 100, 100`).
+* **Piezo Sound System**: Hardware PWM-driven onboard piezo buzzer playing a signature Super Mario coin chime on cold boot and crisp 5ms audio clicky feedback on keystrokes.
 * **Mouse Emulation (ZMK Pointing)**: Integrated mouse cursor movement, clicking, and scrolling on the Raise layer.
 * **Decoupled Tri-Layer & Dedicated Fn**: Enter the Function layer either via the dedicated top-middle `Fn` key (`&mo L_FN`) or by holding `Lower` and `Raise` simultaneously without conflict.
 * **GUI Configurator Compatibility**:
@@ -51,6 +52,8 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
 * **Number Row**:
   * `Grave` position: `&out OUT_TOG` (Toggle between USB and BLE output)
   * `1` ~ `4`: `&bt BT_SEL 0` ~ `&bt BT_SEL 3` (Select Bluetooth profiles 0 to 3, max 4 devices)
+* **Alphabet Rows**:
+  * `C` position: **Audio Clicky Toggle** (`Fn + C` toggles typing click sound on/off; high tone for ON, low tone for OFF)
 * **Bottom Row**:
   * `LCTRL` position: `&bootloader` (Enter DFU bootloader mode)
   * `Lower` position: `&studio_unlock` (Unlock ZMK Studio)
@@ -110,6 +113,7 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 * **초저지연 디바운스**: 1ms 누름 / 5ms 릴리즈 설정으로 키 입력 반응성 극대화 및 채터링 방지.
 * **NKRO 완벽 지원**: 무한 동시 입력(N-Key Rollover) 지원.
 * **Keyboardio 나비 로고 RGB 언더글로우**: 부팅 시 시그니처 스카이블루 숨쉬기(Cyan Breathing, `HSV: 195, 100, 100`) 효과 자동 점등.
+* **피에조 사운드 시스템 (Piezo Sound)**: 하드웨어 PWM0 기반으로 부팅 시 슈퍼마리오 코인 획득 멜로디를 재생하며, 타이핑 시 5ms 초저지연 기계식 오디오 클릭키(Audio Clicky) 사운드 제공.
 * **마우스 에뮬레이션 (ZMK Pointing)**: Raise 레이어에서 마우스 커서 이동, 클릭, 휠 스크롤 지원.
 * **트라이 레이어 및 독립 Fn 동시 지원 (디커플링)**: 상단 중앙 독립 `Fn` 키(`&mo L_FN`) 진입과 `Lower` + `Raise` 동시 입력을 통한 트라이 레이어 진입을 충돌 없이 완벽히 지원.
 * **웹 GUI 도구 완벽 호환**:
@@ -137,6 +141,8 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 * **숫자 행**:
   * `Grave` 자리: **`&out OUT_TOG`** (USB 유선 / 블루투스 무선 출력 모드 전환)
   * `1 ~ 4` 자리: **`&bt BT_SEL 0 ~ 3`** (블루투스 기기 프로필 0번 ~ 3번, 총 4대 선택)
+* **알파벳 행**:
+  * `C` 자리: **오디오 클릭키 On/Off 토글** (`Fn + C` 입력 시 타이핑 클릭 소리를 켜고 끄며, 켤 때 높은 톤 / 끌 때 낮은 톤 확인음 제공)
 * **하단 행**:
   * `LCTRL` 자리: **`&bootloader`** (USB 외장 드라이브 부트로더 모드 진입)
   * `Lower` 자리: **`&studio_unlock`** (ZMK Studio 잠금 해제)
