@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Asynchronously type current battery level (e.g. "Battery: 82%").
+ * @brief Asynchronously type current battery level (e.g. "82%").
  */
 void preonic_type_battery_status(void);
 

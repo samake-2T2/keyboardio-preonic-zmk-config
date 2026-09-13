@@ -75,18 +75,8 @@ void preonic_type_battery_status(void) {
     num_steps = 0;
     current_step = 0;
 
-    // Type "Battery: "
-    add_key(LS(B));
-    add_key(A);
-    add_key(T);
-    add_key(T);
-    add_key(E);
-    add_key(R);
-    add_key(Y);
-    add_key(COLON);
-    add_key(SPACE);
-
-    // Type percentage value
+    // Type percentage value only (e.g. "82%" or "100%")
+    // Numbers and '%' are completely immune to Korean/English IME layout issues.
     if (soc == 100) {
         add_key(N1);
         add_key(N0);
