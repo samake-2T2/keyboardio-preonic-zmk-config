@@ -64,7 +64,6 @@ static bool blink_state = false;
 static enum zmk_activity_state current_activity = ZMK_ACTIVITY_ACTIVE;
 
 static bool is_battery_gauge = false;
-static int64_t battery_gauge_end_time = 0;
 static bool low_battery_warned = false;
 
 static inline struct led_rgb make_rgb(uint8_t r, uint8_t g, uint8_t b) {
@@ -128,42 +127,36 @@ static void butterfly_work_handler(struct k_work *work) {
 #endif
 
     if (is_battery_gauge) {
-        int64_t remaining = battery_gauge_end_time - k_uptime_get();
-        if (remaining > 0) {
-            uint8_t soc = zmk_battery_state_of_charge();
-            uint8_t brt = (uint8_t)CONFIG_BUTTERFLY_BRIGHTNESS;
-            struct led_rgb pixels[BUTTERFLY_NUM_LEDS];
-            for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
-                pixels[i] = make_rgb(0, 0, 0);
-            }
-
-            if (soc >= 75) {
-                // 4 wings green
-                for (size_t i = 0; i < 4 && i < BUTTERFLY_NUM_LEDS; i++) {
-                    pixels[i] = make_rgb(0, brt, 0);
-                }
-            } else if (soc >= 50) {
-                // 3 wings lime green
-                for (size_t i = 0; i < 3 && i < BUTTERFLY_NUM_LEDS; i++) {
-                    pixels[i] = make_rgb((uint8_t)(((uint16_t)brt * 40) / 100), brt, 0);
-                }
-            } else if (soc >= 25) {
-                // 2 wings orange
-                for (size_t i = 0; i < 2 && i < BUTTERFLY_NUM_LEDS; i++) {
-                    pixels[i] = make_rgb(brt, (uint8_t)(((uint16_t)brt * 30) / 100), 0);
-                }
-            } else {
-                // 1 wing red
-                if (BUTTERFLY_NUM_LEDS > 0) {
-                    pixels[0] = make_rgb(brt, 0, 0);
-                }
-            }
-            update_leds(pixels);
-            k_work_reschedule(&butterfly_work, K_MSEC(remaining + 5));
-            return;
+        uint8_t soc = zmk_battery_state_of_charge();
+        uint8_t brt = (uint8_t)CONFIG_BUTTERFLY_BRIGHTNESS;
+        struct led_rgb pixels[BUTTERFLY_NUM_LEDS];
+        for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
+            pixels[i] = make_rgb(0, 0, 0);
         }
-        is_battery_gauge = false;
-        state_change_time = k_uptime_get();
+
+        if (soc >= 75) {
+            // 4 wings green
+            for (size_t i = 0; i < 4 && i < BUTTERFLY_NUM_LEDS; i++) {
+                pixels[i] = make_rgb(0, brt, 0);
+            }
+        } else if (soc >= 50) {
+            // 3 wings lime green
+            for (size_t i = 0; i < 3 && i < BUTTERFLY_NUM_LEDS; i++) {
+                pixels[i] = make_rgb((uint8_t)(((uint16_t)brt * 40) / 100), brt, 0);
+            }
+        } else if (soc >= 25) {
+            // 2 wings orange
+            for (size_t i = 0; i < 2 && i < BUTTERFLY_NUM_LEDS; i++) {
+                pixels[i] = make_rgb(brt, (uint8_t)(((uint16_t)brt * 30) / 100), 0);
+            }
+        } else {
+            // 1 wing red
+            if (BUTTERFLY_NUM_LEDS > 0) {
+                pixels[0] = make_rgb(brt, 0, 0);
+            }
+        }
+        update_leds(pixels);
+        return;
     }
 
     struct led_rgb pixels[BUTTERFLY_NUM_LEDS];
@@ -273,7 +266,6 @@ void butterfly_show_battery(void) {
     }
     boot_anim_done = true;
     is_battery_gauge = true;
-    battery_gauge_end_time = k_uptime_get() + 3000;
     k_work_reschedule(&butterfly_work, K_NO_WAIT);
 }
 
@@ -307,19 +299,31 @@ static int butterfly_event_listener(const zmk_event_t *eh) {
 
     const struct zmk_position_state_changed *pos_ev = as_zmk_position_state_changed(eh);
     if (pos_ev != NULL) {
-        if (!pos_ev->state) {
-            return 0;
-        }
         boot_anim_done = true;
 
-        if (zmk_keymap_layer_active(FN_LAYER_INDEX) || zmk_keymap_layer_active(TRI_LAYER_INDEX)) {
-            if (pos_ev->position == B_KEY_POSITION) {
-                butterfly_show_battery();
-                return 0;
-            } else if (pos_ev->position == P_KEY_POSITION) {
-                preonic_type_battery_status();
-                return 0;
+        if (pos_ev->state) {
+            // Key press
+            if (zmk_keymap_layer_active(FN_LAYER_INDEX) || zmk_keymap_layer_active(TRI_LAYER_INDEX)) {
+                if (pos_ev->position == B_KEY_POSITION) {
+                    butterfly_show_battery();
+                    return 0;
+                } else if (pos_ev->position == P_KEY_POSITION) {
+                    preonic_type_battery_status();
+                    return 0;
+                }
             }
+        } else {
+            // Key release: if battery gauge is currently showing, turn off immediately on B release or layer exit
+            if (is_battery_gauge) {
+                if (pos_ev->position == B_KEY_POSITION ||
+                    (!zmk_keymap_layer_active(FN_LAYER_INDEX) && !zmk_keymap_layer_active(TRI_LAYER_INDEX))) {
+                    is_battery_gauge = false;
+                    state_change_time = k_uptime_get();
+                    k_work_reschedule(&butterfly_work, K_NO_WAIT);
+                    return 0;
+                }
+            }
+            return 0;
         }
     }
 

@@ -110,11 +110,11 @@
             label = "Function";
             bindings = <
                                                                                                               &trans  &trans  &trans
-&out OUT_TOG  &bt_sel_0     &bt_sel_1     &bt_sel_2     &bt_sel_3       &trans        &trans  &trans  &trans  &trans  &trans  &trans
-&trans        &trans        &trans        &trans        &trans          &trans        &trans  &trans  &trans  &trans  &none   &trans
-&trans        &trans        &trans        &trans        &trans          &trans        &trans  &trans  &trans  &trans  &trans  &trans
-&trans        &trans        &trans        &none         &trans          &none         &trans  &trans  &trans  &trans  &trans  &trans
-&bootloader   &trans        &trans        &trans        &studio_unlock  &trans                &trans  &trans  &trans  &trans  &bt BT_CLR
+&out OUT_TOG  &bt_sel_0       &bt_sel_1     &bt_sel_2     &bt_sel_3       &trans        &trans  &trans  &trans  &trans  &trans  &trans
+&trans        &trans          &trans        &trans        &trans          &trans        &trans  &trans  &trans  &trans  &none   &trans
+&trans        &trans          &trans        &trans        &trans          &trans        &trans  &trans  &trans  &trans  &trans  &trans
+&trans        &studio_unlock  &trans        &none         &trans          &none         &trans  &trans  &trans  &trans  &trans  &trans
+&bootloader   &trans          &trans        &trans        &trans          &trans                &trans  &trans  &trans  &trans  &bt BT_CLR
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOLUME_UP C_VOLUME_DOWN>;
@@ -124,11 +124,11 @@
             label = "TriFunction";
             bindings = <
                                                                                                               &trans  &trans  &trans
-&out OUT_TOG  &bt_sel_0     &bt_sel_1     &bt_sel_2     &bt_sel_3       &trans        &trans  &trans  &trans  &trans  &trans  &trans
-&trans        &trans        &trans        &trans        &trans          &trans        &trans  &trans  &trans  &trans  &none   &trans
-&trans        &trans        &trans        &trans        &trans          &trans        &trans  &trans  &trans  &trans  &trans  &trans
-&trans        &trans        &trans        &none         &trans          &none         &trans  &trans  &trans  &trans  &trans  &trans
-&bootloader   &trans        &trans        &trans        &studio_unlock  &trans                &trans  &trans  &trans  &trans  &bt BT_CLR
+&out OUT_TOG  &bt_sel_0       &bt_sel_1     &bt_sel_2     &bt_sel_3       &trans        &trans  &trans  &trans  &trans  &trans  &trans
+&trans        &trans          &trans        &trans        &trans          &trans        &trans  &trans  &trans  &trans  &none   &trans
+&trans        &trans          &trans        &trans        &trans          &trans        &trans  &trans  &trans  &trans  &trans  &trans
+&trans        &studio_unlock  &trans        &none         &trans          &none         &trans  &trans  &trans  &trans  &trans  &trans
+&bootloader   &trans          &trans        &trans        &trans          &trans                &trans  &trans  &trans  &trans  &bt BT_CLR
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOLUME_UP C_VOLUME_DOWN>;

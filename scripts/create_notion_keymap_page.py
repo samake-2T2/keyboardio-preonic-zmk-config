@@ -328,13 +328,13 @@ def create_keymap_page():
         ),
         callout_block([
             rt("🔋 배터리 상태 확인 시스템 (듀얼 모니터링):\n", bold=True, color="green"),
-            rt("1. 오디오 비프음 게이지 (Fn + B):\n", bold=True),
-            rt("   • 누를 때마다 현재 배터리 전압 구간을 경쾌한 멜로디로 청각 안내합니다.\n"),
+            rt("1. 나비 LED & 오디오 비프음 게이지 (Fn + B):\n", bold=True),
+            rt("   • "),
+            rt("누르고 있는 동안만 표시(Hold)", bold=True, color="orange"),
+            rt(": Fn+B를 누르고 있는 동안 나비 날개 LED에 배터리 잔량 단계가 표시되며, 손을 떼면 즉시 원래 상태(USB 화이트/BLE 블루)로 복귀합니다.\n"),
+            rt("   • LED 날개 표시: ≥75% 4개(초록) / 50~74% 3개(라임) / 25~49% 2개(주황) / <25% 1개(빨강)\n"),
             rt("   • ≤15%: 저음 경고음 3회 연속 (15% 진입 시 1회 자동 경고 비프음 발생)\n", color="red"),
-            rt("   • 16% ~ 39%: 단음 1회 (도)\n"),
-            rt("   • 40% ~ 69%: 2중음 (도 - 미)\n"),
-            rt("   • 70% ~ 89%: 3중음 팡파르 (도 - 미 - 솔)\n"),
-            rt("   • ≥90%: 4중음 상승 아르페지오 (도 - 미 - 솔 - 높은도)\n\n"),
+            rt("   • 16% ~ 39%: 단음 1회 (도) / 40% ~ 69%: 2중음 (도 - 미) / 70% ~ 89%: 3중음 / ≥90%: 4중음 아르페지오\n\n"),
             rt("2. 텍스트 백분율 자동 타이퍼 (Fn + P):\n", bold=True),
             rt("   • 현재 배터리 잔량을 화면 커서 위치에 ", bold=True),
             rt("XX%", bold=True, color="orange"),
@@ -347,18 +347,25 @@ def create_keymap_page():
             rt("• On 전환 시 상승 알림음, Off 전환 시 하강 알림음이 울립니다.")
         ], emoji="🔊", color="gray_background"),
         callout_block([
-            rt("📡 블루투스(BLE) 및 출력 모드 제어:\n", bold=True, color="blue"),
+            rt("📡 블루투스(BLE) 및 USB 유무선 제어:\n", bold=True, color="blue"),
             rt("• Fn + Q / W / E: ", bold=True), rt("BLE 프로필 1, 2, 3번 즉시 전환\n"),
             rt("• Fn + T: ", bold=True), rt("현재 활성화된 프로필의 BLE 페어링 정보 초기화 (&bt BT_CLR)\n"),
-            rt("• Fn + Y: ", bold=True), rt("USB 유선 출력과 블루투스 무선 출력 모드 수동 토글 (&out OUT_TOG)")
+            rt("• Fn + Y: ", bold=True), rt("USB 유선 출력과 블루투스 무선 출력 모드 수동 토글 (&out OUT_TOG)\n"),
+            rt("• 나비 LED 색상: USB 모드는 화이트(White), BLE 모드는 블루(Cyan/Blue)로 점등되어 배터리 게이지와 확실히 구별됩니다.")
         ], emoji="📡", color="gray_background"),
         callout_block([
-            rt("⚠️ 부트로더 진입 (Fn + LCtrl):\n", bold=True, color="orange"),
+            rt("🛠️ 부트로더 진입 (Fn + LCtrl):\n", bold=True, color="orange"),
             rt("• 하단 좌측의 LCtrl 키 위치를 누르면 즉시 "),
             rt("UF2 펌웨어 드라이브 모드로 재기동", bold=True, color="orange"),
             rt("합니다.\n"),
-            rt("• 번거롭게 기판 뒷면의 리셋 버튼을 두 번 누르지 않고도 키보드 조합키만으로 신규 펌웨어를 즉시 드래그앤드롭 할 수 있습니다.")
+            rt("• 블루투스 설정 보존: 부트로더 모드 진입 시 기존 블루투스 페어링/설정은 전혀 초기화되지 않고 안전하게 보존됩니다.\n"),
+            rt("• 실수 진입 시 복귀 방법: 키보드 뒷면 리셋 버튼 1회 클릭, 또는 USB 케이블 재연결 / PC 탐색기에서 '꺼내기(Eject)'를 누르면 일반 키보드 모드로 즉시 정상 복귀합니다.")
         ], emoji="🛠️", color="orange_background"),
+        callout_block([
+            rt("🔓 ZMK Studio 잠금 해제 (Fn + Z):\n", bold=True, color="blue"),
+            rt("• ZMK Studio 웹 앱에서 실시간으로 키맵을 편집할 수 있도록 키보드 보안 잠금을 해제(&studio_unlock)합니다.\n"),
+            rt("• 레이어 키(Lower)와의 중복 간섭을 방지하기 위해 Z 키 위치에 안전하게 독립 배치되었습니다.")
+        ], emoji="🔓", color="gray_background"),
         divider_block()
     ]
 
@@ -375,9 +382,9 @@ def create_keymap_page():
                 [rt("동작 설명", bold=True)]
             ]),
             table_row_block([
-                [rt("배터리 청각 확인", bold=True)],
-                [rt("Fn + B", code=True)],
-                "오디오 비프음으로 배터리 구간 알림 (15% 이하 시 3회 경고음)"
+                [rt("배터리 청각/시각 확인", bold=True)],
+                [rt("Fn + B (Hold)", code=True)],
+                "누르고 있는 동안 나비 날개 LED에 잔량 표시 및 비프음 재생"
             ]),
             table_row_block([
                 [rt("배터리 화면 출력", bold=True)],
@@ -392,7 +399,12 @@ def create_keymap_page():
             table_row_block([
                 [rt("부트로더 모드", bold=True)],
                 [rt("Fn + LCtrl", code=True)],
-                "펌웨어 업데이트용 UF2 드라이브 진입"
+                "펌웨어 업데이트용 UF2 드라이브 진입 (블루투스 설정 보존)"
+            ]),
+            table_row_block([
+                [rt("ZMK Studio 잠금 해제", bold=True)],
+                [rt("Fn + Z", code=True)],
+                "실시간 키맵 수정 웹 앱 보안 잠금 해제"
             ]),
             table_row_block([
                 [rt("BLE 프로필 전환", bold=True)],

@@ -57,12 +57,12 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
   * `Grave` position: `&out OUT_TOG` (Toggle between USB and BLE output)
   * `1` ~ `4`: `&bt BT_SEL 0` ~ `&bt BT_SEL 3` (Select Bluetooth profiles 0 to 3, max 4 devices)
 * **Alphabet Rows**:
+  * `Z` position: `&studio_unlock` (Unlock ZMK Studio)
   * `C` position: **Audio Clicky Toggle** (`Fn + C` toggles typing click sound on/off; high tone for ON, low tone for OFF)
-  * `B` position: **Butterfly Battery Gauge** (`Fn + B` shows 4-level LED battery gauge for 3 seconds; beeps if <= 15%)
+  * `B` position: **Butterfly Battery Gauge** (`Fn + B` shows 4-level LED battery gauge while held; beeps if <= 15%)
   * `P` position: **Battery Status Typer** (`Fn + P` types out `"XX%"`)
 * **Bottom Row**:
   * `LCTRL` position: `&bootloader` (Enter DFU bootloader mode)
-  * `Lower` position: `&studio_unlock` (Unlock ZMK Studio)
   * `Right` position: `&bt BT_CLR` (Clear current Bluetooth bonding)
 
 ---
@@ -152,12 +152,12 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
   * `Grave` 자리: **`&out OUT_TOG`** (USB 유선 / 블루투스 무선 출력 모드 전환)
   * `1 ~ 4` 자리: **`&bt BT_SEL 0 ~ 3`** (블루투스 기기 프로필 0번 ~ 3번, 총 4대 선택)
 * **알파벳 행**:
+  * `Z` 자리: **`&studio_unlock`** (ZMK Studio 잠금 해제)
   * `C` 자리: **오디오 클릭키 On/Off 토글** (`Fn + C` 입력 시 타이핑 클릭 소리를 켜고 끄며, 켤 때 높은 톤 / 끌 때 낮은 톤 확인음 제공)
-  * `B` 자리: **나비 배터리 게이지** (`Fn + B` 입력 시 3초간 4단계 나비 LED 잔량 게이지 표시, 15% 이하 시 경고 비프음 출력)
+  * `B` 자리: **나비 배터리 게이지** (`Fn + B` 누르고 있는 동안 4단계 나비 LED 잔량 게이지 표시, 15% 이하 시 경고 비프음 출력)
   * `P` 자리: **배터리 잔량 자동 타이핑** (`Fn + P` 입력 시 `"XX%"` 텍스트 자동 타이핑)
 * **하단 행**:
   * `LCTRL` 자리: **`&bootloader`** (USB 외장 드라이브 부트로더 모드 진입)
-  * `Lower` 자리: **`&studio_unlock`** (ZMK Studio 잠금 해제)
   * `Right` 자리: **`&bt BT_CLR`** (현재 연결된 블루투스 페어링 정보 삭제)
 
 ---
