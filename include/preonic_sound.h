@@ -13,11 +13,6 @@ extern "C" {
 #endif
 
 /**
- * @brief Initialize piezo sound subsystem.
- */
-int preonic_sound_init(void);
-
-/**
  * @brief Play a single tone with specified frequency and duration.
  *
  * @param freq_hz Frequency in Hertz (0 to stop)
