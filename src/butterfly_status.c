@@ -229,8 +229,17 @@ static void butterfly_work_handler(struct k_work *work) {
         bool is_dimmed = (CONFIG_BUTTERFLY_TIMEOUT_MS > 0 && elapsed >= CONFIG_BUTTERFLY_TIMEOUT_MS);
         uint8_t brt = is_dimmed ? (uint8_t)CONFIG_BUTTERFLY_DIM_BRIGHTNESS : (uint8_t)CONFIG_BUTTERFLY_BRIGHTNESS;
 
+#if defined(CONFIG_BUTTERFLY_USB_COLOR_PURPLE)
+        struct led_rgb usb_color = make_rgb((uint8_t)(((uint16_t)brt * 80) / 100), 0, brt);
+#elif defined(CONFIG_BUTTERFLY_USB_COLOR_CYAN)
+        struct led_rgb usb_color = make_rgb(0, brt, brt);
+#else
+        // Clean White by default to avoid overlapping with battery gauge (Green/Lime/Orange/Red)
+        struct led_rgb usb_color = make_rgb(brt, brt, brt);
+#endif
+
         for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
-            pixels[i] = make_rgb(0, brt, 0);
+            pixels[i] = usb_color;
         }
         update_leds(pixels);
 

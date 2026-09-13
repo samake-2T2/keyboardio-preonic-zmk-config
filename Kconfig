@@ -44,6 +44,29 @@ config BUTTERFLY_BOOT_ANIM_MS
 	help
 	  Duration of the warm amber breathing animation on the 4 butterfly LEDs upon boot.
 
+choice BUTTERFLY_USB_COLOR
+	prompt "USB mode indicator LED color"
+	default BUTTERFLY_USB_COLOR_WHITE
+	help
+	  Select the LED color used when connected or outputting via USB.
+
+config BUTTERFLY_USB_COLOR_WHITE
+	bool "Clean White"
+	help
+	  Clean White color for USB mode (R=brt, G=brt, B=brt). Distinct from green battery.
+
+config BUTTERFLY_USB_COLOR_PURPLE
+	bool "Purple / Magenta"
+	help
+	  Purple color for USB mode (R=0.8*brt, G=0, B=brt).
+
+config BUTTERFLY_USB_COLOR_CYAN
+	bool "Cyan / Ice Blue"
+	help
+	  Cyan color for USB mode (R=0, G=brt, B=brt).
+
+endchoice
+
 endif # KEYBOARDIO_BUTTERFLY_STATUS
 
 menuconfig KEYBOARDIO_PREONIC_SOUND
