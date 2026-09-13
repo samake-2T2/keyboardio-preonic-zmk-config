@@ -31,6 +31,11 @@ void preonic_sound_stop(void);
 void preonic_sound_play_coin(void);
 
 /**
+ * @brief Play low battery double-beep warning sequence (1500Hz).
+ */
+void preonic_sound_play_low_battery_warning(void);
+
+/**
  * @brief Play short audio clicky pulse.
  */
 void preonic_sound_play_click(void);

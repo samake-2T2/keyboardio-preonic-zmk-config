@@ -39,6 +39,9 @@ enum sound_state {
     SOUND_STATE_TOGGLE_TONE,
     SOUND_STATE_COIN_B5,
     SOUND_STATE_COIN_E6,
+    SOUND_STATE_LOW_BATT_1,
+    SOUND_STATE_LOW_BATT_PAUSE,
+    SOUND_STATE_LOW_BATT_2,
     SOUND_STATE_CUSTOM_TONE,
 };
 
@@ -74,6 +77,21 @@ static void sound_work_handler(struct k_work *work) {
         k_work_reschedule(&sound_work, K_MSEC(350));
         break;
 
+    case SOUND_STATE_LOW_BATT_1:
+        // Pause between beeps (80ms)
+        current_sound_state = SOUND_STATE_LOW_BATT_PAUSE;
+        set_tone(0);
+        k_work_reschedule(&sound_work, K_MSEC(80));
+        break;
+
+    case SOUND_STATE_LOW_BATT_PAUSE:
+        // 2nd beep: 1500Hz for 100ms
+        current_sound_state = SOUND_STATE_LOW_BATT_2;
+        set_tone(1500);
+        k_work_reschedule(&sound_work, K_MSEC(100));
+        break;
+
+    case SOUND_STATE_LOW_BATT_2:
     case SOUND_STATE_COIN_E6:
     case SOUND_STATE_CLICKY:
     case SOUND_STATE_TOGGLE_TONE:
@@ -115,12 +133,24 @@ void preonic_sound_play_coin(void) {
     k_work_reschedule(&sound_work, K_MSEC(65));
 }
 
+void preonic_sound_play_low_battery_warning(void) {
+    if (!device_is_ready(pwm_dev)) {
+        return;
+    }
+    // 1st beep: 1500Hz for 100ms
+    current_sound_state = SOUND_STATE_LOW_BATT_1;
+    set_tone(1500);
+    k_work_reschedule(&sound_work, K_MSEC(100));
+}
+
 void preonic_sound_play_click(void) {
     if (!clicky_enabled || !device_is_ready(pwm_dev)) {
         return;
     }
-    // Do not interrupt Mario Coin greeting sequence
-    if (current_sound_state == SOUND_STATE_COIN_B5 || current_sound_state == SOUND_STATE_COIN_E6) {
+    // Do not interrupt Mario Coin or Low Battery warning sequence
+    if (current_sound_state == SOUND_STATE_COIN_B5 || current_sound_state == SOUND_STATE_COIN_E6 ||
+        current_sound_state == SOUND_STATE_LOW_BATT_1 || current_sound_state == SOUND_STATE_LOW_BATT_PAUSE ||
+        current_sound_state == SOUND_STATE_LOW_BATT_2) {
         return;
     }
     current_sound_state = SOUND_STATE_CLICKY;
