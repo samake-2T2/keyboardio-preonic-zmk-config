@@ -11,16 +11,23 @@
 #include <zephyr/logging/log.h>
 
 #include <zmk/activity.h>
+#include <zmk/battery.h>
 #include <zmk/ble.h>
 #include <zmk/endpoints.h>
 #include <zmk/event_manager.h>
 #include <zmk/events/activity_state_changed.h>
+#include <zmk/events/battery_state_changed.h>
 #include <zmk/events/ble_active_profile_changed.h>
 #include <zmk/events/endpoint_changed.h>
 #include <zmk/events/usb_conn_state_changed.h>
 #include <zmk/events/position_state_changed.h>
+#include <zmk/keymap.h>
 
 #include "butterfly_status.h"
+#include "battery_typer.h"
+#if IS_ENABLED(CONFIG_KEYBOARDIO_PREONIC_SOUND)
+#include "preonic_sound.h"
+#endif
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
@@ -42,6 +49,11 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #define BOOT_ANIM_FRAME_MS 20
 
+#define FN_LAYER_INDEX 3
+#define TRI_LAYER_INDEX 4
+#define B_KEY_POSITION 44
+#define P_KEY_POSITION 25
+
 static const struct device *const strip_dev = DEVICE_DT_GET(BUTTERFLY_NODE);
 
 static struct k_work_delayable butterfly_work;
@@ -50,6 +62,10 @@ static int64_t boot_start_time = 0;
 static bool boot_anim_done = false;
 static bool blink_state = false;
 static enum zmk_activity_state current_activity = ZMK_ACTIVITY_ACTIVE;
+
+static bool is_battery_gauge = false;
+static int64_t battery_gauge_end_time = 0;
+static bool low_battery_warned = false;
 
 static inline struct led_rgb make_rgb(uint8_t r, uint8_t g, uint8_t b) {
     return (struct led_rgb){ .r = r, .g = g, .b = b };
@@ -73,6 +89,7 @@ static void set_all_off(void) {
 static void butterfly_work_handler(struct k_work *work) {
     if (current_activity == ZMK_ACTIVITY_SLEEP) {
         boot_anim_done = true;
+        is_battery_gauge = false;
         set_all_off();
         return;
     }
@@ -109,6 +126,45 @@ static void butterfly_work_handler(struct k_work *work) {
         state_change_time = k_uptime_get();
     }
 #endif
+
+    if (is_battery_gauge) {
+        int64_t remaining = battery_gauge_end_time - k_uptime_get();
+        if (remaining > 0) {
+            uint8_t soc = zmk_battery_state_of_charge();
+            uint8_t brt = (uint8_t)CONFIG_BUTTERFLY_BRIGHTNESS;
+            struct led_rgb pixels[BUTTERFLY_NUM_LEDS];
+            for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
+                pixels[i] = make_rgb(0, 0, 0);
+            }
+
+            if (soc >= 75) {
+                // 4 wings green
+                for (size_t i = 0; i < 4 && i < BUTTERFLY_NUM_LEDS; i++) {
+                    pixels[i] = make_rgb(0, brt, 0);
+                }
+            } else if (soc >= 50) {
+                // 3 wings lime green
+                for (size_t i = 0; i < 3 && i < BUTTERFLY_NUM_LEDS; i++) {
+                    pixels[i] = make_rgb((uint8_t)(((uint16_t)brt * 40) / 100), brt, 0);
+                }
+            } else if (soc >= 25) {
+                // 2 wings orange
+                for (size_t i = 0; i < 2 && i < BUTTERFLY_NUM_LEDS; i++) {
+                    pixels[i] = make_rgb(brt, (uint8_t)(((uint16_t)brt * 30) / 100), 0);
+                }
+            } else {
+                // 1 wing red
+                if (BUTTERFLY_NUM_LEDS > 0) {
+                    pixels[0] = make_rgb(brt, 0, 0);
+                }
+            }
+            update_leds(pixels);
+            k_work_reschedule(&butterfly_work, K_MSEC(remaining + 5));
+            return;
+        }
+        is_battery_gauge = false;
+        state_change_time = k_uptime_get();
+    }
 
     struct led_rgb pixels[BUTTERFLY_NUM_LEDS];
     for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
@@ -192,8 +248,23 @@ static void butterfly_work_handler(struct k_work *work) {
 }
 
 void butterfly_status_refresh(void) {
-    state_change_time = k_uptime_get();
-    blink_state = false;
+    if (!is_battery_gauge) {
+        state_change_time = k_uptime_get();
+        blink_state = false;
+    }
+    k_work_reschedule(&butterfly_work, K_NO_WAIT);
+}
+
+void butterfly_show_battery(void) {
+    uint8_t soc = zmk_battery_state_of_charge();
+    if (soc <= 15) {
+#if IS_ENABLED(CONFIG_KEYBOARDIO_PREONIC_SOUND)
+        preonic_sound_play_low_battery_warning();
+#endif
+    }
+    boot_anim_done = true;
+    is_battery_gauge = true;
+    battery_gauge_end_time = k_uptime_get() + 3000;
     k_work_reschedule(&butterfly_work, K_NO_WAIT);
 }
 
@@ -202,10 +273,27 @@ static int butterfly_event_listener(const zmk_event_t *eh) {
     if (act_ev != NULL) {
         current_activity = act_ev->state;
         if (current_activity == ZMK_ACTIVITY_SLEEP) {
+            is_battery_gauge = false;
             k_work_cancel_delayable(&butterfly_work);
             set_all_off();
             return 0;
         }
+    }
+
+    struct zmk_battery_state_changed *batt_ev = as_zmk_battery_state_changed(eh);
+    if (batt_ev != NULL) {
+        uint8_t soc = batt_ev->state_of_charge;
+        if (soc <= 15) {
+            if (!low_battery_warned) {
+                low_battery_warned = true;
+#if IS_ENABLED(CONFIG_KEYBOARDIO_PREONIC_SOUND)
+                preonic_sound_play_low_battery_warning();
+#endif
+            }
+        } else if (soc >= 20) {
+            low_battery_warned = false;
+        }
+        return 0;
     }
 
     const struct zmk_position_state_changed *pos_ev = as_zmk_position_state_changed(eh);
@@ -214,6 +302,16 @@ static int butterfly_event_listener(const zmk_event_t *eh) {
             return 0;
         }
         boot_anim_done = true;
+
+        if (zmk_keymap_layer_active(FN_LAYER_INDEX) || zmk_keymap_layer_active(TRI_LAYER_INDEX)) {
+            if (pos_ev->position == B_KEY_POSITION) {
+                butterfly_show_battery();
+                return 0;
+            } else if (pos_ev->position == P_KEY_POSITION) {
+                preonic_type_battery_status();
+                return 0;
+            }
+        }
     }
 
     butterfly_status_refresh();
@@ -232,6 +330,7 @@ ZMK_SUBSCRIPTION(butterfly_status, zmk_usb_conn_state_changed);
 #endif
 ZMK_SUBSCRIPTION(butterfly_status, zmk_position_state_changed);
 ZMK_SUBSCRIPTION(butterfly_status, zmk_activity_state_changed);
+ZMK_SUBSCRIPTION(butterfly_status, zmk_battery_state_changed);
 
 static int butterfly_init(void) {
     k_work_init_delayable(&butterfly_work, butterfly_work_handler);
@@ -241,6 +340,12 @@ static int butterfly_init(void) {
 #else
     boot_anim_done = true;
 #endif
+
+    uint8_t initial_soc = zmk_battery_state_of_charge();
+    if (initial_soc <= 15 && initial_soc > 0) {
+        low_battery_warned = true;
+    }
+
     butterfly_status_refresh();
     return 0;
 }

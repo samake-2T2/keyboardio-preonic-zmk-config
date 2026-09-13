@@ -8,3 +8,4 @@
 #include <zephyr/kernel.h>
 
 void butterfly_status_refresh(void);
+void butterfly_show_battery(void);

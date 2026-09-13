@@ -25,6 +25,10 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
 * **Full NKRO**: N-Key Rollover enabled for simultaneous keypress accuracy.
 * **RGB Underglow**: Keyboardio butterfly logo illuminated on startup with signature cyan breathing effect (`HSV: 195, 100, 100`).
 * **Piezo Sound System**: Hardware PWM-driven onboard piezo buzzer playing a signature Super Mario coin chime on cold boot and crisp 5ms audio clicky feedback on keystrokes.
+* **Battery Monitoring System**:
+  * **`Fn + B` 4-Level Butterfly Gauge**: Displays battery level across the 4 butterfly wing LEDs for 3 seconds (75-100%: 4 Green, 50-74%: 3 Lime Green, 25-49%: 2 Orange, 0-24%: 1 Red). If battery is <= 15%, simultaneously emits a warning beep.
+  * **Smart Low-Battery Alert**: Automatically sounds a 1500Hz double-beep warning once when battery first drops to <= 15% during use. Suppresses repeated alerts (only beeps on manual `Fn + B` afterwards) and resets once recharged to >= 20%.
+  * **`Fn + P` Async Battery Typer**: Types out current battery status smoothly (e.g. `"Battery: 82%"`) via asynchronous HID keystrokes without blocking key scanning or dropping characters.
 * **Mouse Emulation (ZMK Pointing)**: Integrated mouse cursor movement, clicking, and scrolling on the Raise layer.
 * **Decoupled Tri-Layer & Dedicated Fn**: Enter the Function layer either via the dedicated top-middle `Fn` key (`&mo L_FN`) or by holding `Lower` and `Raise` simultaneously without conflict.
 * **GUI Configurator Compatibility**:
@@ -54,6 +58,8 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
   * `1` ~ `4`: `&bt BT_SEL 0` ~ `&bt BT_SEL 3` (Select Bluetooth profiles 0 to 3, max 4 devices)
 * **Alphabet Rows**:
   * `C` position: **Audio Clicky Toggle** (`Fn + C` toggles typing click sound on/off; high tone for ON, low tone for OFF)
+  * `B` position: **Butterfly Battery Gauge** (`Fn + B` shows 4-level LED battery gauge for 3 seconds; beeps if <= 15%)
+  * `P` position: **Battery Status Typer** (`Fn + P` types out `"Battery: XX%"`)
 * **Bottom Row**:
   * `LCTRL` position: `&bootloader` (Enter DFU bootloader mode)
   * `Lower` position: `&studio_unlock` (Unlock ZMK Studio)
@@ -114,6 +120,10 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 * **NKRO 완벽 지원**: 무한 동시 입력(N-Key Rollover) 지원.
 * **Keyboardio 나비 로고 RGB 언더글로우**: 부팅 시 시그니처 스카이블루 숨쉬기(Cyan Breathing, `HSV: 195, 100, 100`) 효과 자동 점등.
 * **피에조 사운드 시스템 (Piezo Sound)**: 하드웨어 PWM0 기반으로 부팅 시 슈퍼마리오 코인 획득 멜로디를 재생하며, 타이핑 시 5ms 초저지연 기계식 오디오 클릭키(Audio Clicky) 사운드 제공.
+* **배터리 상태 모니터링 시스템**:
+  * **`Fn + B` 나비 날개 4단계 LED 게이지**: 3초간 4개 나비 날개 LED로 배터리 잔량을 시각화 표시 (75~100%: 4개 초록, 50~74%: 3개 연두, 25~49%: 2개 주황, 0~24%: 1개 빨강). 잔량이 15% 이하인 경우 1500Hz 경고 비프음 동시 출력.
+  * **스마트 저배터리 경고음**: 사용 중 배터리가 최초 15% 이하로 떨어지면 1500Hz 더블 비프음으로 1회 자동 경고. 이후 반복 비프를 억제하고 수동(`Fn + B`) 확인 시에만 경고음을 울리며, 충전하여 20% 이상 도달 시 플래그 자동 리셋.
+  * **`Fn + P` 배터리 잔량 비동기 자동 타이핑**: 현재 배터리 상태(예: `"Battery: 82%"`)를 비동기 HID 키 입력으로 매끄럽게 자동 타이핑 (글자 씹힘 및 키 스캔 지연 제로).
 * **마우스 에뮬레이션 (ZMK Pointing)**: Raise 레이어에서 마우스 커서 이동, 클릭, 휠 스크롤 지원.
 * **트라이 레이어 및 독립 Fn 동시 지원 (디커플링)**: 상단 중앙 독립 `Fn` 키(`&mo L_FN`) 진입과 `Lower` + `Raise` 동시 입력을 통한 트라이 레이어 진입을 충돌 없이 완벽히 지원.
 * **웹 GUI 도구 완벽 호환**:
@@ -143,6 +153,8 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
   * `1 ~ 4` 자리: **`&bt BT_SEL 0 ~ 3`** (블루투스 기기 프로필 0번 ~ 3번, 총 4대 선택)
 * **알파벳 행**:
   * `C` 자리: **오디오 클릭키 On/Off 토글** (`Fn + C` 입력 시 타이핑 클릭 소리를 켜고 끄며, 켤 때 높은 톤 / 끌 때 낮은 톤 확인음 제공)
+  * `B` 자리: **나비 배터리 게이지** (`Fn + B` 입력 시 3초간 4단계 나비 LED 잔량 게이지 표시, 15% 이하 시 경고 비프음 출력)
+  * `P` 자리: **배터리 잔량 자동 타이핑** (`Fn + P` 입력 시 `"Battery: XX%"` 텍스트 자동 타이핑)
 * **하단 행**:
   * `LCTRL` 자리: **`&bootloader`** (USB 외장 드라이브 부트로더 모드 진입)
   * `Lower` 자리: **`&studio_unlock`** (ZMK Studio 잠금 해제)
@@ -190,8 +202,8 @@ Keyboardio Preonic 상단 중앙의 나비 로고에는 4개의 어드레서블 
 ├── .github/workflows/build.yml   # GitHub Actions 빌드 자동화 워크플로우
 ├── CMakeLists.txt                # Zephyr 빌드 타겟 및 소스 등록
 ├── Kconfig                       # 나비 인디케이터 Kconfig 메뉴 및 옵션 정의
-├── include/                      # 나비 상태 표시기 C 헤더 파일
-├── src/                          # 나비 상태 표시기 C 소스 (butterfly_status.c)
+├── include/                      # C 헤더 파일 (butterfly_status, preonic_sound, battery_typer)
+├── src/                          # C 소스 파일 (butterfly_status, preonic_sound, battery_typer)
 ├── boards/keyboardio/            # Keyboardio Preonic 보드 및 DTS 정의
 ├── config/
 │   ├── keyboardio_preonic.keymap # 5단계 레이어 키 매핑 정의 (Base, Lower, Raise, Function, Tri)
