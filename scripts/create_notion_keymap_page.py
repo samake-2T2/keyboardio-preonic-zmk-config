@@ -1,16 +1,17 @@
 import os
+import time
 import json
 import urllib.request
 import urllib.error
 
 NOTION_API_TOKEN = os.environ.get("NOTION_API_TOKEN")
+TARGET_PAGE_ID = os.environ.get("NOTION_PAGE_ID", "3db96981-2b85-817b-adc0-c8a46d3ddfee")
 PARENT_PAGE_ID = os.environ.get("NOTION_PARENT_PAGE_ID", "3d696981-2b85-802f-931b-cddb91fe1cea")
-TARGET_PAGE_ID = os.environ.get("NOTION_PAGE_ID")
 NOTION_VERSION = "2025-09-03"
 
 GITHUB_IMG_BASE = "https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/master/docs/images"
 
-def notion_request(url, method="GET", data=None):
+def notion_request(url, method="GET", data=None, retries=5):
     headers = {
         "Authorization": f"Bearer {NOTION_API_TOKEN}",
         "Notion-Version": NOTION_VERSION,
@@ -22,13 +23,38 @@ def notion_request(url, method="GET", data=None):
         method=method,
         data=json.dumps(data).encode("utf-8") if data else None
     )
-    try:
-        with urllib.request.urlopen(req) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        err_msg = e.read().decode("utf-8")
-        print(f"HTTPError {e.code}: {err_msg}")
-        raise
+    for attempt in range(retries):
+        try:
+            with urllib.request.urlopen(req) as resp:
+                res_body = resp.read().decode("utf-8")
+                return json.loads(res_body) if res_body else {}
+        except urllib.error.HTTPError as e:
+            if e.code == 429:
+                retry_after = int(e.headers.get("Retry-After", 1))
+                print(f"Rate limited (429), retrying after {retry_after}s...")
+                time.sleep(retry_after)
+                continue
+            err_msg = e.read().decode("utf-8")
+            print(f"HTTPError {e.code}: {err_msg}")
+            raise
+
+def clear_page_children(page_id):
+    print(f"Clearing existing child blocks for page {page_id}...")
+    deleted_count = 0
+    while True:
+        resp = notion_request(f"https://api.notion.com/v1/blocks/{page_id}/children?page_size=100")
+        results = resp.get("results", [])
+        if not results:
+            break
+        print(f"Found {len(results)} blocks to delete...")
+        for b in results:
+            bid = b["id"]
+            notion_request(f"https://api.notion.com/v1/blocks/{bid}", method="DELETE")
+            deleted_count += 1
+            time.sleep(0.15)
+        if not resp.get("has_more"):
+            break
+    print(f"Successfully deleted {deleted_count} old blocks.")
 
 def rt(content, bold=False, italic=False, code=False, color="default", link=None):
     return {
@@ -137,26 +163,26 @@ def table_block(rows, table_width=3, has_column_header=True):
         }
     }
 
-def create_keymap_page():
+def update_or_create_keymap_page():
     initial_blocks = [
         callout_block([
             rt("본 문서는 ", bold=True),
             rt("Keyboardio Preonic (nRF52840)", bold=True, color="blue"),
-            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드입니다.\n\n"),
+            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드 (v1.5.2)입니다.\n\n"),
             rt("특징 요약:\n", bold=True),
             rt("• 레이아웃: ", bold=True),
             rt("5x12 직교(Ortholinear) 배열 + "),
             rt("중앙 2U 스페이스바", bold=True, color="orange"),
-            rt(" (MIT 레이아웃)\n"),
+            rt(" (MIT 레이아웃, 총 62키)\n"),
             rt("• 상단 보조 키: ", bold=True),
             rt("PrtSc 화면 캡처, 독립 Fn 키, "),
-            rt("로터리 인코더(음량/음소거)", bold=True, color="green"),
-            rt("\n• 배터리 모니터링: ", bold=True),
-            rt("비프음 오디오 게이지(구간별 음계 + 15% 저배터리 자동 경고음) & 텍스트 백분율 자동 타이퍼(XX%)\n"),
-            rt("• 피에조 사운드 시스템: ", bold=True),
-            rt("마스터 사운드 On/Off 토글(기본값 OFF 무음, Fn + S), 타건 클릭음(Fn + C), 부팅 코인 차임\n"),
-            rt("• 무선 연결 및 제어: ", bold=True),
-            rt("4-Device 블루투스 멀티페어링(Fn + Q/W/E/R), 마우스 커서/클릭 에뮬레이션, 다이렉트 부트로더 진입\n\n"),
+            rt("로터리 인코더(음량 조절 / 클릭 시 음소거)", bold=True, color="green"),
+            rt("\n• 피에조 사운드 시스템: ", bold=True),
+            rt("마스터 사운드 On/Off 토글(기본값 OFF 무음, Fn + S, GPREGRET2 딥슬립 보존), 절전모드 복귀 부팅음 차단, 타건 클릭음(Fn + C), 부팅 슈퍼마리오 코인 차임\n"),
+            rt("• 배터리 모니터링: ", bold=True),
+            rt("4단계 나비 날개 LED & 오디오 비프음 게이지(Fn + B 누르고 있는 동안 Hold), 스마트 저배터리 자동 경고(15% 이하 시 1회 더블 비프음), 텍스트 백분율 자동 타이퍼(Fn + P로 'XX%' 자동 입력)\n"),
+            rt("• 무선 연결 및 시스템 제어: ", bold=True),
+            rt("4-Device 블루투스 멀티페어링(Fn + 1/2/3/4, 나비 날개 1:1 매핑), USB/BLE 출력 모드 토글(Fn + ~), 좌손 마우스 에뮬레이션, 다이렉트 부트로더 진입(Fn + LCtrl), ZMK Studio 잠금 해제(Fn + Z)\n\n"),
             rt("🔗 GitHub 펌웨어 저장소 바로가기", bold=True, link="https://github.com/samake-2T2/keyboardio-preonic-zmk-config")
         ], emoji="⌨️", color="blue_background"),
         divider_block()
@@ -166,7 +192,9 @@ def create_keymap_page():
         page_id = TARGET_PAGE_ID
         page_url = f"https://notion.so/{TARGET_PAGE_ID.replace('-', '')}"
         print(f"Targeting existing Notion page: {page_id}")
-        # Append initial overview block to existing page
+        # Clear existing old blocks before re-populating with latest content
+        clear_page_children(page_id)
+        print("Appending initial overview blocks...")
         notion_request(f"https://api.notion.com/v1/blocks/{page_id}/children", method="PATCH", data={"children": initial_blocks})
     else:
         print("Creating new Notion page...")
@@ -204,22 +232,22 @@ def create_keymap_page():
             table_row_block([
                 [rt("Layer 0: Base", bold=True, color="blue")],
                 "기본 활성화 (Default)",
-                "QWERTY 알파벳, 한/영 전환, 중앙 2U 스페이스, 로터리 볼륨 노브"
+                "QWERTY 알파벳, 한/영 전환(RAlt), 중앙 2U 스페이스바, 상단 PrtSc/Fn/로터리 볼륨 노브"
             ]),
             table_row_block([
                 [rt("Layer 1: Lower", bold=True, color="brown")],
                 "바텀열 Lower 키 누른 상태 유지 (Hold)",
-                "오른손 3x3 텐키패드(Numpad) + 2U '0' 키, 좌측 문서 네비게이션"
+                "오른손 3x3 텐키패드(Numpad) + 중앙 2U '0' 키, 좌측 문서 편집 및 네비게이션, 상단 F1~F12"
             ]),
             table_row_block([
                 [rt("Layer 2: Raise", bold=True, color="green")],
                 "바텀열 Raise 키 누른 상태 유지 (Hold)",
-                "Shift 특수문자 및 기호류 완비, 오른손 마우스 커서/클릭/휠 제어"
+                "오른손 코딩 특수문자 및 기호류 완비, 좌측 정밀 마우스 커서/클릭/휠 제어, 상단 F1~F12"
             ]),
             table_row_block([
                 [rt("Layer 3: Function & Tri", bold=True, color="purple")],
                 "상단 Fn 키 누름 OR Lower + Raise 동시 입력",
-                "BLE 프로필(1~4), 마스터 사운드 토글(기본 OFF), 클릭 사운드 토글, 배터리 게이지/타이퍼, 부트로더 진입"
+                "BLE 프로필(1~4), 마스터 사운드 토글(기본 OFF), 클릭 사운드 토글, 배터리 게이지/타이퍼, 부트로더 진입, ZMK Studio 잠금 해제"
             ])
         ], table_width=3, has_column_header=True),
         divider_block()
@@ -249,7 +277,7 @@ def create_keymap_page():
             rt("   - Col 10 (Fn): ", bold=True), rt("누르고 있는 동안 Function 레이어(Layer 3) 즉시 활성화\n"),
             rt("   - Col 11 (Rotary Encoder): ", bold=True), rt("노브 클릭 시 음소거(Mute), 시계/반시계 회전 시 볼륨 Up / Down\n"),
             rt("• 모디파이어 키 배치: ", bold=True),
-            rt("Row 3 좌측은 Esc/Caps, Row 4 좌측 LShift, Row 5 좌측 LCtrl, LGui, LAlt 순으로 직관적으로 배치되어 있습니다.")
+            rt("Row 3 좌측은 Esc, Row 4 좌측 LShift, Row 5 좌측 LCtrl, LGui, LAlt, 우측 방향키(←, ↓, ↑, →) 순으로 직관적으로 배치되어 있습니다.")
         ], emoji="⌨️", color="gray_background"),
         divider_block()
     ]
@@ -276,12 +304,12 @@ def create_keymap_page():
             rt("   - 바텀열 중앙 2U 스페이스바 위치가 "),
             rt("대형 2U '0' 키", bold=True, color="orange"),
             rt("로 변환되어 일반 텐키패드와 완전히 동일한 편안한 숫자 입력 지원\n"),
-            rt("   - 사칙연산 키(/, *, -, +) 및 소수점(.), Numpad Enter 완비\n"),
+            rt("   - Col 10에 NumLock, 우측에 추가 0 키 완비\n"),
             rt("• 왼손 문서 편집 및 방향키 네비게이션:\n", bold=True, color="green"),
-            rt("   - Row 2~3: Home, End, Page Up, Page Down, Delete\n"),
+            rt("   - Row 2~3: Home, End, Page Up, Page Down, Insert, Delete, Caps Lock\n"),
             rt("   - 왼손 영역에도 상/하/좌/우 커서 방향키가 매핑되어 있어 오른손 마우스 조작 중 왼손만으로 방향 이동 가능\n"),
-            rt("• 상단 숫자열: ", bold=True),
-            rt("숫자열 전체에 Shift 기호(~, !, @, #, $, %, ^, &, *, (, ))와 Delete 매핑")
+            rt("• 상단 펑션열: ", bold=True),
+            rt("숫자열 전체에 F1 ~ F12 펑션키 완비 (F1~F11 상단열, F12 우측 매핑)")
         ], emoji="🔢", color="gray_background"),
         divider_block()
     ]
@@ -303,17 +331,21 @@ def create_keymap_page():
         ),
         callout_block([
             rt("주요 기능 상세:\n", bold=True),
-            rt("• 코딩 및 문서용 특수 기호 완비:\n", bold=True, color="blue"),
-            rt("   - 중괄호 및 대괄호: {, }, [, ]\n"),
-            rt("   - 연산 및 구분 기호: +, -, =, _, |, ~, `, Backslash\n"),
-            rt("   - 상단 전체에 특수문자 (!, @, #, $, %, ^, &, *, (, )) 배치\n"),
-            rt("• 오른손 정밀 마우스 에뮬레이션 (ZMK Mouse Keys):\n", bold=True, color="purple"),
+            rt("• 왼손 정밀 마우스 에뮬레이션 (ZMK Mouse Keys & Pointer):\n", bold=True, color="purple"),
             rt("   - 커서 이동: ", bold=True),
-            rt("I (상), J (좌), K (하), L (우) - 부드러운 가속 곡선 적용\n"),
+            rt("E (상), S (좌), D (하), F (우) - 부드러운 2차 가속 곡선 적용\n"),
             rt("   - 마우스 클릭: ", bold=True),
-            rt("U (좌클릭 LMB), O (우클릭 RMB), H (휠클릭 MMB)\n"),
+            rt("W (좌클릭 LMB), R (우클릭 RMB), C (휠클릭 MMB)\n"),
             rt("   - 마우스 휠 스크롤: ", bold=True),
-            rt("[ (스크롤 업), ; (스크롤 다운)")
+            rt("Q (휠 위), A (휠 아래), X (휠 좌측), V (휠 우측)\n"),
+            rt("   - 웹 탐색 버튼: ", bold=True),
+            rt("T (앞으로 가기 MB5), G (뒤로 가기 MB4)\n"),
+            rt("• 오른손 코딩 및 문서용 특수 기호 완비:\n", bold=True, color="blue"),
+            rt("   - 대괄호 및 중괄호: [ { (Col 9), ] } (Col 10), { (Row 3 Col 9), } (Row 3 Col 10)\n"),
+            rt("   - 소괄호: ( (Row 4 Col 9), ) (Row 4 Col 10)\n"),
+            rt("   - 연산 및 구분 기호: - _ (Col 7), = + (Col 8), _ (Row 3 Col 7), + (Row 3 Col 8)\n"),
+            rt("• 상단 펑션열: ", bold=True),
+            rt("숫자열 전체에 F1 ~ F12 펑션키 완비")
         ], emoji="🖱️", color="gray_background"),
         divider_block()
     ]
@@ -336,21 +368,6 @@ def create_keymap_page():
             caption_text="Layer 3: Function & Tri-Layer (System, Battery, BLE, Audio Control)"
         ),
         callout_block([
-            rt("🔋 배터리 상태 확인 시스템 (듀얼 모니터링):\n", bold=True, color="green"),
-            rt("1. 나비 LED & 오디오 비프음 게이지 (Fn + B):\n", bold=True),
-            rt("   • "),
-            rt("누르고 있는 동안만 표시(Hold)", bold=True, color="orange"),
-            rt(": Fn+B를 누르고 있는 동안 나비 날개 LED에 배터리 잔량 단계가 표시되며, 손을 떼면 즉시 원래 상태(USB 화이트/BLE 블루)로 복귀합니다.\n"),
-            rt("   • LED 날개 표시: ≥75% 4개(초록) / 50~74% 3개(라임) / 25~49% 2개(주황) / <25% 1개(빨강)\n"),
-            rt("   • ≤15%: 저음 경고음 3회 연속 (15% 진입 시 1회 자동 경고 비프음 발생)\n", color="red"),
-            rt("   • 16% ~ 39%: 단음 1회 (도) / 40% ~ 69%: 2중음 (도 - 미) / 70% ~ 89%: 3중음 / ≥90%: 4중음 아르페지오\n\n"),
-            rt("2. 텍스트 백분율 자동 타이퍼 (Fn + P):\n", bold=True),
-            rt("   • 현재 배터리 잔량을 화면 커서 위치에 ", bold=True),
-            rt("XX%", bold=True, color="orange"),
-            rt(" 형식으로 즉시 타이핑합니다.\n"),
-            rt("   • 한/영 입력기 상태에 구애받지 않는 안전한 다이렉트 숫자/퍼센트 전송 기술이 적용되어 있습니다.")
-        ], emoji="🔋", color="gray_background"),
-        callout_block([
             rt("🔇 마스터 사운드 On/Off 토글 (Fn + S):\n", bold=True, color="blue"),
             rt("• 내장 피에조 부저의 모든 사운드(부팅음, 클릭키, 배터리 경고음)를 총괄하는 마스터 스위치입니다.\n"),
             rt("• "),
@@ -365,16 +382,33 @@ def create_keymap_page():
             rt("• 토글 피드백: On 전환 시 2200Hz 높은 확인음, Off 전환 시 1000Hz 낮은 확인음이 울립니다.")
         ], emoji="🔇", color="gray_background"),
         callout_block([
+            rt("🔋 배터리 상태 확인 시스템 (듀얼 모니터링):\n", bold=True, color="green"),
+            rt("1. 나비 LED & 오디오 비프음 게이지 (Fn + B):\n", bold=True),
+            rt("   • "),
+            rt("누르고 있는 동안만 표시(Hold)", bold=True, color="orange"),
+            rt(": Fn+B를 누르고 있는 동안 나비 날개 LED에 배터리 잔량 단계가 표시되며, 손을 떼면 즉시 원래 상태(USB 화이트/BLE 블루)로 복귀합니다.\n"),
+            rt("   • LED 날개 표시: ≥75% 4개(초록) / 50~74% 3개(연두) / 25~49% 2개(주황) / <25% 1개(빨강)\n"),
+            rt("   • ≤15%: 저음 경고음 3회 연속 (마스터 사운드 On 시)\n", color="red"),
+            rt("2. 스마트 저배터리 자동 경고:\n", bold=True),
+            rt("   • 사용 중 배터리가 최초 15% 이하로 떨어지면 1500Hz 더블 비프음으로 1회 자동 경고합니다.\n"),
+            rt("   • 이후 반복 비프를 억제하여 불편함을 방지하며, 20% 이상 충전 시 알림 상태가 자동 리셋됩니다.\n"),
+            rt("3. 텍스트 백분율 자동 타이퍼 (Fn + P):\n", bold=True),
+            rt("   • 현재 배터리 잔량을 화면 커서 위치에 ", bold=True),
+            rt("XX%", bold=True, color="orange"),
+            rt(" 형식으로 즉시 타이핑합니다.\n"),
+            rt("   • 한/영 입력기 상태에 구애받지 않는 안전한 다이렉트 숫자/퍼센트 전송 기술이 적용되어 있습니다.")
+        ], emoji="🔋", color="gray_background"),
+        callout_block([
             rt("🔊 오디오 클릭 사운드 토글 (Fn + C):\n", bold=True, color="blue"),
             rt("• 내장 피에조 부저를 이용한 기계식 타건 클릭음(&clicky_toggle)을 On/Off 전환합니다.\n"),
             rt("• On 전환 시 상승 알림음, Off 전환 시 하강 알림음이 울립니다 (마스터 사운드가 On인 경우에만 출력).")
         ], emoji="🔊", color="gray_background"),
         callout_block([
-            rt("📡 블루투스(BLE) 및 USB 유무선 제어:\n", bold=True, color="blue"),
-            rt("• Fn + Q / W / E / R: ", bold=True), rt("BLE 프로필 1, 2, 3, 4번 즉시 전환 (최대 4대 기기 멀티페어링)\n"),
-            rt("• Fn + T: ", bold=True), rt("현재 활성화된 프로필의 BLE 페어링 정보 초기화 (&bt BT_CLR)\n"),
-            rt("• Fn + Y: ", bold=True), rt("USB 유선 출력과 블루투스 무선 출력 모드 수동 토글 (&out OUT_TOG)\n"),
-            rt("• 나비 LED 색상: USB 모드는 화이트(White), BLE 모드는 블루(Cyan/Blue)로 점등되어 배터리 게이지와 확실히 구별됩니다.")
+            rt("📡 블루투스(BLE) 및 USB 유무선 제어 & 나비 LED 인디케이터:\n", bold=True, color="blue"),
+            rt("• Fn + 1 / 2 / 3 / 4: ", bold=True), rt("BLE 프로필 0, 1, 2, 3번 즉시 전환 (최대 4대 기기 멀티페어링)\n"),
+            rt("• 나비 로고 LED 1:1 매핑: ", bold=True), rt("4개의 날개 조각이 4개 프로필에 1:1 대응 (대기: 하늘색 깜빡임, 연결: 사파이어 블루 점등 후 감광, USB 유선: 에메랄드 그린)\n"),
+            rt("• Fn + ~ (Grave): ", bold=True), rt("USB 유선 출력과 블루투스 무선 출력 모드 수동 토글 (&out OUT_TOG)\n"),
+            rt("• Fn + → (하단 가장 우측 키): ", bold=True), rt("현재 활성화된 프로필의 BLE 페어링 정보 초기화 (&bt BT_CLR)")
         ], emoji="📡", color="gray_background"),
         callout_block([
             rt("🛠️ 부트로더 진입 (Fn + LCtrl):\n", bold=True, color="orange"),
@@ -412,7 +446,7 @@ def create_keymap_page():
             table_row_block([
                 [rt("배터리 청각/시각 확인", bold=True)],
                 [rt("Fn + B (Hold)", code=True)],
-                "누르고 있는 동안 나비 날개 LED에 잔량 표시 및 비프음 재생"
+                "누르고 있는 동안 나비 날개 LED에 잔량 표시 및 비프음 재생 (<=15% 경고음)"
             ]),
             table_row_block([
                 [rt("배터리 화면 출력", bold=True)],
@@ -422,7 +456,7 @@ def create_keymap_page():
             table_row_block([
                 [rt("타건 클릭음 토글", bold=True)],
                 [rt("Fn + C", code=True)],
-                "키 입력 부저 사운드 On/Off 전환"
+                "키 입력 부저 사운드 On/Off 전환 (마스터 사운드 On 시)"
             ]),
             table_row_block([
                 [rt("부트로더 모드", bold=True)],
@@ -436,17 +470,17 @@ def create_keymap_page():
             ]),
             table_row_block([
                 [rt("BLE 프로필 전환", bold=True)],
-                [rt("Fn + Q / W / E / R", code=True)],
-                "블루투스 페어링 슬롯 1, 2, 3, 4 선택"
+                [rt("Fn + 1 / 2 / 3 / 4", code=True)],
+                "블루투스 페어링 슬롯 1, 2, 3, 4 선택 (나비 날개 1:1 대응)"
             ]),
             table_row_block([
                 [rt("BLE 페어링 삭제", bold=True)],
-                [rt("Fn + T", code=True)],
+                [rt("Fn + → (오른쪽 화살표)", code=True)],
                 "현재 프로필 페어링 정보 클리어"
             ]),
             table_row_block([
                 [rt("USB / BLE 전환", bold=True)],
-                [rt("Fn + Y", code=True)],
+                [rt("Fn + ~ (Grave)", code=True)],
                 "유선 연결과 무선 연결 모드 강제 토글"
             ]),
             table_row_block([
@@ -456,13 +490,23 @@ def create_keymap_page():
             ]),
             table_row_block([
                 [rt("마우스 커서 이동", bold=True)],
-                [rt("Raise + I / J / K / L", code=True)],
-                "I(상), J(좌), K(하), L(우) 방향 마우스 이동"
+                [rt("Raise + E / S / D / F", code=True)],
+                "E(상), S(좌), D(하), F(우) 방향 마우스 커서 이동"
             ]),
             table_row_block([
                 [rt("마우스 클릭/휠", bold=True)],
-                [rt("Raise + U / O / H / [ / ;", code=True)],
-                "U(좌클릭), O(우클릭), H(휠클릭), [(휠위), ;(휠아래)"
+                [rt("Raise + W / R / C / Q / A", code=True)],
+                "W(좌클릭), R(우클릭), C(휠클릭), Q(휠위), A(휠아래)"
+            ]),
+            table_row_block([
+                [rt("마우스 휠 좌/우", bold=True)],
+                [rt("Raise + X / V", code=True)],
+                "X(휠좌), V(휠우)"
+            ]),
+            table_row_block([
+                [rt("웹 앞/뒤로가기", bold=True)],
+                [rt("Raise + T / G", code=True)],
+                "T(앞으로 가기 MB5), G(뒤로 가기 MB4)"
             ]),
             table_row_block([
                 [rt("Tri-Layer 진입", bold=True)],
@@ -475,9 +519,9 @@ def create_keymap_page():
     print("Appending Section 6...")
     notion_request(f"https://api.notion.com/v1/blocks/{page_id}/children", method="PATCH", data={"children": sec6_blocks})
 
-    print("All sections successfully created and appended!")
+    print("All sections successfully updated and appended!")
     return page_id, page_url
 
 if __name__ == "__main__":
-    page_id, page_url = create_keymap_page()
+    page_id, page_url = update_or_create_keymap_page()
     print(f"DONE! Notion Page URL: {page_url}")
