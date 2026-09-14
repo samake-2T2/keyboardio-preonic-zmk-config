@@ -124,6 +124,15 @@ def divider_block():
         "divider": {}
     }
 
+def toc_block(color="gray"):
+    return {
+        "object": "block",
+        "type": "table_of_contents",
+        "table_of_contents": {
+            "color": color
+        }
+    }
+
 def image_block(url, caption_text=None):
     caption = [rt(caption_text)] if caption_text else []
     return {
@@ -191,6 +200,10 @@ def update_or_create_keymap_page():
             rt("4-Device 블루투스 멀티페어링(Fn + 1/2/3/4, 나비 날개 1:1 매핑), USB/BLE 출력 모드 토글(Fn + ~), 좌손 마우스 에뮬레이션, 다이렉트 부트로더 진입(Fn + LCtrl), ZMK Studio 잠금 해제(Fn + Z)\n\n"),
             rt("🔗 GitHub 펌웨어 저장소 바로가기", bold=True, link="https://github.com/samake-2T2/keyboardio-preonic-zmk-config")
         ], emoji="⌨️", color="blue_background"),
+        callout_block([
+            rt("📑 목차 (클릭 시 해당 레이어로 즉시 스크롤 이동):\n", bold=True, color="purple")
+        ], emoji="📑", color="gray_background"),
+        toc_block(),
         divider_block()
     ]
 
@@ -361,17 +374,17 @@ def update_or_create_keymap_page():
 
     # Section 5: Layer 3 Function & Tri
     sec5_blocks = [
-        h2_block("4. Layer 3: Function & Tri-Layer (시스템 & 배터리 & 오디오)"),
+        h2_block("4. Layer 3: Function & Tri-Layer (펑션 레이어 - 패스워드 & 매크로 & 시스템)"),
         p_block([
             rt("상단 Row 0의 "),
             rt("Fn 키", bold=True),
             rt("를 누르거나, 바텀열의 "),
             rt("Lower + Raise 키를 동시에 누르면 Tri-Layer에 의해 자동으로 활성화", bold=True, color="purple"),
-            rt("됩니다. 키보드의 하드웨어 설정, 다이나믹 매크로, 배터리 진단, 무선 연결 및 펌웨어 복구를 제어합니다.")
+            rt("됩니다. 하드웨어 TRNG 패스워드 생성기(노브 및 Fn+D/W/A), 다이나믹 매크로, 배터리 진단, 무선 연결 및 펌웨어 복구를 제어합니다.")
         ]),
         image_block(
             f"{GITHUB_IMG_BASE}/layer3_func.png",
-            caption_text="Layer 3: Function & Tri-Layer (Dynamic Macros, BLE, Sound, Battery, Bootloader)"
+            caption_text="Layer 3: Function & Tri-Layer (펑션 레이어 - 하드웨어 TRNG 패스워드 생성, 다이나믹 매크로, BLE, 사운드, 배터리)"
         ),
         callout_block([
             rt("🔑 하드웨어 TRNG 랜덤 패스워드 생성기 (Fn + 로터리 노브 & 직관 단축키):\n", bold=True, color="purple"),
