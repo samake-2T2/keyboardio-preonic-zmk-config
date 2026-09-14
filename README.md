@@ -49,10 +49,10 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
   * **Wall Charger / Power Bank**: Intelligently identifies charge-only power connections (`CONN_POWERED`) and maintains active BLE wireless typing.
 * **Hardware TRNG Random Password Generator (DB & Config Safe)**:
   * **True Hardware Entropy**: Powered by Nordic nRF52840 on-chip True Random Number Generator (TRNG) for cryptographic-grade entropy.
-  * **Rotary Knob & Butterfly LED Gauge**: While holding `Fn`, rotate the knob to select length (12, 16, 20, 24 chars). The butterfly wings illuminate 1 to 4 wings in warm gold with distinct pitch feedback. Selection is remembered in NVS Flash.
-  * **DB & Config Safe Preset (`Fn + Knob Click`)**: Generates passwords strictly composed of `A-Z`, `a-z`, `0-9`, `_`, `-`. 100% safe in PostgreSQL/MySQL/Redis connection URIs, Docker `.env`, YAML, and XML without escape or parsing errors.
-  * **Web Extended Preset (`Fn + Shift + Knob Click`)**: Adds `@` and `.` for web portal signup requirements.
-  * **Alphanumeric Preset (`Fn + Ctrl + Knob Click`)**: Pure alphanumeric (`A-Z, a-z, 0-9`) for legacy systems forbidding special characters.
+  * **Rotary Knob & Butterfly LED Gauge**: While holding `Fn`, rotate the knob to select length (12, 16, 20, 24 chars). The butterfly wings illuminate 1 to 4 wings in warm gold with distinct pitch feedback (C5, E5, G5, C6). Damped 2-click per step feel. Selection is remembered in NVS Flash.
+  * **DB & Config Safe Preset (`Fn + Knob Single Click` or `Fn + D`)**: Generates passwords strictly composed of `A-Z`, `a-z`, `0-9`, `_`, `-`. 100% safe in PostgreSQL/MySQL/Redis connection URIs, Docker `.env`, YAML, and XML without escape or parsing errors.
+  * **Web Extended Preset (`Fn + Knob Double Click` or `Fn + W`)**: Adds `@` and `.` for web portal signup requirements.
+  * **Alphanumeric Preset (`Fn + Knob Long Press 0.4s` or `Fn + A`)**: Pure alphanumeric (`A-Z, a-z, 0-9`) for legacy systems forbidding special characters.
   * **Async Non-Blocking Typing**: Types out smoothly at 12ms intervals with automatic modifier masking.
 * **Mouse Emulation (ZMK Pointing)**: Integrated mouse cursor movement, clicking, and scrolling on the Raise layer.
 * **Decoupled Tri-Layer & Dedicated Fn**: Enter the Function layer either via the dedicated top-middle `Fn` key (`&mo L_FN`) or by holding `Lower` and `Raise` simultaneously without conflict.
@@ -97,11 +97,11 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
   * `C` position: **Audio Clicky Toggle** (`Fn + C` toggles typing click sound on/off; high tone for ON, low tone for OFF)
   * `B` position: **Butterfly Battery Gauge** (`Fn + B` shows 4-level LED battery gauge while held; beeps if <= 15%)
   * `P` position: **Battery Status Typer** (`Fn + P` types out `"XX%"`)
-* **Rotary Knob (Hardware TRNG Password Generator)**:
-  * **Turn Knob** (`Fn + Rotate Knob`): Cycle password length (12, 16, 20, 24 characters). Lights 1~4 butterfly wings in warm gold with musical pitch tones (C5, E5, G5, C6). Persisted in NVS Flash.
-  * **Click Knob** (`Fn + Click Knob`): Generate & type **DB & Config Safe** password (`A-Z, a-z, 0-9, _, -`). Zero-escape, 100% safe in PostgreSQL/MySQL/Redis connection URIs, Docker `.env`, YAML, and XML.
-  * **Shift + Click Knob** (`Fn + Shift + Click Knob`): Generate & type **Web Extended** password (`A-Z, a-z, 0-9, _, -, @, .`).
-  * **Ctrl + Click Knob** (`Fn + Ctrl + Click Knob`): Generate & type **Alphanumeric** password (`A-Z, a-z, 0-9`).
+* **Rotary Knob & Direct Keys (Hardware TRNG Password Generator)**:
+  * **Turn Knob** (`Fn + Rotate Knob`): Cycle password length (12, 16, 20, 24 characters). Lights 1~4 butterfly wings in warm gold with musical pitch tones (C5, E5, G5, C6). Damped 2-click step. Persisted in NVS Flash.
+  * **Single Click Knob** (`Fn + Click`) or **`Fn + D`**: Generate & type **DB & Config Safe** password (`A-Z, a-z, 0-9, _, -`). Zero-escape, 100% safe in PostgreSQL/MySQL/Redis connection URIs, Docker `.env`, YAML, and XML.
+  * **Double Click Knob** (`Fn + Double Click`) or **`Fn + W`**: Generate & type **Web Extended** password (`A-Z, a-z, 0-9, _, -, @, .`).
+  * **Long Press Knob (0.4s)** (`Fn + Hold Knob`) or **`Fn + A`**: Generate & type **Alphanumeric** password (`A-Z, a-z, 0-9`).
 * **Bottom Row**:
   * `LCTRL` position: `&bootloader` (Enter DFU bootloader mode)
   * `Right` position: `&bt BT_CLR` (Clear current Bluetooth bonding)
@@ -183,11 +183,11 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
   * **수동 강제 토글**: 언제든 `Fn + ~` (`OUT_TOG`) 조합으로 유/무선 출력을 수동 토글할 수 있습니다.
 * **하드웨어 TRNG 랜덤 패스워드 생성기 (DB & 환경설정 안전 특수문자)**:
   * **진정한 하드웨어 엔트로피**: nRF52840 SoC 내부 하드웨어 난수 생성기(TRNG)를 활용하여 예측 불가능한 암호학적 엔트로피 보장.
-  * **로터리 노브 회전 & 나비 LED 4단계 게이지**: `Fn`을 누른 채 노브를 돌리면 패스워드 자리수가 즉시 순환(12, 16, 20, 24자)되며, 나비 날개 1~4개가 따뜻한 골드/앰버 색상으로 점등되고 도/미/솔/도 음계 피드백이 제공됩니다. 설정된 길이는 Zephyr NVS 플래시에 영구 저장됩니다.
-  * **DB & Config Safe 기본 모드 (`Fn + 노브 클릭`)**: `A-Z`, `a-z`, `0-9`, `_`, `-` 조합으로만 생성. PostgreSQL/MySQL/Redis 접속 URI(`user:pass@host`), 도커 `.env`, YAML, XML 파싱 시 이스케이프 오류나 깨짐이 100% 없는 안전 문자열 생성.
-  * **웹 확장 모드 (`Fn + Shift + 노브 클릭`)**: 특수문자 필수 사이트를 위해 `@`, `.`를 포함하여 생성.
-  * **순수 영숫자 모드 (`Fn + Ctrl + 노브 클릭`)**: 특수문자가 금지된 구형 시스템을 위해 순수 영문 대/소문자 및 숫자(`A-Z, a-z, 0-9`)만으로 생성.
-  * **비동기 12ms 무지연 타이핑 & 모디파이어 자동 마스킹**: 타이핑 중 사용자가 누르고 있는 `Fn`, `Shift`, `Ctrl` 모디파이어를 자동으로 마스킹하여 키 입력 왜곡 없이 정밀하고 부드럽게 자동 타이핑.
+  * **로터리 노브 회전 & 나비 LED 4단계 게이지**: `Fn`을 누른 채 노브를 돌리면 패스워드 자리수가 즉시 순환(12, 16, 20, 24자)되며, 나비 날개 1~4개가 따뜻한 골드/앰버 색상으로 점등되고 도/미/솔/도 음계 피드백이 제공됩니다. 2클릭 1스텝 감도 조절로 안정적인 회전감을 제공하며, 설정된 길이는 Zephyr NVS 플래시에 영구 저장됩니다.
+  * **DB & Config Safe 모드 (`Fn + 노브 1회 클릭` 또는 `Fn + D`)**: `A-Z`, `a-z`, `0-9`, `_`, `-` 조합으로만 생성. PostgreSQL/MySQL/Redis 접속 URI(`user:pass@host`), 도커 `.env`, YAML, XML 파싱 시 이스케이프 오류나 깨짐이 100% 없는 안전 문자열 생성.
+  * **웹 확장 모드 (`Fn + 노브 더블 클릭` 또는 `Fn + W`)**: 특수문자 필수 사이트를 위해 `@`, `.`를 포함하여 생성.
+  * **순수 영숫자 모드 (`Fn + 노브 롱 클릭(0.4초)` 또는 `Fn + A`)**: 특수문자가 금지된 구형 시스템을 위해 순수 영문 대/소문자 및 숫자(`A-Z, a-z, 0-9`)만으로 생성.
+  * **비동기 12ms 무지연 타이핑 & 모디파이어 자동 마스킹**: 타이핑 중 사용자가 누르고 있는 `Fn` 모디파이어를 자동으로 마스킹하여 키 입력 왜곡 없이 정밀하고 부드럽게 자동 타이핑.
 * **마우스 에뮬레이션 (ZMK Pointing)**: Raise 레이어에서 마우스 커서 이동, 클릭, 휠 스크롤 지원.
 * **트라이 레이어 및 독립 Fn 동시 지원 (디커플링)**: 상단 중앙 독립 `Fn` 키(`&mo L_FN`) 진입과 `Lower` + `Raise` 동시 입력을 통한 트라이 레이어 진입을 충돌 없이 완벽히 지원.
 * **웹 GUI 도구 완벽 호환**:
@@ -231,11 +231,11 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
   * `C` 자리: **오디오 클릭키 On/Off 토글** (`Fn + C` 입력 시 타이핑 클릭 소리를 켜고 끄며, 켤 때 높은 톤 / 끌 때 낮은 톤 확인음 제공)
   * `B` 자리: **나비 배터리 게이지** (`Fn + B` 누르고 있는 동안 4단계 나비 LED 잔량 게이지 표시, 15% 이하 시 경고 비프음 출력)
   * `P` 자리: **배터리 잔량 자동 타이핑** (`Fn + P` 입력 시 `"XX%"` 텍스트 자동 타이핑)
-* **로터리 노브 (하드웨어 TRNG 패스워드 생성기)**:
-  * **노브 회전** (`Fn + 노브 회전`): 패스워드 자리수 12 / 16 / 20 / 24자 순환 변경 (나비 날개 골드 1~4개 게이지 및 도/미/솔/도 음계 피드백, NVS 영구 저장)
-  * **노브 클릭** (`Fn + 노브 클릭`): **DB & Config Safe 패스워드** 생성 및 자동 타이핑 (`A-Z, a-z, 0-9, _, -` Zero-Escape 안전 문자)
-  * **Shift + 노브 클릭** (`Fn + Shift + 노브 클릭`): **웹 확장(Web Extended) 패스워드** 생성 및 타이핑 (`@`, `.` 추가)
-  * **Ctrl + 노브 클릭** (`Fn + Ctrl + 노브 클릭`): **순수 영숫자(Alphanumeric) 패스워드** 생성 및 타이핑 (`A-Z, a-z, 0-9`)
+* **로터리 노브 & 직관 단축키 (하드웨어 TRNG 패스워드 생성기)**:
+  * **노브 회전** (`Fn + 노브 회전`): 패스워드 자리수 12 / 16 / 20 / 24자 순환 변경 (2클릭 1스텝 둔감화, 나비 날개 골드 1~4개 게이지 및 도/미/솔/도 음계 피드백, NVS 영구 저장)
+  * **노브 1회 클릭** (`Fn + 노브 클릭`) 또는 **`Fn + D`**: **DB & Config Safe 패스워드** 생성 및 자동 타이핑 (`A-Z, a-z, 0-9, _, -` Zero-Escape 안전 문자)
+  * **노브 더블 클릭** (`Fn + 노브 더블 클릭`) 또는 **`Fn + W`**: **웹 확장(Web Extended) 패스워드** 생성 및 타이핑 (`@`, `.` 추가)
+  * **노브 롱 클릭(0.4초)** (`Fn + 노브 롱 클릭`) 또는 **`Fn + A`**: **순수 영숫자(Alphanumeric) 패스워드** 생성 및 타이핑 (`A-Z, a-z, 0-9`)
 * **하단 행**:
   * `LCTRL` 자리: **`&bootloader`** (USB 외장 드라이브 부트로더 모드 진입)
   * `Right` 자리: **`&bt BT_CLR`** (현재 연결된 블루투스 페어링 정보 삭제)

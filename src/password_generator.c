@@ -32,10 +32,21 @@
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #define KNOB_SWITCH_POSITION 2
+#define W_KEY_POSITION 17
+#define A_KEY_POSITION 28
+#define D_KEY_POSITION 30
 #define FN_LAYER_INDEX 3
 #define TRI_LAYER_INDEX 4
 
 #define TYPING_STEP_INTERVAL_MS 12
+
+#define KNOB_LONG_PRESS_MS 400
+#define KNOB_DOUBLE_CLICK_MS 250
+
+static struct k_work_delayable knob_long_press_work;
+static struct k_work_delayable knob_click_work;
+static bool knob_long_press_triggered = false;
+static uint8_t knob_click_count = 0;
 
 static const uint8_t ALLOWED_LENGTHS[] = { 12, 16, 20, 24 };
 #define DEFAULT_LENGTH_INDEX 1 // 16 characters
@@ -268,6 +279,22 @@ void password_generator_trigger(enum password_mode mode) {
     k_work_reschedule(&pw_type_work, K_MSEC(40));
 }
 
+static void knob_long_press_work_handler(struct k_work *work) {
+    ARG_UNUSED(work);
+    knob_long_press_triggered = true;
+    knob_click_count = 0;
+    LOG_INF("Knob long press detected -> Alphanumeric mode");
+    preonic_sound_play_tone(880, 50);
+    password_generator_trigger(PW_MODE_ALPHANUMERIC);
+}
+
+static void knob_click_work_handler(struct k_work *work) {
+    ARG_UNUSED(work);
+    knob_click_count = 0;
+    LOG_INF("Knob single click detected -> DB Safe mode");
+    password_generator_trigger(PW_MODE_DB_SAFE);
+}
+
 static int password_generator_event_listener(const zmk_event_t *eh) {
     const struct zmk_activity_state_changed *act_ev = as_zmk_activity_state_changed(eh);
     if (act_ev != NULL && act_ev->state == ZMK_ACTIVITY_SLEEP) {
@@ -276,26 +303,64 @@ static int password_generator_event_listener(const zmk_event_t *eh) {
             typing_in_progress = false;
             zmk_hid_masked_modifiers_clear();
         }
+        k_work_cancel_delayable(&knob_long_press_work);
+        k_work_cancel_delayable(&knob_click_work);
+        knob_click_count = 0;
+        knob_long_press_triggered = false;
         return 0;
     }
 
     const struct zmk_position_state_changed *pos_ev = as_zmk_position_state_changed(eh);
-    if (pos_ev != NULL && pos_ev->position == KNOB_SWITCH_POSITION) {
+    if (pos_ev != NULL) {
         if (zmk_keymap_layer_active(FN_LAYER_INDEX) || zmk_keymap_layer_active(TRI_LAYER_INDEX)) {
-            if (pos_ev->state) {
-                // Knob pressed on Fn layer
-                zmk_mod_flags_t mods = zmk_hid_get_explicit_mods();
-                enum password_mode mode;
-                if (mods & (MOD_LSFT | MOD_RSFT)) {
-                    mode = PW_MODE_WEB_EXTENDED;
-                } else if (mods & (MOD_LCTL | MOD_RCTL)) {
-                    mode = PW_MODE_ALPHANUMERIC;
-                } else {
-                    mode = PW_MODE_DB_SAFE;
+            // 1. Direct Mnemonic Keys (D, W, A)
+            if (pos_ev->position == D_KEY_POSITION) {
+                if (pos_ev->state) {
+                    LOG_INF("Fn + D pressed -> DB Safe mode");
+                    password_generator_trigger(PW_MODE_DB_SAFE);
                 }
-                password_generator_trigger(mode);
+                return ZMK_EV_EVENT_HANDLED;
+            } else if (pos_ev->position == W_KEY_POSITION) {
+                if (pos_ev->state) {
+                    LOG_INF("Fn + W pressed -> Web Extended mode");
+                    password_generator_trigger(PW_MODE_WEB_EXTENDED);
+                }
+                return ZMK_EV_EVENT_HANDLED;
+            } else if (pos_ev->position == A_KEY_POSITION) {
+                if (pos_ev->state) {
+                    LOG_INF("Fn + A pressed -> Alphanumeric mode");
+                    password_generator_trigger(PW_MODE_ALPHANUMERIC);
+                }
+                return ZMK_EV_EVENT_HANDLED;
             }
-            return ZMK_EV_EVENT_HANDLED;
+
+            // 2. Knob Push Switch (Position 2)
+            if (pos_ev->position == KNOB_SWITCH_POSITION) {
+                if (pos_ev->state) {
+                    // Pressed down: start long-press timer
+                    knob_long_press_triggered = false;
+                    k_work_reschedule(&knob_long_press_work, K_MSEC(KNOB_LONG_PRESS_MS));
+                } else {
+                    // Released
+                    k_work_cancel_delayable(&knob_long_press_work);
+                    if (knob_long_press_triggered) {
+                        knob_long_press_triggered = false;
+                        knob_click_count = 0;
+                        return ZMK_EV_EVENT_HANDLED;
+                    }
+
+                    knob_click_count++;
+                    if (knob_click_count == 1) {
+                        k_work_reschedule(&knob_click_work, K_MSEC(KNOB_DOUBLE_CLICK_MS));
+                    } else if (knob_click_count >= 2) {
+                        k_work_cancel_delayable(&knob_click_work);
+                        knob_click_count = 0;
+                        LOG_INF("Knob double click detected -> Web Extended mode");
+                        password_generator_trigger(PW_MODE_WEB_EXTENDED);
+                    }
+                }
+                return ZMK_EV_EVENT_HANDLED;
+            }
         }
     }
 
@@ -349,6 +414,8 @@ ZMK_SUBSCRIPTION(password_generator, zmk_activity_state_changed);
 
 static int password_generator_init(void) {
     k_work_init_delayable(&pw_type_work, pw_type_work_handler);
+    k_work_init_delayable(&knob_long_press_work, knob_long_press_work_handler);
+    k_work_init_delayable(&knob_click_work, knob_click_work_handler);
 #if IS_ENABLED(CONFIG_SETTINGS)
     settings_register(&pw_settings_conf);
 #endif

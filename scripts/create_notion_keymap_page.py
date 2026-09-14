@@ -178,7 +178,7 @@ def update_or_create_keymap_page():
             rt("PrtSc 화면 캡처, 독립 Fn 키, "),
             rt("로터리 인코더(음량 조절 / 클릭 시 음소거)", bold=True, color="green"),
             rt("\n• 하드웨어 TRNG 패스워드 생성기: ", bold=True),
-            rt("Nordic nRF52840 진성 하드웨어 난수 기반, DB/환경설정/URI 안전 Zero-Escape 특수문자(_,-), Fn+노브 회전으로 자리수 선택(12/16/20/24자, 나비 골드 게이지 & 도/미/솔/도 음계 피드백, NVS 영구 저장), Fn+노브 클릭(DB Safe 생성), Fn+Shift+노브 클릭(Web Extended), Fn+Ctrl+노브 클릭(Alphanumeric), 12ms 비동기 자동 타이핑 및 물리 모디파이어 자동 마스킹\n"),
+            rt("Nordic nRF52840 진성 하드웨어 난수 기반, DB/환경설정/URI 안전 Zero-Escape 특수문자(_,-), Fn+노브 회전으로 자리수 선택(12/16/20/24자, 2클릭 1스텝 감도 조절, 나비 골드 게이지 & 도/미/솔/도 음계 피드백, NVS 영구 저장), 하이브리드 제어(Fn+노브 1회 클릭 또는 Fn+D: DB Safe, Fn+노브 더블 클릭 또는 Fn+W: Web Extended, Fn+노브 0.4초 롱 클릭 또는 Fn+A: Alphanumeric), 12ms 비동기 자동 타이핑 및 모디파이어 자동 마스킹\n"),
             rt("• 스마트 하이브리드 USB/BLE 자동 전환: ", bold=True),
             rt("USB 케이블 분리 또는 배터리 전원 인가 시 마지막 활성 BLE 프로필(0~3번)로 자동 복귀, NVS 플래시 안전 보존, PC 유선 연결 시 USB 자동 전환(순백색 점등), 충전기 연결 시 무선 BLE 유지\n"),
             rt("• 피에조 사운드 시스템: ", bold=True),
@@ -253,7 +253,7 @@ def update_or_create_keymap_page():
             table_row_block([
                 [rt("Layer 3: Function & Tri", bold=True, color="purple")],
                 "상단 Fn 키 누름 OR Lower + Raise 동시 입력",
-                "하드웨어 TRNG 패스워드 생성기(Fn+노브 회전 12/16/20/24자, 클릭 생성), 다이나믹 매크로(Fn+5~0 녹화/재생), BLE 프로필(1~4), 마스터 사운드 토글(기본 OFF), 클릭 사운드 토글, 배터리 게이지/타이퍼, 부트로더 진입, ZMK Studio 잠금 해제"
+                "하드웨어 TRNG 패스워드 생성기(Fn+노브 회전 12/16/20/24자, 노브 1회/더블/롱클릭 및 Fn+D/W/A 직관키), 다이나믹 매크로(Fn+5~0 녹화/재생), BLE 프로필(1~4), 마스터 사운드 토글(기본 OFF), 클릭 사운드 토글, 배터리 게이지/타이퍼, 부트로더 진입, ZMK Studio 잠금 해제"
             ])
         ], table_width=3, has_column_header=True),
         divider_block()
@@ -374,29 +374,29 @@ def update_or_create_keymap_page():
             caption_text="Layer 3: Function & Tri-Layer (Dynamic Macros, BLE, Sound, Battery, Bootloader)"
         ),
         callout_block([
-            rt("🔑 하드웨어 TRNG 랜덤 패스워드 생성기 (Fn + 로터리 노브 회전 & 클릭):\n", bold=True, color="purple"),
+            rt("🔑 하드웨어 TRNG 랜덤 패스워드 생성기 (Fn + 로터리 노브 & 직관 단축키):\n", bold=True, color="purple"),
             rt("• "),
             rt("진정한 암호학적 하드웨어 엔트로피", bold=True, color="orange"),
             rt(": Nordic nRF52840 SoC 내부 하드웨어 난수 생성기(TRNG)의 물리적 열 잡음(Thermal Noise) 엔트로피를 직접 사용하여 소프트웨어 의사 난수와 차원이 다른 안전한 패스워드를 생성합니다.\n"),
             rt("• "),
             rt("노브 회전으로 자리수 변경 (12 / 16 / 20 / 24자리)", bold=True),
-            rt(": Fn(또는 Tri) 레이어에서 노브를 돌리면 자리수가 즉시 순환 변경됩니다. 나비 날개 1~4개가 따뜻한 골드/앰버(Gold) 색상으로 2초간 게이지 형태로 점등되며, 마스터 사운드 ON 시 도(C5) / 미(E5) / 솔(G5) / 높은도(C6) 음악 피치 톤이 제공됩니다. 설정값은 "),
+            rt(": Fn(또는 Tri) 레이어에서 노브를 돌리면 자리수가 즉시 순환 변경됩니다 (2클릭 1스텝 둔감화로 정밀 조작). 나비 날개 1~4개가 따뜻한 골드/앰버(Gold) 색상으로 2초간 게이지 형태로 점등되며, 마스터 사운드 ON 시 도(C5) / 미(E5) / 솔(G5) / 높은도(C6) 음악 피치 톤이 제공됩니다. 설정값은 "),
             rt("NVS 플래시에 영구 저장", bold=True, color="blue"),
             rt("되어 재부팅 후에도 유지됩니다.\n"),
             rt("• "),
-            rt("DB & Config Safe 기본 모드 (Fn + 노브 클릭)", bold=True, color="green"),
+            rt("DB & Config Safe 모드 (Fn + 노브 1회 클릭 또는 Fn + D)", bold=True, color="green"),
             rt(": "),
             rt("Zero-Escape 안전 문자", bold=True),
-            rt("(`A-Z`, `a-z`, `0-9`, `_`, `-`)로만 구성된 패스워드를 생성합니다. PostgreSQL, MySQL, Redis 등 DB 접속 URI(`postgres://user:pass@host/db`) 파싱 오류나 Docker `.env`, YAML, XML 파싱 시 특수문자 충돌/이스케이프 문제를 원천 차단합니다.\n"),
+            rt("(`A-Z`, `a-z`, `0-9`, `_`, `-`)로만 구성된 패스워드를 생성합니다. PostgreSQL, MySQL, Redis 등 DB 접속 URI(`postgres://user:pass@host/db`) 파싱 오류나 Docker `.env`, YAML, XML 파싱 시 특수문자 충돌/이스케이프 문제를 원천 차단합니다. (노브 클릭 대기 없이 Fn + D로 즉시 생성 가능)\n"),
             rt("• "),
-            rt("웹 확장(Web Extended) 모드 (Fn + Shift + 노브 클릭)", bold=True),
-            rt(": 특수문자 필수 사이트를 위해 `@`, `.` 기호를 포함하여 생성합니다.\n"),
+            rt("웹 확장(Web Extended) 모드 (Fn + 노브 더블 클릭 또는 Fn + W)", bold=True),
+            rt(": 특수문자 필수 사이트를 위해 `@`, `.` 기호를 포함하여 생성합니다. (노브 250ms 내 더블 클릭 또는 Fn + W 직관키)\n"),
             rt("• "),
-            rt("순수 영숫자(Alphanumeric) 모드 (Fn + Ctrl + 노브 클릭)", bold=True),
-            rt(": 특수문자 사용이 금지된 레거시 시스템을 위해 영문 대소문자 및 숫자(`A-Z, a-z, 0-9`)만으로 생성합니다.\n"),
+            rt("순수 영숫자(Alphanumeric) 모드 (Fn + 노브 롱 클릭(0.4초) 또는 Fn + A)", bold=True),
+            rt(": 특수문자 사용이 금지된 레거시 시스템을 위해 영문 대소문자 및 숫자(`A-Z, a-z, 0-9`)만으로 생성합니다. (노브를 0.4초 누르면 880Hz 확인음과 함께 생성되거나 Fn + A 직관키로 즉시 생성)\n"),
             rt("• "),
             rt("비동기 12ms 타이핑 & 모디파이어 자동 마스킹", bold=True),
-            rt(": 키보드가 패스워드를 타이핑하는 동안 사용자가 누르고 있는 Shift, Ctrl, Fn 물리 모디파이어를 펌웨어 단에서 일시 마스킹하여 키 입력 왜곡 없이 완벽하게 자동 타이핑하고 완료 시 에메랄드/골드 축하 점멸 효과를 표시합니다.")
+            rt(": 키보드가 패스워드를 타이핑하는 동안 사용자가 누르고 있는 Fn 물리 모디파이어를 펌웨어 단에서 일시 마스킹하여 키 입력 왜곡 없이 완벽하게 자동 타이핑하고 완료 시 에메랄드/골드 축하 점멸 효과를 표시합니다.")
         ], emoji="🔑", color="gray_background"),
         callout_block([
             rt("🎬 QMK 호환 다이나믹 매크로 시스템 (Fn + 5 / 6 / 7 / 8 / 9 / 0):\n", bold=True, color="purple"),
@@ -502,21 +502,21 @@ def update_or_create_keymap_page():
             table_row_block([
                 [rt("패스워드 길이 조절", bold=True)],
                 [rt("Fn + 노브 회전", code=True)],
-                "자리수 12, 16, 20, 24자 순환 (나비 골드 게이지 1~4개, 도/미/솔/도 음계, NVS 영구 저장)"
+                "자리수 12, 16, 20, 24자 순환 (2클릭 1스텝 둔감화, 나비 골드 게이지 1~4개, 도/미/솔/도 음계, NVS 영구 저장)"
             ]),
             table_row_block([
                 [rt("DB 안전 패스워드 생성", bold=True)],
-                [rt("Fn + 노브 클릭", code=True)],
+                [rt("Fn + 노브 1회 클릭\n또는 Fn + D", code=True)],
                 "Zero-Escape DB & Config Safe 패스워드 자동 타이핑 (A-Z, a-z, 0-9, _, -)"
             ]),
             table_row_block([
                 [rt("웹 확장 패스워드 생성", bold=True)],
-                [rt("Fn + Shift + 노브 클릭", code=True)],
+                [rt("Fn + 노브 더블 클릭\n또는 Fn + W", code=True)],
                 "특수문자 필수 사이트용 패스워드 자동 타이핑 (A-Z, a-z, 0-9, _, -, @, .)"
             ]),
             table_row_block([
                 [rt("영숫자 패스워드 생성", bold=True)],
-                [rt("Fn + Ctrl + 노브 클릭", code=True)],
+                [rt("Fn + 노브 롱 클릭 (0.4초)\n또는 Fn + A", code=True)],
                 "순수 영문/숫자 패스워드 자동 타이핑 (A-Z, a-z, 0-9)"
             ]),
             table_row_block([
