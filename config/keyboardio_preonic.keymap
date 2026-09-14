@@ -61,6 +61,14 @@
         };
     };
 
+    behaviors {
+        sensor_none: sensor_none {
+            compatible = "zmk,behavior-sensor-rotate";
+            #sensor-binding-cells = <0>;
+            bindings = <&none>, <&none>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
@@ -117,7 +125,7 @@
 &bootloader   &trans          &trans        &trans        &trans          &trans                &trans  &trans  &trans  &trans  &bt BT_CLR
             >;
 
-            sensor-bindings = <&none>;
+            sensor-bindings = <&sensor_none>;
         };
 
         tri_layer {
@@ -131,7 +139,7 @@
 &bootloader   &trans          &trans        &trans        &trans          &trans                &trans  &trans  &trans  &trans  &bt BT_CLR
             >;
 
-            sensor-bindings = <&none>;
+            sensor-bindings = <&sensor_none>;
         };
     };
 
