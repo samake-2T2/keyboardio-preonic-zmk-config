@@ -1,7 +1,7 @@
 # Keyboardio Preonic - ZMK Firmware Configuration
 
 <p align="center">
-  <a href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/tag/v1.7.0"><img src="https://img.shields.io/badge/Release-v1.7.0-blue.svg?style=for-the-badge" alt="Latest Release v1.7.0"></a>
+  <a href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/tag/v1.7.1"><img src="https://img.shields.io/badge/Release-v1.7.1-blue.svg?style=for-the-badge" alt="Latest Release v1.7.1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License"></a>
 </p>
 
@@ -17,7 +17,7 @@
 Custom ZMK firmware configuration specifically developed for the **Keyboardio Preonic**, manufactured by [Keyboardio](https://keyboard.io).
 
 > [!TIP]
-> **Latest Release v1.7.0**: Expanded to **3-Slot QMK-Compatible Dynamic Macro System** (`Fn + 5/6` Slot 1, `Fn + 7/8` Slot 2, `Fn + 9/0` Slot 3) with NVS flash persistence, distinct LED colors (Red, Purple, Gold), clean buffer overwrite, and 12ms safe BLE typing interval.
+> **Latest Release v1.7.1**: **Smart Hybrid Output Auto-Switching** (auto-defaults to last-active BLE profile when unplugged or cold-booted on battery switch, auto-engages USB when plugged into PC, maintains BLE on wall charger, zero-delay NVS Flash commit) & **3-Slot QMK-Compatible Dynamic Macro System** (`Fn + 5/6` Slot 1, `Fn + 7/8` Slot 2, `Fn + 9/0` Slot 3).
 
 > [!IMPORTANT]
 > **Hardware Compatibility Note**:
@@ -43,6 +43,11 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
   * **Triple Independent Slots**: Slot 1 (`Fn + 5` Rec, `Fn + 6` Play), Slot 2 (`Fn + 7` Rec, `Fn + 8` Play), and Slot 3 (`Fn + 9` Rec, `Fn + 0` Play) up to 128 keystrokes each. Starting a new recording instantly clears and overwrites the previous macro.
   * **Visual & Audio Feedback**: Slot 1 breathes Red while recording and flashes Red on play. Slot 2 breathes Purple while recording and flashes Purple on play. Slot 3 breathes Gold while recording and flashes Gold on play. When Master Sound is enabled, provides distinct audio cues (rising chime on rec start, double-beep on rec stop, click on playback, warning buzz on buffer full).
   * **Safe 12ms Typing Interval**: Fixed 12ms step delay ensures reliable wireless transmission over Bluetooth Low Energy without dropped keystrokes.
+* **Smart Hybrid Output Auto-Switching (Zero-Delay NVS Flash Retention)**:
+  * **Unplug USB / Power Switch ON on Battery**: Instantly defaults to Bluetooth Low Energy (BLE) mode on the last-active profile (0..3), saving to NVS Flash without debounce delay to prevent connection drops on abrupt power cuts.
+  * **PC USB Connection**: Automatically switches to USB mode as soon as USB HID communication is ready.
+  * **Wall Charger / Power Bank**: Intelligently identifies charge-only power connections (`CONN_POWERED`) and maintains active BLE wireless typing.
+  * **Manual Override**: `Fn + ~` (`OUT_TOG`) remains available at all times for manual USB/BLE toggling.
 * **Mouse Emulation (ZMK Pointing)**: Integrated mouse cursor movement, clicking, and scrolling on the Raise layer.
 * **Decoupled Tri-Layer & Dedicated Fn**: Enter the Function layer either via the dedicated top-middle `Fn` key (`&mo L_FN`) or by holding `Lower` and `Raise` simultaneously without conflict.
 * **GUI Configurator Compatibility**:
@@ -72,7 +77,7 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
 #### 4. Function Layer (Official Keyboardio Preonic Layout)
 ![Function Layer](https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.7.0/docs/images/layer3_func.png)
 * **Number Row**:
-  * `Grave` position: `&out OUT_TOG` (Toggle between USB and BLE output)
+  * `Grave` position: `&out OUT_TOG` (Manual toggle between USB and BLE output; auto-switches to BLE on unplug/battery boot)
   * `1` ~ `4`: `&bt BT_SEL 0` ~ `&bt BT_SEL 3` (Select Bluetooth profiles 0 to 3, max 4 devices)
   * `5`: **Macro 1 Record / Stop** (`Fn + 5` toggle record start/stop; Red breathing LED)
   * `6`: **Macro 1 Playback** (`Fn + 6` replay macro 1; Red flash)
@@ -103,7 +108,8 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 | **Wing 2** | Profile 2 (`BT_SEL 2`) | Blinks Azure/Cyan (400ms interval) | Solid Sapphire Blue (dims after 5s) |
 | **Wing 3** | Profile 3 (`BT_SEL 3`) | Blinks Azure/Cyan (400ms interval) | Solid Sapphire Blue (dims after 5s) |
 
-* **USB Mode**: All 4 wings illuminate in Emerald Green.
+* **USB Mode**: All 4 wings illuminate in Emerald Green (when connected to PC USB host).
+* **Smart Auto-Switching**: Unplugging the USB cable or turning on the external battery switch immediately restores the last active Bluetooth profile and wing indicator. Plugging into a wall charger keeps BLE active while charging.
 * **Battery Saver**: Automatically dims to ambient brightness after 5s of connection, and shuts off completely in deep sleep.
 
 ---
@@ -132,7 +138,7 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 [Keyboardio(키보디오)](https://keyboard.io) 사에서 개발 및 제조한 **Keyboardio Preonic** 기계식 키보드 전용 ZMK 펌웨어 설정 저장소입니다.
 
 > [!TIP]
-> **최신 릴리즈 v1.7.0**: **3슬롯 QMK 호환 다이나믹 매크로 시스템** 탑재 (`Fn + 5/6` 슬롯1, `Fn + 7/8` 슬롯2, `Fn + 9/0` 슬롯3). NVS 플래시 메모리 영구 보존, 3개 독립 슬롯(새 녹화 시 자동 덮어쓰기), 슬롯별 LED 색상 분리(빨강/보라/골드) 및 마스터 사운드 연동 오디오 피드백, 12ms BLE 무선 안전 딜레이 적용.
+> **최신 릴리즈 v1.7.1**: **스마트 하이브리드 USB/BLE 자동 전환 & 무지연 NVS 플래시 보존** (USB 케이블 분리 또는 배터리 전원 인가 시 마지막 사용 BLE 슬롯으로 자동 전환, 돌발 전원 차단 방지 Zero-Delay NVS 영구 저장, PC 유선 연결 시 USB 자동 전환, 충전기/보조배터리 연결 시 무선 BLE 유지) 및 **3슬롯 QMK 호환 다이나믹 매크로 시스템** 탑재 (`Fn + 5/6` 슬롯1, `Fn + 7/8` 슬롯2, `Fn + 9/0` 슬롯3).
 
 > [!IMPORTANT]
 > **하드웨어 호환성 안내**:
@@ -158,6 +164,12 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
   * **3개 독립 슬롯 지원**: 슬롯 1 (`Fn + 5` 녹화 토글, `Fn + 6` 재생), 슬롯 2 (`Fn + 7` 녹화 토글, `Fn + 8` 재생), 슬롯 3 (`Fn + 9` 녹화 토글, `Fn + 0` 재생) 각 최대 128키 저장. 새 녹화 시작 시 기존 매크로를 즉시 삭제하고 덮어쓰기.
   * **슬롯별 독립 LED 색상 및 사운드 피드백**: 슬롯 1 녹화 중 **빨간색 숨쉬기**, 재생 시 **빨간색 점등**. 슬롯 2 녹화 중 **보라색 숨쉬기**, 재생 시 **보라색 점등**. 슬롯 3 녹화 중 **골드 숨쉬기**, 재생 시 **골드 점등**. 마스터 사운드 ON 상태일 때 시작 상승음, 종료 더블 비프, 재생 클릭음, 버퍼 초과 경고음 출력.
   * **12ms 무선 안정 고정 딜레이**: BLE 무선 통신 시 키 누락(키 씹힘)을 완벽 방지하는 12ms 안전 딜레이 인터벌 적용.
+* **스마트 하이브리드 USB/BLE 자동 전환 (Zero-Delay NVS Flash 보존)**:
+  * **USB 분리 & 배터리 전원 스위치 ON**: USB 케이블을 뽑거나 외부 전원 스위치를 켤 때 자동으로 마지막으로 활성화되었던 블루투스(BLE) 슬롯(0~3번)으로 즉시 전환됩니다.
+  * **돌발 전원 차단 방지 무지연 NVS 플래시 저장**: ZMK 기본 1초 디바운스 대기를 건너뛰고 `settings_save_one`으로 플래시에 즉시 커밋하여, 전환 직후 전원을 꺼도 설정이 유실되지 않습니다.
+  * **PC USB 연결 시 자동 전환**: PC에 케이블을 연결하여 HID 통신이 준비되면 즉시 USB 유선 모드로 자동 전환됩니다.
+  * **충전기/보조배터리 연결 시 BLE 유지**: 단순 충전기(Power-only)에 연결된 경우 블루투스 모드를 가로채지 않고 무선 타이핑 상태를 그대로 유지합니다.
+  * **수동 강제 토글**: 언제든 `Fn + ~` (`OUT_TOG`) 조합으로 유/무선 출력을 수동 토글할 수 있습니다.
 * **마우스 에뮬레이션 (ZMK Pointing)**: Raise 레이어에서 마우스 커서 이동, 클릭, 휠 스크롤 지원.
 * **트라이 레이어 및 독립 Fn 동시 지원 (디커플링)**: 상단 중앙 독립 `Fn` 키(`&mo L_FN`) 진입과 `Lower` + `Raise` 동시 입력을 통한 트라이 레이어 진입을 충돌 없이 완벽히 지원.
 * **웹 GUI 도구 완벽 호환**:
@@ -187,7 +199,7 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 #### 4. 펑션 레이어 (Function Layer - 공식 순정 키맵 규격)
 ![펑션 레이어](https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.7.0/docs/images/layer3_func.png)
 * **숫자 행**:
-  * `Grave` 자리: **`&out OUT_TOG`** (USB 유선 / 블루투스 무선 출력 모드 전환)
+  * `Grave` 자리: **`&out OUT_TOG`** (USB 유선 / 블루투스 무선 출력 모드 수동 토글; USB 분리 및 배터리 부팅 시 BLE 자동 전환)
   * `1 ~ 4` 자리: **`&bt BT_SEL 0 ~ 3`** (블루투스 기기 프로필 0번 ~ 3번, 총 4대 선택)
   * `5` 자리: **매크로 1 녹화 시작 / 종료 토글** (`Fn + 5` 입력 시 슬롯 1 녹화/종료, 녹화 중 나비 빨간색 숨쉬기)
   * `6` 자리: **매크로 1 재생** (`Fn + 6` 슬롯 1 매크로 실행, 나비 빨간색 점등)
@@ -218,7 +230,8 @@ Keyboardio Preonic 상단 중앙의 나비 로고에는 4개의 어드레서블 
 | **날개 2번 (Wing 2)** | 2번 슬롯 (`BT_SEL 2`) | 하늘색/청록색 깜빡임 (400ms 주기) | 사파이어 블루 점등 (5초 후 은은한 밝기로 전환) |
 | **날개 3번 (Wing 3)** | 3번 슬롯 (`BT_SEL 3`) | 하늘색/청록색 깜빡임 (400ms 주기) | 사파이어 블루 점등 (5초 후 은은한 밝기로 전환) |
 
-* **USB 유선 모드**: 4개 날개 전체가 에메랄드 그린(Green)으로 점등.
+* **USB 유선 모드**: PC에 유선 연결 시 4개 날개 전체가 에메랄드 그린(Green)으로 점등.
+* **스마트 자동 전환**: 케이블 분리나 배터리 스위치 ON 시 마지막 사용된 블루투스 슬롯으로 즉시 복귀하며, 충전기 연결 중에도 블루투스 무선 모드가 유지됩니다.
 * **사용자 선택 우선순위**: USB 유선 케이블이 연결되어 있어도 블루투스 슬롯을 선택하면 날개 LED가 해당 블루투스 상태를 즉시 표시합니다.
 * **스마트 배터리 절전**: 연결 완료 5초 후 저전력 은은한 밝기로 자동 감광되며, 키보드가 딥슬립(Deep Sleep)에 진입하면 모든 LED가 완전히 꺼져 배터리 소모를 0으로 유지합니다.
 

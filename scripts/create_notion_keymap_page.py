@@ -168,7 +168,7 @@ def update_or_create_keymap_page():
         callout_block([
             rt("본 문서는 ", bold=True),
             rt("Keyboardio Preonic (nRF52840)", bold=True, color="blue"),
-            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드 (v1.6.0)입니다.\n\n"),
+            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드 (v1.7.1)입니다.\n\n"),
             rt("특징 요약:\n", bold=True),
             rt("• 레이아웃: ", bold=True),
             rt("5x12 직교(Ortholinear) 배열 + "),
@@ -177,10 +177,12 @@ def update_or_create_keymap_page():
             rt("• 상단 보조 키: ", bold=True),
             rt("PrtSc 화면 캡처, 독립 Fn 키, "),
             rt("로터리 인코더(음량 조절 / 클릭 시 음소거)", bold=True, color="green"),
-            rt("\n• 피에조 사운드 시스템: ", bold=True),
+            rt("\n• 스마트 하이브리드 USB/BLE 자동 전환: ", bold=True),
+            rt("USB 케이블 분리 또는 배터리 전원 인가 시 마지막 활성 BLE 프로필(0~3번)로 자동 복귀, Zero-Delay NVS 플래시 즉시 저장으로 돌발 전원 차단 시에도 설정 완벽 보존, PC 연결 시 USB 자동 전환, 충전기 연결 시 무선 BLE 유지\n"),
+            rt("• 피에조 사운드 시스템: ", bold=True),
             rt("마스터 사운드 On/Off 토글(기본값 OFF 무음, Fn + S, NVS 플래시 영구 보존으로 전원 차단/재부팅 후에도 설정 유지), 절전모드 복귀 부팅음 차단, 타건 클릭음(Fn + C), 부팅 슈퍼마리오 코인 차임\n"),
             rt("• QMK 호환 다이나믹 매크로: ", bold=True),
-            rt("키보드 단독 실시간 매크로 녹화/재생, NVS 플래시 영구 보존(재부팅/방전 후 보존), 2개 독립 슬롯(슬롯1: Fn+7 녹화/Fn+8 재생, 슬롯2: Fn+9 녹화/Fn+0 재생), 녹화 시 슬롯별 LED 숨쉬기(슬롯1 빨강, 슬롯2 보라), 재생 시 점등 피드백, 12ms BLE 안전 딜레이, 마스터 사운드 연동 비프음\n"),
+            rt("키보드 단독 실시간 매크로 녹화/재생, NVS 플래시 영구 보존(재부팅/방전 후 보존), 3개 독립 슬롯(슬롯1: Fn+5 녹화/Fn+6 재생, 슬롯2: Fn+7 녹화/Fn+8 재생, 슬롯3: Fn+9 녹화/Fn+0 재생), 녹화 시 슬롯별 LED 숨쉬기(슬롯1 빨강, 슬롯2 보라, 슬롯3 골드), 재생 시 점등 피드백, 12ms BLE 안전 딜레이, 마스터 사운드 연동 비프음\n"),
             rt("• 배터리 모니터링: ", bold=True),
             rt("4단계 나비 날개 LED & 오디오 비프음 게이지(Fn + B 누르고 있는 동안 Hold), 스마트 저배터리 자동 경고(15% 이하 시 1회 더블 비프음), 텍스트 백분율 자동 타이퍼(Fn + P로 'XX%' 자동 입력)\n"),
             rt("• 무선 연결 및 시스템 제어: ", bold=True),
@@ -428,11 +430,19 @@ def update_or_create_keymap_page():
             rt("• On 전환 시 상승 알림음, Off 전환 시 하강 알림음이 울립니다 (마스터 사운드가 On인 경우에만 출력).")
         ], emoji="🔊", color="gray_background"),
         callout_block([
-            rt("📡 블루투스(BLE) 및 USB 유무선 제어 & 나비 LED 인디케이터:\n", bold=True, color="blue"),
-            rt("• Fn + 1 / 2 / 3 / 4: ", bold=True), rt("BLE 프로필 0, 1, 2, 3번 즉시 전환 (최대 4대 기기 멀티페어링)\n"),
-            rt("• 나비 로고 LED 1:1 매핑: ", bold=True), rt("4개의 날개 조각이 4개 프로필에 1:1 대응 (대기: 하늘색 깜빡임, 연결: 사파이어 블루 점등 후 감광, USB 유선: 에메랄드 그린)\n"),
-            rt("• Fn + ~ (Grave): ", bold=True), rt("USB 유선 출력과 블루투스 무선 출력 모드 수동 토글 (&out OUT_TOG)\n"),
-            rt("• Fn + → (하단 가장 우측 키): ", bold=True), rt("현재 활성화된 프로필의 BLE 페어링 정보 초기화 (&bt BT_CLR)")
+            rt("📡 스마트 하이브리드 USB/BLE 제어 & 나비 LED 인디케이터:\n", bold=True, color="blue"),
+            rt("1. 스마트 자동 출력 전환 & Zero-Delay NVS 보존:\n", bold=True),
+            rt("   • 케이블 분리 & 배터리 부팅: ", bold=True, color="orange"),
+            rt("USB 케이블을 뽑거나 외부 전원 스위치를 켤 때 자동으로 마지막 사용 BLE 슬롯(0~3번)으로 즉시 전환되며, 플래시에 지연 없이 즉시 기록되어 돌발 전원 차단에도 설정이 유실되지 않습니다.\n"),
+            rt("   • PC USB 연결 시: ", bold=True, color="green"),
+            rt("PC와 HID 통신이 연결되면 자동으로 USB 유선 출력 모드로 전환됩니다.\n"),
+            rt("   • 충전기/보조배터리 연결 시: ", bold=True, color="blue"),
+            rt("전원 공급 전용(Power-only) 연결을 감지하여 블루투스 무선 입력을 가로채지 않고 BLE 모드를 유지합니다.\n"),
+            rt("2. 프로필 선택 및 수동 제어:\n", bold=True),
+            rt("   • Fn + 1 / 2 / 3 / 4: ", bold=True), rt("BLE 프로필 0, 1, 2, 3번 즉시 전환 (최대 4대 기기 멀티페어링)\n"),
+            rt("   • 나비 로고 LED 1:1 매핑: ", bold=True), rt("4개의 날개 조각이 4개 프로필에 1:1 대응 (대기: 하늘색 깜빡임, 연결: 사파이어 블루 점등 후 감광, PC USB 유선: 에메랄드 그린)\n"),
+            rt("   • Fn + ~ (Grave): ", bold=True), rt("USB 유선 출력과 블루투스 무선 출력 모드 수동 토글 (&out OUT_TOG)\n"),
+            rt("   • Fn + → (하단 가장 우측 키): ", bold=True), rt("현재 활성화된 프로필의 BLE 페어링 정보 초기화 (&bt BT_CLR)")
         ], emoji="📡", color="gray_background"),
         callout_block([
             rt("🛠️ 부트로더 진입 (Fn + LCtrl):\n", bold=True, color="orange"),
@@ -535,7 +545,7 @@ def update_or_create_keymap_page():
             table_row_block([
                 [rt("USB / BLE 전환", bold=True)],
                 [rt("Fn + ~ (Grave)", code=True)],
-                "유선 연결과 무선 연결 모드 강제 토글"
+                "유무선 출력 수동 토글 (케이블 분리/전원 인가 시 BLE 자동 전환 & 무지연 플래시 저장)"
             ]),
             table_row_block([
                 [rt("음소거 / 볼륨", bold=True)],

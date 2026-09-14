@@ -19,6 +19,8 @@
 #include <zmk/battery.h>
 #include <zmk/ble.h>
 #include <zmk/endpoints.h>
+#include <zmk/usb.h>
+#include <zephyr/settings/settings.h>
 #include <zmk/event_manager.h>
 #include <zmk/events/activity_state_changed.h>
 #include <zmk/events/battery_state_changed.h>
@@ -62,6 +64,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 static const struct device *const strip_dev = DEVICE_DT_GET(BUTTERFLY_NODE);
 
 static struct k_work_delayable butterfly_work;
+static struct k_work_delayable boot_endpoint_work;
 static int64_t state_change_time = 0;
 static int64_t boot_start_time = 0;
 static bool boot_anim_done = false;
@@ -393,6 +396,39 @@ static int butterfly_event_listener(const zmk_event_t *eh) {
         }
     }
 
+    #if IS_ENABLED(CONFIG_ZMK_USB)
+    const struct zmk_usb_conn_state_changed *usb_ev = as_zmk_usb_conn_state_changed(eh);
+    if (usb_ev != NULL) {
+        LOG_INF("USB connection state changed to: %d", usb_ev->conn_state);
+        if (usb_ev->conn_state == ZMK_USB_CONN_NONE) {
+            // USB cable disconnected: auto-switch to BLE mode (Last-Active Profile)
+            if (zmk_endpoint_get_preferred_transport() != ZMK_TRANSPORT_BLE) {
+                LOG_INF("USB disconnected: auto-switching preferred transport to BLE");
+                zmk_endpoint_set_preferred_transport(ZMK_TRANSPORT_BLE);
+#if IS_ENABLED(CONFIG_SETTINGS)
+                enum zmk_transport transport = ZMK_TRANSPORT_BLE;
+                settings_save_one("endpoints/preferred2", &transport, sizeof(transport));
+#endif
+            }
+        } else if (usb_ev->conn_state == ZMK_USB_CONN_HID) {
+            // USB cable plugged into PC host with HID ready: auto-switch to USB mode
+            if (zmk_endpoint_get_preferred_transport() != ZMK_TRANSPORT_USB) {
+                LOG_INF("USB HID host connected: auto-switching preferred transport to USB");
+                zmk_endpoint_set_preferred_transport(ZMK_TRANSPORT_USB);
+#if IS_ENABLED(CONFIG_SETTINGS)
+                enum zmk_transport transport = ZMK_TRANSPORT_USB;
+                settings_save_one("endpoints/preferred2", &transport, sizeof(transport));
+#endif
+            }
+        } else if (usb_ev->conn_state == ZMK_USB_CONN_POWERED) {
+            // Connected to wall charger / power bank: keep BLE mode active!
+            LOG_INF("USB connected to power-only source (charger): maintaining BLE transport");
+        }
+        butterfly_status_refresh();
+        return 0;
+    }
+#endif
+
     butterfly_status_refresh();
     return 0;
 }
@@ -411,8 +447,41 @@ ZMK_SUBSCRIPTION(butterfly_status, zmk_position_state_changed);
 ZMK_SUBSCRIPTION(butterfly_status, zmk_activity_state_changed);
 ZMK_SUBSCRIPTION(butterfly_status, zmk_battery_state_changed);
 
+static void boot_endpoint_work_handler(struct k_work *work) {
+    ARG_UNUSED(work);
+#if IS_ENABLED(CONFIG_ZMK_USB)
+    enum zmk_usb_conn_state conn = zmk_usb_get_conn_state();
+    LOG_INF("Boot endpoint check: USB conn state = %d, preferred transport = %d",
+            conn, zmk_endpoint_get_preferred_transport());
+
+    if (conn == ZMK_USB_CONN_NONE) {
+        // Running on battery (external power switch ON or wake without USB cable)
+        if (zmk_endpoint_get_preferred_transport() != ZMK_TRANSPORT_BLE) {
+            LOG_INF("Boot on battery without USB: enforcing BLE preferred transport");
+            zmk_endpoint_set_preferred_transport(ZMK_TRANSPORT_BLE);
+#if IS_ENABLED(CONFIG_SETTINGS)
+            enum zmk_transport transport = ZMK_TRANSPORT_BLE;
+            settings_save_one("endpoints/preferred2", &transport, sizeof(transport));
+#endif
+        }
+    } else if (conn == ZMK_USB_CONN_HID) {
+        // Booted with USB cable connected to PC host
+        if (zmk_endpoint_get_preferred_transport() != ZMK_TRANSPORT_USB) {
+            LOG_INF("Booted with USB HID connected: selecting USB transport");
+            zmk_endpoint_set_preferred_transport(ZMK_TRANSPORT_USB);
+#if IS_ENABLED(CONFIG_SETTINGS)
+            enum zmk_transport transport = ZMK_TRANSPORT_USB;
+            settings_save_one("endpoints/preferred2", &transport, sizeof(transport));
+#endif
+        }
+    }
+#endif
+    butterfly_status_refresh();
+}
+
 static int butterfly_init(void) {
     k_work_init_delayable(&butterfly_work, butterfly_work_handler);
+    k_work_init_delayable(&boot_endpoint_work, boot_endpoint_work_handler);
 
     bool wake_from_off = false;
 #if defined(NRF_POWER) || defined(NRFX_RESET_REASON_H)
@@ -430,6 +499,16 @@ static int butterfly_init(void) {
     // Clear OFF reset reason now that all init routines have completed
     nrfx_reset_reason_clear(NRFX_RESET_REASON_OFF_MASK);
 #endif
+
+#if IS_ENABLED(CONFIG_ZMK_USB)
+    if (zmk_usb_get_conn_state() == ZMK_USB_CONN_NONE) {
+        if (zmk_endpoint_get_preferred_transport() != ZMK_TRANSPORT_BLE) {
+            zmk_endpoint_set_preferred_transport(ZMK_TRANSPORT_BLE);
+        }
+    }
+#endif
+
+    k_work_reschedule(&boot_endpoint_work, K_MSEC(250));
 
 #if CONFIG_BUTTERFLY_BOOT_ANIM_MS > 0
     if (wake_from_off) {
