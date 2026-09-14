@@ -24,7 +24,7 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
 * **Low-Latency Debouncing**: Optimized debouncing (1 ms press / 5 ms release) for rapid response and debounce error prevention.
 * **Full NKRO**: N-Key Rollover enabled for simultaneous keypress accuracy.
 * **RGB Underglow**: Keyboardio butterfly logo illuminated on startup with signature cyan breathing effect (`HSV: 195, 100, 100`).
-* **Piezo Sound System**: Hardware PWM-driven onboard piezo buzzer playing a signature Super Mario coin chime on cold boot and crisp 5ms audio clicky feedback on keystrokes.
+* **Piezo Sound System**: Hardware PWM-driven onboard piezo buzzer playing a signature Super Mario coin chime on cold boot (filtered out on sleep wakeups), master sound mute/unmute toggle (`Fn + S`), and crisp 5ms audio clicky feedback on keystrokes (`Fn + C`).
 * **Battery Monitoring System**:
   * **`Fn + B` 4-Level Butterfly Gauge**: Displays battery level across the 4 butterfly wing LEDs for 3 seconds (75-100%: 4 Green, 50-74%: 3 Lime Green, 25-49%: 2 Orange, 0-24%: 1 Red). If battery is <= 15%, simultaneously emits a warning beep.
   * **Smart Low-Battery Alert**: Automatically sounds a 1500Hz double-beep warning once when battery first drops to <= 15% during use. Suppresses repeated alerts (only beeps on manual `Fn + B` afterwards) and resets once recharged to >= 20%.
@@ -61,6 +61,7 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
   * `Grave` position: `&out OUT_TOG` (Toggle between USB and BLE output)
   * `1` ~ `4`: `&bt BT_SEL 0` ~ `&bt BT_SEL 3` (Select Bluetooth profiles 0 to 3, max 4 devices)
 * **Alphabet Rows**:
+  * `S` position: **Master Sound Toggle** (`Fn + S` toggles all piezo sound on/off; state retained across sleep)
   * `Z` position: `&studio_unlock` (Unlock ZMK Studio)
   * `C` position: **Audio Clicky Toggle** (`Fn + C` toggles typing click sound on/off; high tone for ON, low tone for OFF)
   * `B` position: **Butterfly Battery Gauge** (`Fn + B` shows 4-level LED battery gauge while held; beeps if <= 15%)
@@ -123,7 +124,7 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 * **초저지연 디바운스**: 1ms 누름 / 5ms 릴리즈 설정으로 키 입력 반응성 극대화 및 채터링 방지.
 * **NKRO 완벽 지원**: 무한 동시 입력(N-Key Rollover) 지원.
 * **Keyboardio 나비 로고 RGB 언더글로우**: 부팅 시 시그니처 스카이블루 숨쉬기(Cyan Breathing, `HSV: 195, 100, 100`) 효과 자동 점등.
-* **피에조 사운드 시스템 (Piezo Sound)**: 하드웨어 PWM0 기반으로 부팅 시 슈퍼마리오 코인 획득 멜로디를 재생하며, 타이핑 시 5ms 초저지연 기계식 오디오 클릭키(Audio Clicky) 사운드 제공.
+* **피에조 사운드 시스템 (Piezo Sound)**: 하드웨어 PWM0 기반으로 순수 콜드 부팅 시에만 슈퍼마리오 코인 획득 멜로디를 재생(딥슬립 절전모드 복귀 시에는 재생 억제), 마스터 사운드 On/Off 토글(`Fn + S`), 및 타이핑 시 5ms 초저지연 기계식 오디오 클릭키(`Fn + C`) 사운드 제공.
 * **배터리 상태 모니터링 시스템**:
   * **`Fn + B` 나비 날개 4단계 LED 게이지**: 3초간 4개 나비 날개 LED로 배터리 잔량을 시각화 표시 (75~100%: 4개 초록, 50~74%: 3개 연두, 25~49%: 2개 주황, 0~24%: 1개 빨강). 잔량이 15% 이하인 경우 1500Hz 경고 비프음 동시 출력.
   * **스마트 저배터리 경고음**: 사용 중 배터리가 최초 15% 이하로 떨어지면 1500Hz 더블 비프음으로 1회 자동 경고. 이후 반복 비프를 억제하고 수동(`Fn + B`) 확인 시에만 경고음을 울리며, 충전하여 20% 이상 도달 시 플래그 자동 리셋.
@@ -160,6 +161,7 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
   * `Grave` 자리: **`&out OUT_TOG`** (USB 유선 / 블루투스 무선 출력 모드 전환)
   * `1 ~ 4` 자리: **`&bt BT_SEL 0 ~ 3`** (블루투스 기기 프로필 0번 ~ 3번, 총 4대 선택)
 * **알파벳 행**:
+  * `S` 자리: **키보드 전체 사운드 On/Off 마스터 토글** (`Fn + S` 입력 시 모든 피에조 사운드 마스터 음소거/해제 토글, 딥슬립 후에도 설정 유지)
   * `Z` 자리: **`&studio_unlock`** (ZMK Studio 잠금 해제)
   * `C` 자리: **오디오 클릭키 On/Off 토글** (`Fn + C` 입력 시 타이핑 클릭 소리를 켜고 끄며, 켤 때 높은 톤 / 끌 때 낮은 톤 확인음 제공)
   * `B` 자리: **나비 배터리 게이지** (`Fn + B` 누르고 있는 동안 4단계 나비 LED 잔량 게이지 표시, 15% 이하 시 경고 비프음 출력)

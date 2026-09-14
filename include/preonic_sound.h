@@ -41,6 +41,21 @@ void preonic_sound_play_low_battery_warning(void);
 void preonic_sound_play_click(void);
 
 /**
+ * @brief Toggle master sound state (enabled/disabled).
+ *
+ * When master sound is disabled, all audio (clicky, chimes, beeps) is muted.
+ * When enabled, plays a rising confirmation tone.
+ *
+ * @return Current master sound state after toggle (true: enabled, false: disabled)
+ */
+bool preonic_sound_toggle_master(void);
+
+/**
+ * @brief Check if master sound is currently enabled.
+ */
+bool preonic_sound_is_master_enabled(void);
+
+/**
  * @brief Toggle audio clicky state (enabled/disabled).
  *
  * Emits a high confirmation beep (2400Hz) when enabled,

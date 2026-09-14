@@ -32,16 +32,31 @@ COLOR_BLE = (2, 132, 199)          # Sky Blue (Bluetooth & Output)
 COLOR_DANGER = (220, 38, 38)       # Red (Bootloader, BT Clear)
 COLOR_TRANS = (26, 27, 32)         # Transparent / unused on layer
 
-FONT_PATH = "/usr/share/fonts/google-noto-sans-cjk-vf-fonts/NotoSansCJK-VF.ttc"
+FONT_PATHS = [
+    "/usr/share/fonts/google-noto-sans-cjk-vf-fonts/NotoSansCJK-VF.ttc",
+    "C:/Windows/Fonts/malgunbd.ttf",
+    "C:/Windows/Fonts/malgun.ttf",
+    "C:/Windows/Fonts/segoeui.ttf",
+    "C:/Windows/Fonts/arial.ttf",
+]
 
 def get_font(size, weight="Bold"):
-    f = ImageFont.truetype(FONT_PATH, size, index=1)
-    if hasattr(f, "set_variation_by_name"):
-        try:
-            f.set_variation_by_name(weight)
-        except Exception:
-            pass
-    return f
+    for p in FONT_PATHS:
+        if os.path.exists(p):
+            try:
+                if p.endswith(".ttc"):
+                    f = ImageFont.truetype(p, size, index=1)
+                    if hasattr(f, "set_variation_by_name"):
+                        try:
+                            f.set_variation_by_name(weight)
+                        except Exception:
+                            pass
+                    return f
+                else:
+                    return ImageFont.truetype(p, size)
+            except Exception:
+                continue
+    return ImageFont.load_default()
 
 FONT_TITLE = get_font(28, "Bold")
 FONT_SUBTITLE = get_font(16, "Medium")
@@ -383,10 +398,10 @@ func_keys = [
     {"col": 9, "row": 2, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
     {"col": 10, "row": 2, "main": "Type %", "sub": "Auto \"XX%\"", "bg": COLOR_FEATURE, "tag": "Fn+P"},
     {"col": 11, "row": 2, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
-    # Row 3
+    # Row 3 (Master Sound Toggle on S)
     {"col": 0, "row": 3, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
     {"col": 1, "row": 3, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
-    {"col": 2, "row": 3, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
+    {"col": 2, "row": 3, "main": "Sound", "sub": "Master On/Off", "bg": COLOR_FEATURE, "tag": "Fn+S"},
     {"col": 3, "row": 3, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
     {"col": 4, "row": 3, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
     {"col": 5, "row": 3, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
@@ -423,12 +438,14 @@ func_keys = [
     {"col": 11, "row": 5, "main": "BT Clear", "sub": "Clear Profile", "bg": COLOR_DANGER},
 ]
 
-out_dir = "/root/samake-preonic-config/docs/images"
+script_dir = os.path.dirname(os.path.abspath(__file__))
+repo_dir = os.path.dirname(script_dir)
+out_dir = os.path.join(repo_dir, "docs", "images")
 os.makedirs(out_dir, exist_ok=True)
 
-render_layer("Keyboardio Preonic — Layer 0: Base Layer (기본 레이어)", "Standard 5x12 MIT Layout (Alphanumerics, Centered 2U Spacebar, Top Fn & Media Knob)", base_keys, f"{out_dir}/layer0_base.png")
-render_layer("Keyboardio Preonic — Layer 1: Lower Layer (로워 레이어)", "Numeric Keypad (Tenkeyless Numpad on Right Hand) & Navigation Keys (Home, End, PgUp, PgDn)", lower_keys, f"{out_dir}/layer1_lower.png")
-render_layer("Keyboardio Preonic — Layer 2: Raise Layer (레이즈 레이어)", "Programming Symbols & Full Mouse Emulation (Move, Click, Wheel Scroll)", raise_keys, f"{out_dir}/layer2_raise.png")
-render_layer("Keyboardio Preonic — Layer 3: Function & Tri Layer (펑션 레이어)", "Hardware Controls: Bluetooth Profiles, Audio Clicky (Fn+C), Battery Gauge (Fn+B), Typer (Fn+P), Bootloader", func_keys, f"{out_dir}/layer3_func.png")
+render_layer("Keyboardio Preonic — Layer 0: Base Layer (기본 레이어)", "Standard 5x12 MIT Layout (Alphanumerics, Centered 2U Spacebar, Top Fn & Media Knob)", base_keys, os.path.join(out_dir, "layer0_base.png"))
+render_layer("Keyboardio Preonic — Layer 1: Lower Layer (로워 레이어)", "Numeric Keypad (Tenkeyless Numpad on Right Hand) & Navigation Keys (Home, End, PgUp, PgDn)", lower_keys, os.path.join(out_dir, "layer1_lower.png"))
+render_layer("Keyboardio Preonic — Layer 2: Raise Layer (레이즈 레이어)", "Programming Symbols & Full Mouse Emulation (Move, Click, Wheel Scroll)", raise_keys, os.path.join(out_dir, "layer2_raise.png"))
+render_layer("Keyboardio Preonic — Layer 3: Function & Tri Layer (펑션 레이어)", "Hardware Controls: Bluetooth Profiles, Sound On/Off (Fn+S), Audio Clicky (Fn+C), Battery Gauge (Fn+B), Typer (Fn+P), Bootloader", func_keys, os.path.join(out_dir, "layer3_func.png"))
 
-print("All 4 layer images successfully re-generated with NotoSansCJK Bold!")
+print(f"All 4 layer images successfully re-generated into {out_dir}!")

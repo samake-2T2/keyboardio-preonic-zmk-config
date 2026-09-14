@@ -10,6 +10,11 @@
 #include <zephyr/init.h>
 #include <zephyr/logging/log.h>
 
+#if defined(CONFIG_SOC_FAMILY_NRF) || defined(NRF52840_XXAA) || defined(NRF_POWER)
+#include <helpers/nrfx_reset_reason.h>
+#include <hal/nrf_power.h>
+#endif
+
 #include <zmk/activity.h>
 #include <zmk/event_manager.h>
 #include <zmk/events/activity_state_changed.h>
@@ -28,9 +33,10 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #define SPEAKER_PWM_CHANNEL 0
 
-// Keymap indices for Fn + C toggle
+// Keymap indices for Fn toggles
 #define FN_LAYER_INDEX 3
 #define TRI_LAYER_INDEX 4
+#define S_KEY_POSITION 29
 #define C_KEY_POSITION 42
 
 enum sound_state {
@@ -51,8 +57,60 @@ static enum sound_state current_sound_state = SOUND_STATE_IDLE;
 static struct k_work_delayable sound_work;
 static struct k_work_delayable boot_coin_work;
 
+static bool sound_master_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_MASTER_DEFAULT);
 static bool clicky_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_CLICKY_DEFAULT);
 static bool cold_boot_done = false;
+
+#if defined(NRF_POWER)
+#define GPREGRET_MAGIC_MASK  0xF0
+#define GPREGRET_MAGIC_VAL   0x50 // Magic tag 'S' (Sound)
+#define GPREGRET_SOUND_BIT   (1U << 0)
+#define GPREGRET_CLICKY_BIT  (1U << 1)
+
+static void save_sound_state(void) {
+    uint8_t val = GPREGRET_MAGIC_VAL;
+    if (sound_master_enabled) {
+        val |= GPREGRET_SOUND_BIT;
+    }
+    if (clicky_enabled) {
+        val |= GPREGRET_CLICKY_BIT;
+    }
+    nrf_power_gpregret_set(NRF_POWER, 1, val);
+}
+
+static void load_sound_state(void) {
+    uint32_t reg = nrf_power_gpregret_get(NRF_POWER, 1);
+    if ((reg & GPREGRET_MAGIC_MASK) == GPREGRET_MAGIC_VAL) {
+        sound_master_enabled = (reg & GPREGRET_SOUND_BIT) != 0;
+        clicky_enabled = (reg & GPREGRET_CLICKY_BIT) != 0;
+    } else {
+        sound_master_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_MASTER_DEFAULT);
+        clicky_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_CLICKY_DEFAULT);
+        save_sound_state();
+    }
+}
+
+static inline bool is_wake_from_system_off(void) {
+    uint32_t reason = nrfx_reset_reason_get();
+    return (reason & (NRFX_RESET_REASON_OFF_MASK
+#if NRFX_RESET_REASON_HAS_LPCOMP
+                    | NRFX_RESET_REASON_LPCOMP_MASK
+#endif
+#if NRFX_RESET_REASON_HAS_NFC
+                    | NRFX_RESET_REASON_NFC_MASK
+#endif
+           )) != 0;
+}
+#else
+static inline void save_sound_state(void) {}
+static inline void load_sound_state(void) {
+    sound_master_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_MASTER_DEFAULT);
+    clicky_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_CLICKY_DEFAULT);
+}
+static inline bool is_wake_from_system_off(void) {
+    return false;
+}
+#endif
 
 static inline int set_tone(uint32_t freq_hz) {
     if (!device_is_ready(pwm_dev)) {
@@ -111,7 +169,7 @@ void preonic_sound_stop(void) {
 }
 
 void preonic_sound_play_tone(uint32_t freq_hz, uint32_t duration_ms) {
-    if (!device_is_ready(pwm_dev)) {
+    if (!sound_master_enabled || !device_is_ready(pwm_dev)) {
         return;
     }
     if (freq_hz == 0 || duration_ms == 0) {
@@ -124,7 +182,7 @@ void preonic_sound_play_tone(uint32_t freq_hz, uint32_t duration_ms) {
 }
 
 void preonic_sound_play_coin(void) {
-    if (!device_is_ready(pwm_dev)) {
+    if (!sound_master_enabled || !device_is_ready(pwm_dev)) {
         return;
     }
     // 1st note of Mario Coin: B5 (988Hz) for 65ms
@@ -134,7 +192,7 @@ void preonic_sound_play_coin(void) {
 }
 
 void preonic_sound_play_low_battery_warning(void) {
-    if (!device_is_ready(pwm_dev)) {
+    if (!sound_master_enabled || !device_is_ready(pwm_dev)) {
         return;
     }
     // 1st beep: 1500Hz for 100ms
@@ -144,7 +202,7 @@ void preonic_sound_play_low_battery_warning(void) {
 }
 
 void preonic_sound_play_click(void) {
-    if (!clicky_enabled || !device_is_ready(pwm_dev)) {
+    if (!sound_master_enabled || !clicky_enabled || !device_is_ready(pwm_dev)) {
         return;
     }
     // Do not interrupt Mario Coin or Low Battery warning sequence
@@ -158,9 +216,37 @@ void preonic_sound_play_click(void) {
     k_work_reschedule(&sound_work, K_MSEC(CONFIG_PREONIC_SOUND_CLICK_DURATION_MS));
 }
 
+bool preonic_sound_toggle_master(void) {
+    sound_master_enabled = !sound_master_enabled;
+    save_sound_state();
+
+    if (!device_is_ready(pwm_dev)) {
+        return sound_master_enabled;
+    }
+
+    current_sound_state = SOUND_STATE_TOGGLE_TONE;
+    if (sound_master_enabled) {
+        // High confirmation tone for ON (2200Hz, 80ms)
+        set_tone(2200);
+    } else {
+        // Low confirmation tone for OFF (1000Hz, 60ms)
+        set_tone(1000);
+    }
+    k_work_reschedule(&sound_work, K_MSEC(sound_master_enabled ? 80 : 60));
+
+    LOG_INF("Preonic master sound toggled: %s", sound_master_enabled ? "ON" : "OFF");
+    return sound_master_enabled;
+}
+
+bool preonic_sound_is_master_enabled(void) {
+    return sound_master_enabled;
+}
+
 bool preonic_sound_toggle_clicky(void) {
     clicky_enabled = !clicky_enabled;
-    if (!device_is_ready(pwm_dev)) {
+    save_sound_state();
+
+    if (!sound_master_enabled || !device_is_ready(pwm_dev)) {
         return clicky_enabled;
     }
 
@@ -204,7 +290,14 @@ static int preonic_sound_event_listener(const zmk_event_t *eh) {
             return 0;
         }
 
-        // Check for Fn + C toggle keypress
+        // Check for Fn + S toggle keypress (Master Sound On/Off)
+        if (pos_ev->position == S_KEY_POSITION &&
+            (zmk_keymap_layer_active(FN_LAYER_INDEX) || zmk_keymap_layer_active(TRI_LAYER_INDEX))) {
+            preonic_sound_toggle_master();
+            return 0;
+        }
+
+        // Check for Fn + C toggle keypress (Audio Clicky On/Off)
         if (pos_ev->position == C_KEY_POSITION &&
             (zmk_keymap_layer_active(FN_LAYER_INDEX) || zmk_keymap_layer_active(TRI_LAYER_INDEX))) {
             preonic_sound_toggle_clicky();
@@ -227,6 +320,8 @@ static int preonic_sound_init(void) {
     k_work_init_delayable(&sound_work, sound_work_handler);
     k_work_init_delayable(&boot_coin_work, boot_coin_work_handler);
 
+    load_sound_state();
+
     if (!device_is_ready(pwm_dev)) {
         LOG_WRN("Preonic sound PWM device not ready");
         return 0;
@@ -236,7 +331,8 @@ static int preonic_sound_init(void) {
     set_tone(0);
 
 #if IS_ENABLED(CONFIG_PREONIC_SOUND_COIN_BOOT)
-    if (!cold_boot_done) {
+    // Only play Mario coin on cold boot, NEVER when waking from System OFF sleep
+    if (!is_wake_from_system_off() && sound_master_enabled && !cold_boot_done) {
         cold_boot_done = true;
         // Schedule Mario coin chime 600ms after boot
         k_work_schedule(&boot_coin_work, K_MSEC(600));

@@ -79,6 +79,12 @@ menuconfig KEYBOARDIO_PREONIC_SOUND
 
 if KEYBOARDIO_PREONIC_SOUND
 
+config PREONIC_SOUND_MASTER_DEFAULT
+	bool "Master sound enabled by default on boot"
+	default y
+	help
+	  Master switch for all piezo sound effects. Can be toggled with Fn + S.
+
 config PREONIC_SOUND_CLICKY_DEFAULT
 	bool "Audio clicky enabled by default on boot"
 	default y

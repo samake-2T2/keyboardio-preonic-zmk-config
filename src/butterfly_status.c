@@ -10,6 +10,11 @@
 #include <zephyr/init.h>
 #include <zephyr/logging/log.h>
 
+#if defined(CONFIG_SOC_FAMILY_NRF) || defined(NRF52840_XXAA) || defined(NRF_POWER)
+#include <helpers/nrfx_reset_reason.h>
+#include <hal/nrf_power.h>
+#endif
+
 #include <zmk/activity.h>
 #include <zmk/battery.h>
 #include <zmk/ble.h>
@@ -347,9 +352,31 @@ ZMK_SUBSCRIPTION(butterfly_status, zmk_battery_state_changed);
 
 static int butterfly_init(void) {
     k_work_init_delayable(&butterfly_work, butterfly_work_handler);
+
+    bool wake_from_off = false;
+#if defined(NRF_POWER) || defined(NRFX_RESET_REASON_H)
+    uint32_t reason = nrfx_reset_reason_get();
+    if (reason & (NRFX_RESET_REASON_OFF_MASK
+#if NRFX_RESET_REASON_HAS_LPCOMP
+                | NRFX_RESET_REASON_LPCOMP_MASK
+#endif
+#if NRFX_RESET_REASON_HAS_NFC
+                | NRFX_RESET_REASON_NFC_MASK
+#endif
+       )) {
+        wake_from_off = true;
+    }
+    // Clear OFF reset reason now that all init routines have completed
+    nrfx_reset_reason_clear(NRFX_RESET_REASON_OFF_MASK);
+#endif
+
 #if CONFIG_BUTTERFLY_BOOT_ANIM_MS > 0
-    boot_anim_done = false;
-    boot_start_time = k_uptime_get();
+    if (wake_from_off) {
+        boot_anim_done = true;
+    } else {
+        boot_anim_done = false;
+        boot_start_time = k_uptime_get();
+    }
 #else
     boot_anim_done = true;
 #endif

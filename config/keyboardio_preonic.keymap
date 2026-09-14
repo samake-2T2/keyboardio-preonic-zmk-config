@@ -112,7 +112,7 @@
                                                                                                               &trans  &trans  &trans
 &out OUT_TOG  &bt_sel_0       &bt_sel_1     &bt_sel_2     &bt_sel_3       &trans        &trans  &trans  &trans  &trans  &trans  &trans
 &trans        &trans          &trans        &trans        &trans          &trans        &trans  &trans  &trans  &trans  &none   &trans
-&trans        &trans          &trans        &trans        &trans          &trans        &trans  &trans  &trans  &trans  &trans  &trans
+&trans        &trans          &none         &trans        &trans          &trans        &trans  &trans  &trans  &trans  &trans  &trans
 &trans        &studio_unlock  &trans        &none         &trans          &none         &trans  &trans  &trans  &trans  &trans  &trans
 &bootloader   &trans          &trans        &trans        &trans          &trans                &trans  &trans  &trans  &trans  &bt BT_CLR
             >;
@@ -126,7 +126,7 @@
                                                                                                               &trans  &trans  &trans
 &out OUT_TOG  &bt_sel_0       &bt_sel_1     &bt_sel_2     &bt_sel_3       &trans        &trans  &trans  &trans  &trans  &trans  &trans
 &trans        &trans          &trans        &trans        &trans          &trans        &trans  &trans  &trans  &trans  &none   &trans
-&trans        &trans          &trans        &trans        &trans          &trans        &trans  &trans  &trans  &trans  &trans  &trans
+&trans        &trans          &none         &trans        &trans          &trans        &trans  &trans  &trans  &trans  &trans  &trans
 &trans        &studio_unlock  &trans        &none         &trans          &none         &trans  &trans  &trans  &trans  &trans  &trans
 &bootloader   &trans          &trans        &trans        &trans          &trans                &trans  &trans  &trans  &trans  &bt BT_CLR
             >;
