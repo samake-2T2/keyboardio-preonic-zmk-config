@@ -42,9 +42,9 @@ static const uint8_t ALLOWED_LENGTHS[] = { 12, 16, 20, 24 };
 
 static uint8_t current_length_idx = DEFAULT_LENGTH_INDEX;
 
-#define ENCODER_PULSES_PER_DETENT 4
-#define ENCODER_RESET_TIMEOUT_MS 300
-#define ENCODER_MIN_STEP_INTERVAL_MS 60
+#define ENCODER_PULSES_PER_DETENT 8
+#define ENCODER_RESET_TIMEOUT_MS 350
+#define ENCODER_MIN_STEP_INTERVAL_MS 100
 
 static int8_t pulse_accumulator = 0;
 static int64_t last_pulse_time = 0;
@@ -323,14 +323,14 @@ static int password_generator_event_listener(const zmk_event_t *eh) {
                     if (now - last_step_time >= ENCODER_MIN_STEP_INTERVAL_MS) {
                         password_generator_cycle_length(1);
                         last_step_time = now;
+                        pulse_accumulator = 0;
                     }
-                    pulse_accumulator = 0;
                 } else if (pulse_accumulator <= -ENCODER_PULSES_PER_DETENT) {
                     if (now - last_step_time >= ENCODER_MIN_STEP_INTERVAL_MS) {
                         password_generator_cycle_length(-1);
                         last_step_time = now;
+                        pulse_accumulator = 0;
                     }
-                    pulse_accumulator = 0;
                 }
                 return ZMK_EV_EVENT_HANDLED;
             }
