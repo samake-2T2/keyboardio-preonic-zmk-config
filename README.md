@@ -79,7 +79,7 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
   * `9`: **Macro 2 Record / Stop** (`Fn + 9` toggle record start/stop; Purple breathing LED)
   * `0`: **Macro 2 Playback** (`Fn + 0` replay macro 2; Purple flash)
 * **Alphabet Rows**:
-  * `S` position: **Master Sound Toggle** (`Fn + S` toggles all piezo sound on/off; defaults to OFF, state retained across sleep)
+  * `S` position: **Master Sound Toggle** (`Fn + S` toggles all piezo sound on/off; defaults to OFF, state persisted to NVS Flash across reboots/power cycles)
   * `Z` position: `&studio_unlock` (Unlock ZMK Studio)
   * `C` position: **Audio Clicky Toggle** (`Fn + C` toggles typing click sound on/off; high tone for ON, low tone for OFF)
   * `B` position: **Butterfly Battery Gauge** (`Fn + B` shows 4-level LED battery gauge while held; beeps if <= 15%)
@@ -192,7 +192,7 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
   * `9` 자리: **매크로 2 녹화 시작 / 종료 토글** (`Fn + 9` 입력 시 슬롯 2 녹화/종료, 녹화 중 나비 보라색 숨쉬기)
   * `0` 자리: **매크로 2 재생** (`Fn + 0` 슬롯 2 매크로 실행, 나비 보라색 점등)
 * **알파벳 행**:
-  * `S` 자리: **키보드 전체 사운드 On/Off 마스터 토글** (`Fn + S` 입력 시 모든 피에조 사운드 마스터 활성화/비활성화, 기본값 OFF, 딥슬립 후에도 설정 유지)
+  * `S` 자리: **키보드 전체 사운드 On/Off 마스터 토글** (`Fn + S` 입력 시 모든 피에조 사운드 마스터 활성화/비활성화, 기본값 OFF, NVS 플래시 영구 저장으로 전원 차단/재부팅 후에도 설정 유지)
   * `Z` 자리: **`&studio_unlock`** (ZMK Studio 잠금 해제)
   * `C` 자리: **오디오 클릭키 On/Off 토글** (`Fn + C` 입력 시 타이핑 클릭 소리를 켜고 끄며, 켤 때 높은 톤 / 끌 때 낮은 톤 확인음 제공)
   * `B` 자리: **나비 배터리 게이지** (`Fn + B` 누르고 있는 동안 4단계 나비 LED 잔량 게이지 표시, 15% 이하 시 경고 비프음 출력)

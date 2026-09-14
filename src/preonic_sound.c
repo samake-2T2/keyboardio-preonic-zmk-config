@@ -10,6 +10,10 @@
 #include <zephyr/init.h>
 #include <zephyr/logging/log.h>
 
+#if IS_ENABLED(CONFIG_SETTINGS)
+#include <zephyr/settings/settings.h>
+#endif
+
 #if defined(CONFIG_SOC_FAMILY_NRF) || defined(NRF52840_XXAA) || defined(NRF_POWER)
 #include <helpers/nrfx_reset_reason.h>
 #include <hal/nrf_power.h>
@@ -74,7 +78,7 @@ static bool cold_boot_done = false;
 #define GPREGRET_SOUND_BIT   (1U << 0)
 #define GPREGRET_CLICKY_BIT  (1U << 1)
 
-static void save_sound_state(void) {
+static void save_sound_state_gpregret(void) {
     uint8_t val = GPREGRET_MAGIC_VAL;
     if (sound_master_enabled) {
         val |= GPREGRET_SOUND_BIT;
@@ -84,19 +88,79 @@ static void save_sound_state(void) {
     }
     nrf_power_gpregret_set(NRF_POWER, 1, val);
 }
+#endif
+
+#if IS_ENABLED(CONFIG_SETTINGS)
+static int sound_settings_set(const char *name, size_t len, settings_read_cb read_cb, void *cb_arg) {
+    const char *next;
+    if (settings_name_steq(name, "master", &next) && !next) {
+        uint8_t val = 0;
+        if (len <= sizeof(val)) {
+            read_cb(cb_arg, &val, len);
+            sound_master_enabled = (val != 0);
+#if defined(NRF_POWER)
+            save_sound_state_gpregret();
+#endif
+            LOG_INF("Loaded Master Sound from Flash: %s", sound_master_enabled ? "ON" : "OFF");
+        }
+        return 0;
+    }
+    if (settings_name_steq(name, "clicky", &next) && !next) {
+        uint8_t val = 0;
+        if (len <= sizeof(val)) {
+            read_cb(cb_arg, &val, len);
+            clicky_enabled = (val != 0);
+#if defined(NRF_POWER)
+            save_sound_state_gpregret();
+#endif
+            LOG_INF("Loaded Audio Clicky from Flash: %s", clicky_enabled ? "ON" : "OFF");
+        }
+        return 0;
+    }
+    return -ENOENT;
+}
+
+struct settings_handler sound_settings_conf = {
+    .name = "sound",
+    .h_set = sound_settings_set,
+};
+
+static void sound_save_to_flash(void) {
+    uint8_t master_val = sound_master_enabled ? 1 : 0;
+    uint8_t clicky_val = clicky_enabled ? 1 : 0;
+    settings_save_one("sound/master", &master_val, sizeof(master_val));
+    settings_save_one("sound/clicky", &clicky_val, sizeof(clicky_val));
+    LOG_INF("Saved sound settings to Flash: master=%s, clicky=%s",
+            sound_master_enabled ? "ON" : "OFF",
+            clicky_enabled ? "ON" : "OFF");
+}
+#else
+static inline void sound_save_to_flash(void) {}
+#endif
+
+static void save_sound_state(void) {
+#if defined(NRF_POWER)
+    save_sound_state_gpregret();
+#endif
+#if IS_ENABLED(CONFIG_SETTINGS)
+    sound_save_to_flash();
+#endif
+}
 
 static void load_sound_state(void) {
+#if defined(NRF_POWER)
     uint32_t reg = nrf_power_gpregret_get(NRF_POWER, 1);
     if ((reg & GPREGRET_MAGIC_MASK) == GPREGRET_MAGIC_VAL) {
         sound_master_enabled = (reg & GPREGRET_SOUND_BIT) != 0;
         clicky_enabled = (reg & GPREGRET_CLICKY_BIT) != 0;
-    } else {
-        sound_master_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_MASTER_DEFAULT);
-        clicky_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_CLICKY_DEFAULT);
-        save_sound_state();
+        return;
     }
+#endif
+    sound_master_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_MASTER_DEFAULT);
+    clicky_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_CLICKY_DEFAULT);
 }
 
+#if defined(NRF_POWER)
 static inline bool is_wake_from_system_off(void) {
     uint32_t reason = nrfx_reset_reason_get();
     return (reason & (NRFX_RESET_REASON_OFF_MASK
@@ -109,11 +173,6 @@ static inline bool is_wake_from_system_off(void) {
            )) != 0;
 }
 #else
-static inline void save_sound_state(void) {}
-static inline void load_sound_state(void) {
-    sound_master_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_MASTER_DEFAULT);
-    clicky_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_CLICKY_DEFAULT);
-}
 static inline bool is_wake_from_system_off(void) {
     return false;
 }
@@ -388,6 +447,11 @@ static int preonic_sound_init(void) {
     k_work_init_delayable(&sound_work, sound_work_handler);
     k_work_init_delayable(&boot_coin_work, boot_coin_work_handler);
 
+#if IS_ENABLED(CONFIG_SETTINGS)
+    settings_register(&sound_settings_conf);
+    settings_load_subtree("sound");
+#endif
+
     load_sound_state();
 
     if (!device_is_ready(pwm_dev)) {
@@ -400,9 +464,9 @@ static int preonic_sound_init(void) {
 
 #if IS_ENABLED(CONFIG_PREONIC_SOUND_COIN_BOOT)
     // Only play Mario coin on cold boot, NEVER when waking from System OFF sleep
-    if (!is_wake_from_system_off() && sound_master_enabled && !cold_boot_done) {
+    if (!is_wake_from_system_off() && !cold_boot_done) {
         cold_boot_done = true;
-        // Schedule Mario coin chime 600ms after boot
+        // Schedule Mario coin chime 600ms after boot (allows settings to load from Flash)
         k_work_schedule(&boot_coin_work, K_MSEC(600));
     }
 #endif
