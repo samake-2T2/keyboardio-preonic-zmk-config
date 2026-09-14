@@ -5,6 +5,7 @@ if(CONFIG_KEYBOARDIO_BUTTERFLY_STATUS)
         src/butterfly_status.c
         src/battery_typer.c
         src/dynamic_macro.c
+        src/password_generator.c
     )
     zephyr_include_directories(include)
 endif()

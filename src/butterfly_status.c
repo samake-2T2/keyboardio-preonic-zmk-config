@@ -77,6 +77,11 @@ static enum butterfly_macro_mode current_macro_mode = BUTTERFLY_MACRO_IDLE;
 static int64_t macro_anim_start_time = 0;
 static int64_t macro_play_end_time = 0;
 
+static uint8_t pw_gauge_wings = 0;
+static int64_t pw_gauge_end_time = 0;
+static bool pw_success_anim = false;
+static int64_t pw_success_end_time = 0;
+
 static inline struct led_rgb make_rgb(uint8_t r, uint8_t g, uint8_t b) {
     return (struct led_rgb){ .r = r, .g = g, .b = b };
 }
@@ -180,6 +185,43 @@ static void butterfly_work_handler(struct k_work *work) {
         update_leds(pixels);
         k_work_reschedule(&butterfly_work, K_MSEC(25));
         return;
+    }
+
+    if (pw_success_anim) {
+        if (k_uptime_get() >= pw_success_end_time) {
+            pw_success_anim = false;
+            state_change_time = k_uptime_get();
+        } else {
+            uint8_t brt = (uint8_t)CONFIG_BUTTERFLY_BRIGHTNESS;
+            struct led_rgb pixels[BUTTERFLY_NUM_LEDS];
+            for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
+                pixels[i] = make_rgb(brt, (uint8_t)(((uint16_t)brt * 85) / 100), 0);
+            }
+            update_leds(pixels);
+            int64_t rem = pw_success_end_time - k_uptime_get();
+            k_work_reschedule(&butterfly_work, K_MSEC(rem > 0 ? rem : 1));
+            return;
+        }
+    }
+
+    if (pw_gauge_wings > 0) {
+        if (k_uptime_get() >= pw_gauge_end_time) {
+            pw_gauge_wings = 0;
+            state_change_time = k_uptime_get();
+        } else {
+            uint8_t brt = (uint8_t)CONFIG_BUTTERFLY_BRIGHTNESS;
+            struct led_rgb pixels[BUTTERFLY_NUM_LEDS];
+            for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
+                pixels[i] = make_rgb(0, 0, 0);
+            }
+            for (size_t i = 0; i < pw_gauge_wings && i < BUTTERFLY_NUM_LEDS; i++) {
+                pixels[i] = make_rgb(brt, (uint8_t)(((uint16_t)brt * 60) / 100), 0);
+            }
+            update_leds(pixels);
+            int64_t rem = pw_gauge_end_time - k_uptime_get();
+            k_work_reschedule(&butterfly_work, K_MSEC(rem > 0 ? rem : 1));
+            return;
+        }
     }
 
     if (is_battery_gauge) {
@@ -335,6 +377,30 @@ void butterfly_set_macro_mode(enum butterfly_macro_mode mode) {
     } else {
         state_change_time = k_uptime_get();
     }
+    k_work_reschedule(&butterfly_work, K_NO_WAIT);
+}
+
+void butterfly_show_password_length(uint8_t length) {
+    uint8_t wings = 1;
+    if (length >= 24) {
+        wings = 4;
+    } else if (length >= 20) {
+        wings = 3;
+    } else if (length >= 16) {
+        wings = 2;
+    } else {
+        wings = 1;
+    }
+    pw_gauge_wings = wings;
+    pw_gauge_end_time = k_uptime_get() + 2000;
+    boot_anim_done = true;
+    k_work_reschedule(&butterfly_work, K_NO_WAIT);
+}
+
+void butterfly_show_password_success(void) {
+    pw_success_anim = true;
+    pw_success_end_time = k_uptime_get() + 200;
+    boot_anim_done = true;
     k_work_reschedule(&butterfly_work, K_NO_WAIT);
 }
 

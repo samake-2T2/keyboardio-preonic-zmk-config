@@ -1,7 +1,7 @@
 # Keyboardio Preonic - ZMK Firmware Configuration
 
 <p align="center">
-  <a href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/tag/v1.7.1"><img src="https://img.shields.io/badge/Release-v1.7.1-blue.svg?style=for-the-badge" alt="Latest Release v1.7.1"></a>
+  <a href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/tag/v1.8.0"><img src="https://img.shields.io/badge/Release-v1.8.0-blue.svg?style=for-the-badge" alt="Latest Release v1.8.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License"></a>
 </p>
 
@@ -17,7 +17,7 @@
 Custom ZMK firmware configuration specifically developed for the **Keyboardio Preonic**, manufactured by [Keyboardio](https://keyboard.io).
 
 > [!TIP]
-> **Latest Release v1.7.1**: **Smart Hybrid Output Auto-Switching** (auto-defaults to last-active BLE profile when unplugged or cold-booted on battery switch, auto-engages USB when plugged into PC, maintains BLE on wall charger, zero-delay NVS Flash commit) & **3-Slot QMK-Compatible Dynamic Macro System** (`Fn + 5/6` Slot 1, `Fn + 7/8` Slot 2, `Fn + 9/0` Slot 3).
+> **Latest Release v1.8.0**: **Hardware TRNG Random Password Generator & Butterfly Gauge** (Nordic nRF52840 hardware entropy, DB/Config Safe zero-escape special characters, `Fn + Turn Knob` 12/16/20/24 length gauge with pitch tones, `Fn + Knob Click` DB Safe, `Fn + Shift/Ctrl + Knob Click` Web Extended / Alphanumeric, NVS Flash persistence), **Smart Hybrid USB/BLE Output Auto-Switching**, and **3-Slot Dynamic Macro System**.
 
 > [!IMPORTANT]
 > **Hardware Compatibility Note**:
@@ -47,7 +47,13 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
   * **Unplug USB / Power Switch ON on Battery**: Instantly defaults to Bluetooth Low Energy (BLE) mode on the last-active profile (0..3), seamlessly persisting to NVS Flash.
   * **PC USB Connection**: Automatically switches to USB mode as soon as USB HID communication is ready, illuminating the butterfly logo in Clean White.
   * **Wall Charger / Power Bank**: Intelligently identifies charge-only power connections (`CONN_POWERED`) and maintains active BLE wireless typing.
-  * **Manual Override**: `Fn + ~` (`OUT_TOG`) remains available at all times for manual USB/BLE toggling.
+* **Hardware TRNG Random Password Generator (DB & Config Safe)**:
+  * **True Hardware Entropy**: Powered by Nordic nRF52840 on-chip True Random Number Generator (TRNG) for cryptographic-grade entropy.
+  * **Rotary Knob & Butterfly LED Gauge**: While holding `Fn`, rotate the knob to select length (12, 16, 20, 24 chars). The butterfly wings illuminate 1 to 4 wings in warm gold with distinct pitch feedback. Selection is remembered in NVS Flash.
+  * **DB & Config Safe Preset (`Fn + Knob Click`)**: Generates passwords strictly composed of `A-Z`, `a-z`, `0-9`, `_`, `-`. 100% safe in PostgreSQL/MySQL/Redis connection URIs, Docker `.env`, YAML, and XML without escape or parsing errors.
+  * **Web Extended Preset (`Fn + Shift + Knob Click`)**: Adds `@` and `.` for web portal signup requirements.
+  * **Alphanumeric Preset (`Fn + Ctrl + Knob Click`)**: Pure alphanumeric (`A-Z, a-z, 0-9`) for legacy systems forbidding special characters.
+  * **Async Non-Blocking Typing**: Types out smoothly at 12ms intervals with automatic modifier masking.
 * **Mouse Emulation (ZMK Pointing)**: Integrated mouse cursor movement, clicking, and scrolling on the Raise layer.
 * **Decoupled Tri-Layer & Dedicated Fn**: Enter the Function layer either via the dedicated top-middle `Fn` key (`&mo L_FN`) or by holding `Lower` and `Raise` simultaneously without conflict.
 * **GUI Configurator Compatibility**:
@@ -91,6 +97,11 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
   * `C` position: **Audio Clicky Toggle** (`Fn + C` toggles typing click sound on/off; high tone for ON, low tone for OFF)
   * `B` position: **Butterfly Battery Gauge** (`Fn + B` shows 4-level LED battery gauge while held; beeps if <= 15%)
   * `P` position: **Battery Status Typer** (`Fn + P` types out `"XX%"`)
+* **Rotary Knob (Hardware TRNG Password Generator)**:
+  * **Turn Knob** (`Fn + Rotate Knob`): Cycle password length (12, 16, 20, 24 characters). Lights 1~4 butterfly wings in warm gold with musical pitch tones (C5, E5, G5, C6). Persisted in NVS Flash.
+  * **Click Knob** (`Fn + Click Knob`): Generate & type **DB & Config Safe** password (`A-Z, a-z, 0-9, _, -`). Zero-escape, 100% safe in PostgreSQL/MySQL/Redis connection URIs, Docker `.env`, YAML, and XML.
+  * **Shift + Click Knob** (`Fn + Shift + Click Knob`): Generate & type **Web Extended** password (`A-Z, a-z, 0-9, _, -, @, .`).
+  * **Ctrl + Click Knob** (`Fn + Ctrl + Click Knob`): Generate & type **Alphanumeric** password (`A-Z, a-z, 0-9`).
 * **Bottom Row**:
   * `LCTRL` position: `&bootloader` (Enter DFU bootloader mode)
   * `Right` position: `&bt BT_CLR` (Clear current Bluetooth bonding)
@@ -138,7 +149,7 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 [Keyboardio(키보디오)](https://keyboard.io) 사에서 개발 및 제조한 **Keyboardio Preonic** 기계식 키보드 전용 ZMK 펌웨어 설정 저장소입니다.
 
 > [!TIP]
-> **최신 릴리즈 v1.7.1**: **스마트 하이브리드 USB/BLE 자동 전환 & 무지연 NVS 플래시 보존** (USB 케이블 분리 또는 배터리 전원 인가 시 마지막 사용 BLE 슬롯으로 자동 전환, 돌발 전원 차단 방지 Zero-Delay NVS 영구 저장, PC 유선 연결 시 USB 자동 전환, 충전기/보조배터리 연결 시 무선 BLE 유지) 및 **3슬롯 QMK 호환 다이나믹 매크로 시스템** 탑재 (`Fn + 5/6` 슬롯1, `Fn + 7/8` 슬롯2, `Fn + 9/0` 슬롯3).
+> **최신 릴리즈 v1.8.0**: **하드웨어 TRNG 랜덤 패스워드 생성기 & 나비 게이지** (노르딕 nRF52840 하드웨어 난수 기반, DB/환경설정/URI 완벽 호환 Zero-Escape 안전 특수문자, `Fn + 노브 회전`으로 12/16/20/24 자리수 조절 및 나비 골드 게이지/피치 피드백, `Fn + 노브 클릭` DB 안전 생성, `Fn + Shift/Ctrl + 노브 클릭` 웹/알파뉴메릭 생성, NVS 플래시 영구 기억) 및 **스마트 하이브리드 USB/BLE 자동 전환**, **3슬롯 다이나믹 매크로 시스템** 탑재.
 
 > [!IMPORTANT]
 > **하드웨어 호환성 안내**:
@@ -170,6 +181,13 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
   * **PC USB 연결 시 자동 전환**: PC에 케이블을 연결하여 HID 통신이 준비되면 즉시 USB 유선 모드로 자동 전환되며, 나비 로고가 순백색(Clean White)으로 점등됩니다.
   * **충전기/보조배터리 연결 시 BLE 유지**: 단순 충전기(Power-only)에 연결된 경우 블루투스 모드를 가로채지 않고 무선 타이핑 상태를 그대로 유지합니다.
   * **수동 강제 토글**: 언제든 `Fn + ~` (`OUT_TOG`) 조합으로 유/무선 출력을 수동 토글할 수 있습니다.
+* **하드웨어 TRNG 랜덤 패스워드 생성기 (DB & 환경설정 안전 특수문자)**:
+  * **진정한 하드웨어 엔트로피**: nRF52840 SoC 내부 하드웨어 난수 생성기(TRNG)를 활용하여 예측 불가능한 암호학적 엔트로피 보장.
+  * **로터리 노브 회전 & 나비 LED 4단계 게이지**: `Fn`을 누른 채 노브를 돌리면 패스워드 자리수가 즉시 순환(12, 16, 20, 24자)되며, 나비 날개 1~4개가 따뜻한 골드/앰버 색상으로 점등되고 도/미/솔/도 음계 피드백이 제공됩니다. 설정된 길이는 Zephyr NVS 플래시에 영구 저장됩니다.
+  * **DB & Config Safe 기본 모드 (`Fn + 노브 클릭`)**: `A-Z`, `a-z`, `0-9`, `_`, `-` 조합으로만 생성. PostgreSQL/MySQL/Redis 접속 URI(`user:pass@host`), 도커 `.env`, YAML, XML 파싱 시 이스케이프 오류나 깨짐이 100% 없는 안전 문자열 생성.
+  * **웹 확장 모드 (`Fn + Shift + 노브 클릭`)**: 특수문자 필수 사이트를 위해 `@`, `.`를 포함하여 생성.
+  * **순수 영숫자 모드 (`Fn + Ctrl + 노브 클릭`)**: 특수문자가 금지된 구형 시스템을 위해 순수 영문 대/소문자 및 숫자(`A-Z, a-z, 0-9`)만으로 생성.
+  * **비동기 12ms 무지연 타이핑 & 모디파이어 자동 마스킹**: 타이핑 중 사용자가 누르고 있는 `Fn`, `Shift`, `Ctrl` 모디파이어를 자동으로 마스킹하여 키 입력 왜곡 없이 정밀하고 부드럽게 자동 타이핑.
 * **마우스 에뮬레이션 (ZMK Pointing)**: Raise 레이어에서 마우스 커서 이동, 클릭, 휠 스크롤 지원.
 * **트라이 레이어 및 독립 Fn 동시 지원 (디커플링)**: 상단 중앙 독립 `Fn` 키(`&mo L_FN`) 진입과 `Lower` + `Raise` 동시 입력을 통한 트라이 레이어 진입을 충돌 없이 완벽히 지원.
 * **웹 GUI 도구 완벽 호환**:
@@ -213,6 +231,11 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
   * `C` 자리: **오디오 클릭키 On/Off 토글** (`Fn + C` 입력 시 타이핑 클릭 소리를 켜고 끄며, 켤 때 높은 톤 / 끌 때 낮은 톤 확인음 제공)
   * `B` 자리: **나비 배터리 게이지** (`Fn + B` 누르고 있는 동안 4단계 나비 LED 잔량 게이지 표시, 15% 이하 시 경고 비프음 출력)
   * `P` 자리: **배터리 잔량 자동 타이핑** (`Fn + P` 입력 시 `"XX%"` 텍스트 자동 타이핑)
+* **로터리 노브 (하드웨어 TRNG 패스워드 생성기)**:
+  * **노브 회전** (`Fn + 노브 회전`): 패스워드 자리수 12 / 16 / 20 / 24자 순환 변경 (나비 날개 골드 1~4개 게이지 및 도/미/솔/도 음계 피드백, NVS 영구 저장)
+  * **노브 클릭** (`Fn + 노브 클릭`): **DB & Config Safe 패스워드** 생성 및 자동 타이핑 (`A-Z, a-z, 0-9, _, -` Zero-Escape 안전 문자)
+  * **Shift + 노브 클릭** (`Fn + Shift + 노브 클릭`): **웹 확장(Web Extended) 패스워드** 생성 및 타이핑 (`@`, `.` 추가)
+  * **Ctrl + 노브 클릭** (`Fn + Ctrl + 노브 클릭`): **순수 영숫자(Alphanumeric) 패스워드** 생성 및 타이핑 (`A-Z, a-z, 0-9`)
 * **하단 행**:
   * `LCTRL` 자리: **`&bootloader`** (USB 외장 드라이브 부트로더 모드 진입)
   * `Right` 자리: **`&bt BT_CLR`** (현재 연결된 블루투스 페어링 정보 삭제)
@@ -260,8 +283,8 @@ Keyboardio Preonic 상단 중앙의 나비 로고에는 4개의 어드레서블 
 ├── .github/workflows/build.yml   # GitHub Actions 빌드 자동화 워크플로우
 ├── CMakeLists.txt                # Zephyr 빌드 타겟 및 소스 등록
 ├── Kconfig                       # 나비 인디케이터 Kconfig 메뉴 및 옵션 정의
-├── include/                      # C 헤더 파일 (butterfly_status, preonic_sound, battery_typer, dynamic_macro)
-├── src/                          # C 소스 파일 (butterfly_status, preonic_sound, battery_typer, dynamic_macro)
+├── include/                      # C 헤더 파일 (butterfly_status, preonic_sound, battery_typer, dynamic_macro, password_generator)
+├── src/                          # C 소스 파일 (butterfly_status, preonic_sound, battery_typer, dynamic_macro, password_generator)
 ├── boards/keyboardio/            # Keyboardio Preonic 보드 및 DTS 정의
 ├── config/
 │   ├── keyboardio_preonic.keymap # 5단계 레이어 키 매핑 정의 (Base, Lower, Raise, Function, Tri)
