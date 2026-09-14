@@ -11,8 +11,10 @@ enum butterfly_macro_mode {
     BUTTERFLY_MACRO_IDLE = 0,
     BUTTERFLY_MACRO_REC_1,
     BUTTERFLY_MACRO_REC_2,
+    BUTTERFLY_MACRO_REC_3,
     BUTTERFLY_MACRO_PLAY_1,
     BUTTERFLY_MACRO_PLAY_2,
+    BUTTERFLY_MACRO_PLAY_3,
 };
 
 void butterfly_status_refresh(void);

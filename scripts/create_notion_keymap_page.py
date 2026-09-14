@@ -370,19 +370,20 @@ def update_or_create_keymap_page():
             caption_text="Layer 3: Function & Tri-Layer (Dynamic Macros, BLE, Sound, Battery, Bootloader)"
         ),
         callout_block([
-            rt("🎬 QMK 호환 다이나믹 매크로 시스템 (Fn + 7 / 8 / 9 / 0):\n", bold=True, color="purple"),
+            rt("🎬 QMK 호환 다이나믹 매크로 시스템 (Fn + 5 / 6 / 7 / 8 / 9 / 0):\n", bold=True, color="purple"),
             rt("• 별도 소프트웨어나 재빌드 없이 키보드에서 실시간으로 키 입력을 녹화하고 즉시 재생하는 시스템입니다.\n"),
             rt("• "),
             rt("NVS 플래시 메모리 영구 보존", bold=True, color="orange"),
             rt(": 녹화 완료 시 Zephyr NVS 파티션에 자동 저장되어 전원 차단, 방전, 재부팅 후에도 매크로가 영구 유지됩니다.\n"),
             rt("• "),
-            rt("2개 독립 슬롯 & 즉시 덮어쓰기", bold=True),
-            rt(": 슬롯 1과 슬롯 2가 완전히 독립적(각 최대 128키)으로 작동하며, 새로운 녹화를 시작하면 기존 매크로를 즉시 삭제하고 그 자리에 새로 생성합니다.\n"),
+            rt("3개 독립 슬롯 & 즉시 덮어쓰기", bold=True),
+            rt(": 슬롯 1(Fn+5/6), 슬롯 2(Fn+7/8), 슬롯 3(Fn+9/0)이 완전히 독립적(각 최대 128키)으로 작동하며, 새로운 녹화를 시작하면 기존 매크로를 즉시 삭제하고 그 자리에 새로 생성합니다.\n"),
             rt("• "),
             rt("슬롯별 독립 LED 색상 피드백", bold=True, color="blue"),
             rt(":\n"),
-            rt("   - 슬롯 1: 녹화 중 "), rt("빨간색 숨쉬기(Red Pulse)", bold=True, color="red"), rt(", 재생 시 "), rt("빨간색 점등(Solid Red)", bold=True, color="red"), rt("\n"),
-            rt("   - 슬롯 2: 녹화 중 "), rt("보라색 숨쉬기(Purple Pulse)", bold=True, color="purple"), rt(", 재생 시 "), rt("보라색 점등(Solid Purple)", bold=True, color="purple"), rt("\n"),
+            rt("   - 슬롯 1 (Fn+5/6): 녹화 중 "), rt("빨간색 숨쉬기(Red Pulse)", bold=True, color="red"), rt(", 재생 시 "), rt("빨간색 점등(Solid Red)", bold=True, color="red"), rt("\n"),
+            rt("   - 슬롯 2 (Fn+7/8): 녹화 중 "), rt("보라색 숨쉬기(Purple Pulse)", bold=True, color="purple"), rt(", 재생 시 "), rt("보라색 점등(Solid Purple)", bold=True, color="purple"), rt("\n"),
+            rt("   - 슬롯 3 (Fn+9/0): 녹화 중 "), rt("골드 숨쉬기(Gold Pulse)", bold=True, color="orange"), rt(", 재생 시 "), rt("골드 점등(Solid Gold)", bold=True, color="orange"), rt("\n"),
             rt("• "),
             rt("마스터 사운드 연동 오디오 피드백", bold=True),
             rt(": 마스터 사운드(Fn+S)가 ON일 때만 사운드가 출력되며, OFF 시 완벽히 무음으로 동작합니다 (녹화 시작: 상승 2음, 녹화 종료: 더블 비프, 재생: 틱음, 용량 초과: 저음 버저).\n"),
@@ -463,23 +464,33 @@ def update_or_create_keymap_page():
             ]),
             table_row_block([
                 [rt("매크로 1 녹화/종료", bold=True)],
-                [rt("Fn + 7", code=True)],
+                [rt("Fn + 5", code=True)],
                 "슬롯 1 매크로 녹화 시작/종료 토글 (빨간색 숨쉬기 LED, 새 녹화 시 덮어쓰기)"
             ]),
             table_row_block([
                 [rt("매크로 1 재생", bold=True)],
-                [rt("Fn + 8", code=True)],
+                [rt("Fn + 6", code=True)],
                 "슬롯 1 매크로 12ms 안전 딜레이로 재생 (빨간색 점등 LED)"
             ]),
             table_row_block([
                 [rt("매크로 2 녹화/종료", bold=True)],
-                [rt("Fn + 9", code=True)],
+                [rt("Fn + 7", code=True)],
                 "슬롯 2 매크로 녹화 시작/종료 토글 (보라색 숨쉬기 LED, 새 녹화 시 덮어쓰기)"
             ]),
             table_row_block([
                 [rt("매크로 2 재생", bold=True)],
-                [rt("Fn + 0", code=True)],
+                [rt("Fn + 8", code=True)],
                 "슬롯 2 매크로 12ms 안전 딜레이로 재생 (보라색 점등 LED)"
+            ]),
+            table_row_block([
+                [rt("매크로 3 녹화/종료", bold=True)],
+                [rt("Fn + 9", code=True)],
+                "슬롯 3 매크로 녹화 시작/종료 토글 (골드 숨쉬기 LED, 새 녹화 시 덮어쓰기)"
+            ]),
+            table_row_block([
+                [rt("매크로 3 재생", bold=True)],
+                [rt("Fn + 0", code=True)],
+                "슬롯 3 매크로 12ms 안전 딜레이로 재생 (골드 점등 LED)"
             ]),
             table_row_block([
                 [rt("마스터 사운드 토글", bold=True)],

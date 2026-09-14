@@ -135,7 +135,7 @@ static void butterfly_work_handler(struct k_work *work) {
     }
 #endif
 
-    if (current_macro_mode == BUTTERFLY_MACRO_PLAY_1 || current_macro_mode == BUTTERFLY_MACRO_PLAY_2) {
+    if (current_macro_mode == BUTTERFLY_MACRO_PLAY_1 || current_macro_mode == BUTTERFLY_MACRO_PLAY_2 || current_macro_mode == BUTTERFLY_MACRO_PLAY_3) {
         if (k_uptime_get() >= macro_play_end_time) {
             current_macro_mode = BUTTERFLY_MACRO_IDLE;
             state_change_time = k_uptime_get();
@@ -145,8 +145,10 @@ static void butterfly_work_handler(struct k_work *work) {
             for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
                 if (current_macro_mode == BUTTERFLY_MACRO_PLAY_1) {
                     pixels[i] = make_rgb(brt, 0, 0); // Solid Red flash
-                } else {
+                } else if (current_macro_mode == BUTTERFLY_MACRO_PLAY_2) {
                     pixels[i] = make_rgb(brt, 0, brt); // Solid Purple flash
+                } else {
+                    pixels[i] = make_rgb(brt, (uint8_t)(((uint16_t)brt * 60) / 100), 0); // Solid Amber/Gold flash
                 }
             }
             update_leds(pixels);
@@ -156,7 +158,7 @@ static void butterfly_work_handler(struct k_work *work) {
         }
     }
 
-    if (current_macro_mode == BUTTERFLY_MACRO_REC_1 || current_macro_mode == BUTTERFLY_MACRO_REC_2) {
+    if (current_macro_mode == BUTTERFLY_MACRO_REC_1 || current_macro_mode == BUTTERFLY_MACRO_REC_2 || current_macro_mode == BUTTERFLY_MACRO_REC_3) {
         int64_t elapsed = (k_uptime_get() - macro_anim_start_time) % 1400;
         uint32_t phase = (elapsed < 700) ? (uint32_t)elapsed : (uint32_t)(1400 - elapsed);
         uint8_t max_b = (uint8_t)CONFIG_BUTTERFLY_BRIGHTNESS;
@@ -167,8 +169,10 @@ static void butterfly_work_handler(struct k_work *work) {
         for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
             if (current_macro_mode == BUTTERFLY_MACRO_REC_1) {
                 pixels[i] = make_rgb(brt, 0, 0); // Red breathing pulse
-            } else {
+            } else if (current_macro_mode == BUTTERFLY_MACRO_REC_2) {
                 pixels[i] = make_rgb(brt, 0, brt); // Purple breathing pulse
+            } else {
+                pixels[i] = make_rgb(brt, (uint8_t)(((uint16_t)brt * 60) / 100), 0); // Amber/Gold breathing pulse
             }
         }
         update_leds(pixels);
@@ -321,9 +325,9 @@ void butterfly_show_battery(void) {
 
 void butterfly_set_macro_mode(enum butterfly_macro_mode mode) {
     current_macro_mode = mode;
-    if (mode == BUTTERFLY_MACRO_REC_1 || mode == BUTTERFLY_MACRO_REC_2) {
+    if (mode == BUTTERFLY_MACRO_REC_1 || mode == BUTTERFLY_MACRO_REC_2 || mode == BUTTERFLY_MACRO_REC_3) {
         macro_anim_start_time = k_uptime_get();
-    } else if (mode == BUTTERFLY_MACRO_PLAY_1 || mode == BUTTERFLY_MACRO_PLAY_2) {
+    } else if (mode == BUTTERFLY_MACRO_PLAY_1 || mode == BUTTERFLY_MACRO_PLAY_2 || mode == BUTTERFLY_MACRO_PLAY_3) {
         macro_play_end_time = k_uptime_get() + 150;
     } else {
         state_change_time = k_uptime_get();

@@ -29,10 +29,12 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define TRI_LAYER_INDEX 4
 
 // Matrix positions on Row 1 (Number row)
-#define MACRO_1_REC_POSITION 10  // Fn + 7 (RC(1,7))
-#define MACRO_1_PLAY_POSITION 11 // Fn + 8 (RC(1,8))
-#define MACRO_2_REC_POSITION 12  // Fn + 9 (RC(1,9))
-#define MACRO_2_PLAY_POSITION 13 // Fn + 0 (RC(1,10))
+#define MACRO_1_REC_POSITION 8   // Fn + 5 (RC(1,5))
+#define MACRO_1_PLAY_POSITION 9  // Fn + 6 (RC(1,6))
+#define MACRO_2_REC_POSITION 10  // Fn + 7 (RC(1,7))
+#define MACRO_2_PLAY_POSITION 11 // Fn + 8 (RC(1,8))
+#define MACRO_3_REC_POSITION 12  // Fn + 9 (RC(1,9))
+#define MACRO_3_PLAY_POSITION 13 // Fn + 0 (RC(1,10))
 
 struct __packed dyn_macro_step {
     uint32_t keycode;
@@ -46,9 +48,17 @@ struct __packed dyn_macro_slot {
 
 static struct dyn_macro_slot slot1;
 static struct dyn_macro_slot slot2;
+static struct dyn_macro_slot slot3;
 
-static uint8_t recording_slot = 0; // 0: idle, 1: slot 1, 2: slot 2
-static uint8_t playing_slot = 0;   // 0: idle, 1: slot 1, 2: slot 2
+static inline struct dyn_macro_slot *get_slot_ptr(uint8_t slot_num) {
+    if (slot_num == 1) return &slot1;
+    if (slot_num == 2) return &slot2;
+    if (slot_num == 3) return &slot3;
+    return NULL;
+}
+
+static uint8_t recording_slot = 0; // 0: idle, 1: slot 1, 2: slot 2, 3: slot 3
+static uint8_t playing_slot = 0;   // 0: idle, 1: slot 1, 2: slot 2, 3: slot 3
 static uint16_t play_step_idx = 0;
 
 static struct k_work_delayable play_work;
@@ -76,6 +86,16 @@ static int macro_settings_set(const char *name, size_t len, settings_read_cb rea
         }
         return 0;
     }
+    if (settings_name_steq(name, "3", &next) && !next) {
+        if (len <= sizeof(slot3)) {
+            read_cb(cb_arg, &slot3, len);
+            if (slot3.count > DYN_MACRO_MAX_STEPS) {
+                slot3.count = 0;
+            }
+            LOG_INF("Loaded Dynamic Macro 3 from Flash (%u steps)", slot3.count);
+        }
+        return 0;
+    }
     return -ENOENT;
 }
 
@@ -91,6 +111,9 @@ static void dynamic_macro_save_slot(uint8_t slot_num) {
     } else if (slot_num == 2) {
         settings_save_one("dyn_macro/2", &slot2, sizeof(slot2));
         LOG_INF("Saved Dynamic Macro 2 to Flash (%u steps)", slot2.count);
+    } else if (slot_num == 3) {
+        settings_save_one("dyn_macro/3", &slot3, sizeof(slot3));
+        LOG_INF("Saved Dynamic Macro 3 to Flash (%u steps)", slot3.count);
     }
 }
 #else
@@ -106,17 +129,20 @@ uint8_t dynamic_macro_get_playing_slot(void) {
 }
 
 void dynamic_macro_record_toggle(uint8_t slot_num) {
-    if (slot_num < 1 || slot_num > 2) {
+    if (slot_num < 1 || slot_num > 3) {
         return;
     }
     if (playing_slot != 0) {
         return; // Disallow record toggle during active playback
     }
 
+    struct dyn_macro_slot *slot = get_slot_ptr(slot_num);
+    if (!slot) {
+        return;
+    }
+
     if (recording_slot == slot_num) {
         // Stop recording current slot
-        struct dyn_macro_slot *slot = (slot_num == 1) ? &slot1 : &slot2;
-
         // Defensive: append release steps for any key left in pressed state
         for (uint16_t i = 0; i < slot->count; i++) {
             if (slot->steps[i].pressed) {
@@ -148,18 +174,19 @@ void dynamic_macro_record_toggle(uint8_t slot_num) {
         }
 
         // Start recording new slot: CLEAR PREVIOUS DATA (Overwrite)
-        struct dyn_macro_slot *slot = (slot_num == 1) ? &slot1 : &slot2;
         slot->count = 0;
         recording_slot = slot_num;
 
-        butterfly_set_macro_mode(slot_num == 1 ? BUTTERFLY_MACRO_REC_1 : BUTTERFLY_MACRO_REC_2);
+        enum butterfly_macro_mode m = (slot_num == 1) ? BUTTERFLY_MACRO_REC_1 :
+                                      ((slot_num == 2) ? BUTTERFLY_MACRO_REC_2 : BUTTERFLY_MACRO_REC_3);
+        butterfly_set_macro_mode(m);
         preonic_sound_play_macro_rec_start();
         LOG_INF("Dynamic Macro %u recording started (buffer cleared)", slot_num);
     }
 }
 
 void dynamic_macro_play(uint8_t slot_num) {
-    if (slot_num < 1 || slot_num > 2) {
+    if (slot_num < 1 || slot_num > 3) {
         return;
     }
 
@@ -173,8 +200,8 @@ void dynamic_macro_play(uint8_t slot_num) {
         return; // Already playing
     }
 
-    struct dyn_macro_slot *slot = (slot_num == 1) ? &slot1 : &slot2;
-    if (slot->count == 0) {
+    struct dyn_macro_slot *slot = get_slot_ptr(slot_num);
+    if (!slot || slot->count == 0) {
         LOG_WRN("Dynamic Macro %u is empty, nothing to play", slot_num);
         return;
     }
@@ -182,7 +209,9 @@ void dynamic_macro_play(uint8_t slot_num) {
     playing_slot = slot_num;
     play_step_idx = 0;
 
-    butterfly_set_macro_mode(slot_num == 1 ? BUTTERFLY_MACRO_PLAY_1 : BUTTERFLY_MACRO_PLAY_2);
+    enum butterfly_macro_mode m = (slot_num == 1) ? BUTTERFLY_MACRO_PLAY_1 :
+                                  ((slot_num == 2) ? BUTTERFLY_MACRO_PLAY_2 : BUTTERFLY_MACRO_PLAY_3);
+    butterfly_set_macro_mode(m);
     preonic_sound_play_macro_play();
 
     LOG_INF("Dynamic Macro %u playback started (%u steps)", slot_num, slot->count);
@@ -196,7 +225,11 @@ static void play_work_handler(struct k_work *work) {
         return;
     }
 
-    struct dyn_macro_slot *slot = (playing_slot == 1) ? &slot1 : &slot2;
+    struct dyn_macro_slot *slot = get_slot_ptr(playing_slot);
+    if (!slot) {
+        playing_slot = 0;
+        return;
+    }
     if (play_step_idx < slot->count) {
         struct dyn_macro_step step = slot->steps[play_step_idx++];
         raise_zmk_keycode_state_changed_from_encoded(step.keycode, (step.pressed != 0), k_uptime_get());
@@ -240,14 +273,20 @@ static int dynamic_macro_event_listener(const zmk_event_t *eh) {
             } else if (pos_ev->position == MACRO_2_PLAY_POSITION) {
                 dynamic_macro_play(2);
                 return ZMK_EV_EVENT_HANDLED;
+            } else if (pos_ev->position == MACRO_3_REC_POSITION) {
+                dynamic_macro_record_toggle(3);
+                return ZMK_EV_EVENT_HANDLED;
+            } else if (pos_ev->position == MACRO_3_PLAY_POSITION) {
+                dynamic_macro_play(3);
+                return ZMK_EV_EVENT_HANDLED;
             }
         }
     }
 
     const struct zmk_keycode_state_changed *kc_ev = as_zmk_keycode_state_changed(eh);
     if (kc_ev != NULL && recording_slot != 0 && playing_slot == 0) {
-        struct dyn_macro_slot *slot = (recording_slot == 1) ? &slot1 : &slot2;
-        if (slot->count < DYN_MACRO_MAX_STEPS) {
+        struct dyn_macro_slot *slot = get_slot_ptr(recording_slot);
+        if (slot && slot->count < DYN_MACRO_MAX_STEPS) {
             slot->steps[slot->count++] = (struct dyn_macro_step){
                 .keycode = kc_ev->keycode,
                 .pressed = kc_ev->state ? 1 : 0
