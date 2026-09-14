@@ -48,6 +48,13 @@ enum sound_state {
     SOUND_STATE_LOW_BATT_1,
     SOUND_STATE_LOW_BATT_PAUSE,
     SOUND_STATE_LOW_BATT_2,
+    SOUND_STATE_MACRO_REC_START_1,
+    SOUND_STATE_MACRO_REC_START_2,
+    SOUND_STATE_MACRO_REC_STOP_1,
+    SOUND_STATE_MACRO_REC_STOP_PAUSE,
+    SOUND_STATE_MACRO_REC_STOP_2,
+    SOUND_STATE_MACRO_PLAY,
+    SOUND_STATE_MACRO_FULL,
     SOUND_STATE_CUSTOM_TONE,
 };
 
@@ -149,10 +156,35 @@ static void sound_work_handler(struct k_work *work) {
         k_work_reschedule(&sound_work, K_MSEC(100));
         break;
 
+    case SOUND_STATE_MACRO_REC_START_1:
+        // Transition to 2nd note of rec start: D7 (2349Hz) for 70ms
+        current_sound_state = SOUND_STATE_MACRO_REC_START_2;
+        set_tone(2349);
+        k_work_reschedule(&sound_work, K_MSEC(70));
+        break;
+
+    case SOUND_STATE_MACRO_REC_STOP_1:
+        // Pause between stop beeps (30ms)
+        current_sound_state = SOUND_STATE_MACRO_REC_STOP_PAUSE;
+        set_tone(0);
+        k_work_reschedule(&sound_work, K_MSEC(30));
+        break;
+
+    case SOUND_STATE_MACRO_REC_STOP_PAUSE:
+        // 2nd beep of stop: 1500Hz for 50ms
+        current_sound_state = SOUND_STATE_MACRO_REC_STOP_2;
+        set_tone(1500);
+        k_work_reschedule(&sound_work, K_MSEC(50));
+        break;
+
     case SOUND_STATE_LOW_BATT_2:
     case SOUND_STATE_COIN_E6:
     case SOUND_STATE_CLICKY:
     case SOUND_STATE_TOGGLE_TONE:
+    case SOUND_STATE_MACRO_REC_START_2:
+    case SOUND_STATE_MACRO_REC_STOP_2:
+    case SOUND_STATE_MACRO_PLAY:
+    case SOUND_STATE_MACRO_FULL:
     case SOUND_STATE_CUSTOM_TONE:
     default:
         set_tone(0);
@@ -266,6 +298,42 @@ bool preonic_sound_toggle_clicky(void) {
 
 bool preonic_sound_is_clicky_enabled(void) {
     return clicky_enabled;
+}
+
+void preonic_sound_play_macro_rec_start(void) {
+    if (!sound_master_enabled || !device_is_ready(pwm_dev)) {
+        return;
+    }
+    current_sound_state = SOUND_STATE_MACRO_REC_START_1;
+    set_tone(1760); // A6 note for 60ms
+    k_work_reschedule(&sound_work, K_MSEC(60));
+}
+
+void preonic_sound_play_macro_rec_stop(void) {
+    if (!sound_master_enabled || !device_is_ready(pwm_dev)) {
+        return;
+    }
+    current_sound_state = SOUND_STATE_MACRO_REC_STOP_1;
+    set_tone(2000); // 1st beep 2000Hz for 50ms
+    k_work_reschedule(&sound_work, K_MSEC(50));
+}
+
+void preonic_sound_play_macro_play(void) {
+    if (!sound_master_enabled || !device_is_ready(pwm_dev)) {
+        return;
+    }
+    current_sound_state = SOUND_STATE_MACRO_PLAY;
+    set_tone(2600); // Short confirmation chirp for 35ms
+    k_work_reschedule(&sound_work, K_MSEC(35));
+}
+
+void preonic_sound_play_macro_full(void) {
+    if (!sound_master_enabled || !device_is_ready(pwm_dev)) {
+        return;
+    }
+    current_sound_state = SOUND_STATE_MACRO_FULL;
+    set_tone(800); // Warning buzz for 150ms
+    k_work_reschedule(&sound_work, K_MSEC(150));
 }
 
 static void boot_coin_work_handler(struct k_work *work) {

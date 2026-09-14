@@ -29,6 +29,12 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
   * **`Fn + B` 4-Level Butterfly Gauge**: Displays battery level across the 4 butterfly wing LEDs for 3 seconds (75-100%: 4 Green, 50-74%: 3 Lime Green, 25-49%: 2 Orange, 0-24%: 1 Red). If battery is <= 15%, simultaneously emits a warning beep.
   * **Smart Low-Battery Alert**: Automatically sounds a 1500Hz double-beep warning once when battery first drops to <= 15% during use. Suppresses repeated alerts (only beeps on manual `Fn + B` afterwards) and resets once recharged to >= 20%.
   * **`Fn + P` Async Battery Typer**: Types out current battery status smoothly (e.g. `"82%"`) via asynchronous HID keystrokes without blocking key scanning or dropping characters, fully immune to Korean/English IME conversion issues.
+* **Dynamic Macro System (QMK-Compatible)**:
+  * **On-the-Fly Recording & Replay**: Record and play back keystrokes instantly without reflashing or software.
+  * **NVS Flash Persistence**: Recorded macros are automatically saved to non-volatile flash memory (NVS) and preserved across power loss or reboot.
+  * **Dual Independent Slots**: Slot 1 (`Fn + 7` Rec, `Fn + 8` Play) and Slot 2 (`Fn + 9` Rec, `Fn + 0` Play) up to 128 keystrokes each. Starting a new recording instantly clears and overwrites the previous macro.
+  * **Visual & Audio Feedback**: Slot 1 breathes Red while recording and flashes Red on play. Slot 2 breathes Purple/Magenta while recording and flashes Purple on play. When Master Sound is enabled, provides distinct audio cues (rising chime on rec start, double-beep on rec stop, click on playback, warning buzz on buffer full).
+  * **Safe 12ms Typing Interval**: Fixed 12ms step delay ensures reliable wireless transmission over Bluetooth Low Energy without dropped keystrokes.
 * **Mouse Emulation (ZMK Pointing)**: Integrated mouse cursor movement, clicking, and scrolling on the Raise layer.
 * **Decoupled Tri-Layer & Dedicated Fn**: Enter the Function layer either via the dedicated top-middle `Fn` key (`&mo L_FN`) or by holding `Lower` and `Raise` simultaneously without conflict.
 * **GUI Configurator Compatibility**:
@@ -60,6 +66,10 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
 * **Number Row**:
   * `Grave` position: `&out OUT_TOG` (Toggle between USB and BLE output)
   * `1` ~ `4`: `&bt BT_SEL 0` ~ `&bt BT_SEL 3` (Select Bluetooth profiles 0 to 3, max 4 devices)
+  * `7`: **Macro 1 Record / Stop** (`Fn + 7` toggle record start/stop; Red breathing LED)
+  * `8`: **Macro 1 Playback** (`Fn + 8` replay macro 1; Red flash)
+  * `9`: **Macro 2 Record / Stop** (`Fn + 9` toggle record start/stop; Purple breathing LED)
+  * `0`: **Macro 2 Playback** (`Fn + 0` replay macro 2; Purple flash)
 * **Alphabet Rows**:
   * `S` position: **Master Sound Toggle** (`Fn + S` toggles all piezo sound on/off; defaults to OFF, state retained across sleep)
   * `Z` position: `&studio_unlock` (Unlock ZMK Studio)
@@ -129,6 +139,12 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
   * **`Fn + B` 나비 날개 4단계 LED 게이지**: 3초간 4개 나비 날개 LED로 배터리 잔량을 시각화 표시 (75~100%: 4개 초록, 50~74%: 3개 연두, 25~49%: 2개 주황, 0~24%: 1개 빨강). 잔량이 15% 이하인 경우 1500Hz 경고 비프음 동시 출력.
   * **스마트 저배터리 경고음**: 사용 중 배터리가 최초 15% 이하로 떨어지면 1500Hz 더블 비프음으로 1회 자동 경고. 이후 반복 비프를 억제하고 수동(`Fn + B`) 확인 시에만 경고음을 울리며, 충전하여 20% 이상 도달 시 플래그 자동 리셋.
   * **`Fn + P` 배터리 잔량 비동기 자동 타이핑**: 현재 배터리 상태(예: `"82%"`)를 비동기 HID 키 입력으로 매끄럽게 자동 타이핑 (한/영 IME 변환 영향 없이 순수 숫자 및 `%`만 출력).
+* **QMK 호환 다이나믹 매크로 시스템 (Dynamic Macro)**:
+  * **실시간 온더플라이 녹화 및 재생**: 별도 소프트웨어나 재빌드 없이 키보드에서 즉시 키 입력을 녹화하고 반복 실행.
+  * **NVS 플래시 메모리 영구 보존**: 녹화 완료 시 Zephyr NVS(Non-Volatile Storage) 플래시에 자동 저장되어 전원 차단이나 방전, 재부팅 후에도 매크로 영구 유지.
+  * **2개 독립 슬롯 지원**: 슬롯 1 (`Fn + 7` 녹화 토글, `Fn + 8` 재생) 및 슬롯 2 (`Fn + 9` 녹화 토글, `Fn + 0` 재생) 각 최대 128키 저장. 새 녹화 시작 시 기존 매크로를 즉시 삭제하고 덮어쓰기.
+  * **슬롯별 독립 LED 색상 및 사운드 피드백**: 슬롯 1 녹화 중 **빨간색 숨쉬기**, 재생 시 **빨간색 점등**. 슬롯 2 녹화 중 **보라색 숨쉬기**, 재생 시 **보라색 점등**. 마스터 사운드 ON 상태일 때 시작 상승음, 종료 더블 비프, 재생 클릭음, 버퍼 초과 경고음 출력.
+  * **12ms 무선 안정 고정 딜레이**: BLE 무선 통신 시 키 누락(키 씹힘)을 완벽 방지하는 12ms 안전 딜레이 인터벌 적용.
 * **마우스 에뮬레이션 (ZMK Pointing)**: Raise 레이어에서 마우스 커서 이동, 클릭, 휠 스크롤 지원.
 * **트라이 레이어 및 독립 Fn 동시 지원 (디커플링)**: 상단 중앙 독립 `Fn` 키(`&mo L_FN`) 진입과 `Lower` + `Raise` 동시 입력을 통한 트라이 레이어 진입을 충돌 없이 완벽히 지원.
 * **웹 GUI 도구 완벽 호환**:
@@ -160,6 +176,10 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 * **숫자 행**:
   * `Grave` 자리: **`&out OUT_TOG`** (USB 유선 / 블루투스 무선 출력 모드 전환)
   * `1 ~ 4` 자리: **`&bt BT_SEL 0 ~ 3`** (블루투스 기기 프로필 0번 ~ 3번, 총 4대 선택)
+  * `7` 자리: **매크로 1 녹화 시작 / 종료 토글** (`Fn + 7` 입력 시 슬롯 1 녹화/종료, 녹화 중 나비 빨간색 숨쉬기)
+  * `8` 자리: **매크로 1 재생** (`Fn + 8` 슬롯 1 매크로 실행, 나비 빨간색 점등)
+  * `9` 자리: **매크로 2 녹화 시작 / 종료 토글** (`Fn + 9` 입력 시 슬롯 2 녹화/종료, 녹화 중 나비 보라색 숨쉬기)
+  * `0` 자리: **매크로 2 재생** (`Fn + 0` 슬롯 2 매크로 실행, 나비 보라색 점등)
 * **알파벳 행**:
   * `S` 자리: **키보드 전체 사운드 On/Off 마스터 토글** (`Fn + S` 입력 시 모든 피에조 사운드 마스터 활성화/비활성화, 기본값 OFF, 딥슬립 후에도 설정 유지)
   * `Z` 자리: **`&studio_unlock`** (ZMK Studio 잠금 해제)
@@ -212,8 +232,8 @@ Keyboardio Preonic 상단 중앙의 나비 로고에는 4개의 어드레서블 
 ├── .github/workflows/build.yml   # GitHub Actions 빌드 자동화 워크플로우
 ├── CMakeLists.txt                # Zephyr 빌드 타겟 및 소스 등록
 ├── Kconfig                       # 나비 인디케이터 Kconfig 메뉴 및 옵션 정의
-├── include/                      # C 헤더 파일 (butterfly_status, preonic_sound, battery_typer)
-├── src/                          # C 소스 파일 (butterfly_status, preonic_sound, battery_typer)
+├── include/                      # C 헤더 파일 (butterfly_status, preonic_sound, battery_typer, dynamic_macro)
+├── src/                          # C 소스 파일 (butterfly_status, preonic_sound, battery_typer, dynamic_macro)
 ├── boards/keyboardio/            # Keyboardio Preonic 보드 및 DTS 정의
 ├── config/
 │   ├── keyboardio_preonic.keymap # 5단계 레이어 키 매핑 정의 (Base, Lower, Raise, Function, Tri)

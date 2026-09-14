@@ -9,7 +9,7 @@ TARGET_PAGE_ID = os.environ.get("NOTION_PAGE_ID", "3db96981-2b85-817b-adc0-c8a46
 PARENT_PAGE_ID = os.environ.get("NOTION_PARENT_PAGE_ID", "3d696981-2b85-802f-931b-cddb91fe1cea")
 NOTION_VERSION = "2025-09-03"
 
-GITHUB_IMG_BASE = "https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.5.2/docs/images"
+GITHUB_IMG_BASE = "https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.6.0/docs/images"
 
 def notion_request(url, method="GET", data=None, retries=5):
     headers = {
@@ -168,7 +168,7 @@ def update_or_create_keymap_page():
         callout_block([
             rt("본 문서는 ", bold=True),
             rt("Keyboardio Preonic (nRF52840)", bold=True, color="blue"),
-            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드 (v1.5.2)입니다.\n\n"),
+            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드 (v1.6.0)입니다.\n\n"),
             rt("특징 요약:\n", bold=True),
             rt("• 레이아웃: ", bold=True),
             rt("5x12 직교(Ortholinear) 배열 + "),
@@ -179,6 +179,8 @@ def update_or_create_keymap_page():
             rt("로터리 인코더(음량 조절 / 클릭 시 음소거)", bold=True, color="green"),
             rt("\n• 피에조 사운드 시스템: ", bold=True),
             rt("마스터 사운드 On/Off 토글(기본값 OFF 무음, Fn + S, GPREGRET2 딥슬립 보존), 절전모드 복귀 부팅음 차단, 타건 클릭음(Fn + C), 부팅 슈퍼마리오 코인 차임\n"),
+            rt("• QMK 호환 다이나믹 매크로: ", bold=True),
+            rt("키보드 단독 실시간 매크로 녹화/재생, NVS 플래시 영구 보존(재부팅/방전 후 보존), 2개 독립 슬롯(슬롯1: Fn+7 녹화/Fn+8 재생, 슬롯2: Fn+9 녹화/Fn+0 재생), 녹화 시 슬롯별 LED 숨쉬기(슬롯1 빨강, 슬롯2 보라), 재생 시 점등 피드백, 12ms BLE 안전 딜레이, 마스터 사운드 연동 비프음\n"),
             rt("• 배터리 모니터링: ", bold=True),
             rt("4단계 나비 날개 LED & 오디오 비프음 게이지(Fn + B 누르고 있는 동안 Hold), 스마트 저배터리 자동 경고(15% 이하 시 1회 더블 비프음), 텍스트 백분율 자동 타이퍼(Fn + P로 'XX%' 자동 입력)\n"),
             rt("• 무선 연결 및 시스템 제어: ", bold=True),
@@ -247,7 +249,7 @@ def update_or_create_keymap_page():
             table_row_block([
                 [rt("Layer 3: Function & Tri", bold=True, color="purple")],
                 "상단 Fn 키 누름 OR Lower + Raise 동시 입력",
-                "BLE 프로필(1~4), 마스터 사운드 토글(기본 OFF), 클릭 사운드 토글, 배터리 게이지/타이퍼, 부트로더 진입, ZMK Studio 잠금 해제"
+                "다이나믹 매크로(Fn+7~0 녹화/재생), BLE 프로필(1~4), 마스터 사운드 토글(기본 OFF), 클릭 사운드 토글, 배터리 게이지/타이퍼, 부트로더 진입, ZMK Studio 잠금 해제"
             ])
         ], table_width=3, has_column_header=True),
         divider_block()
@@ -361,15 +363,36 @@ def update_or_create_keymap_page():
             rt("Fn 키", bold=True),
             rt("를 누르거나, 바텀열의 "),
             rt("Lower + Raise 키를 동시에 누르면 Tri-Layer에 의해 자동으로 활성화", bold=True, color="purple"),
-            rt("됩니다. 키보드의 하드웨어 설정, 배터리 진단, 무선 연결 및 펌웨어 복구를 제어합니다.")
+            rt("됩니다. 키보드의 하드웨어 설정, 다이나믹 매크로, 배터리 진단, 무선 연결 및 펌웨어 복구를 제어합니다.")
         ]),
         image_block(
             f"{GITHUB_IMG_BASE}/layer3_func.png",
-            caption_text="Layer 3: Function & Tri-Layer (System, Battery, BLE, Audio Control)"
+            caption_text="Layer 3: Function & Tri-Layer (Dynamic Macros, BLE, Sound, Battery, Bootloader)"
         ),
         callout_block([
+            rt("🎬 QMK 호환 다이나믹 매크로 시스템 (Fn + 7 / 8 / 9 / 0):\n", bold=True, color="purple"),
+            rt("• 별도 소프트웨어나 재빌드 없이 키보드에서 실시간으로 키 입력을 녹화하고 즉시 재생하는 시스템입니다.\n"),
+            rt("• "),
+            rt("NVS 플래시 메모리 영구 보존", bold=True, color="orange"),
+            rt(": 녹화 완료 시 Zephyr NVS 파티션에 자동 저장되어 전원 차단, 방전, 재부팅 후에도 매크로가 영구 유지됩니다.\n"),
+            rt("• "),
+            rt("2개 독립 슬롯 & 즉시 덮어쓰기", bold=True),
+            rt(": 슬롯 1과 슬롯 2가 완전히 독립적(각 최대 128키)으로 작동하며, 새로운 녹화를 시작하면 기존 매크로를 즉시 삭제하고 그 자리에 새로 생성합니다.\n"),
+            rt("• "),
+            rt("슬롯별 독립 LED 색상 피드백", bold=True, color="blue"),
+            rt(":\n"),
+            rt("   - 슬롯 1: 녹화 중 "), rt("빨간색 숨쉬기(Red Pulse)", bold=True, color="red"), rt(", 재생 시 "), rt("빨간색 점등(Solid Red)", bold=True, color="red"), rt("\n"),
+            rt("   - 슬롯 2: 녹화 중 "), rt("보라색 숨쉬기(Purple Pulse)", bold=True, color="purple"), rt(", 재생 시 "), rt("보라색 점등(Solid Purple)", bold=True, color="purple"), rt("\n"),
+            rt("• "),
+            rt("마스터 사운드 연동 오디오 피드백", bold=True),
+            rt(": 마스터 사운드(Fn+S)가 ON일 때만 사운드가 출력되며, OFF 시 완벽히 무음으로 동작합니다 (녹화 시작: 상승 2음, 녹화 종료: 더블 비프, 재생: 틱음, 용량 초과: 저음 버저).\n"),
+            rt("• "),
+            rt("12ms BLE 안전 딜레이", bold=True),
+            rt(": 블루투스 무선 연결 시 키 누락(키 씹힘)을 완벽 방지하는 12ms 고정 딜레이 인터벌 적용.")
+        ], emoji="🎬", color="gray_background"),
+        callout_block([
             rt("🔇 마스터 사운드 On/Off 토글 (Fn + S):\n", bold=True, color="blue"),
-            rt("• 내장 피에조 부저의 모든 사운드(부팅음, 클릭키, 배터리 경고음)를 총괄하는 마스터 스위치입니다.\n"),
+            rt("• 내장 피에조 부저의 모든 사운드(부팅음, 클릭키, 배터리 경고음, 매크로 효과음)를 총괄하는 마스터 스위치입니다.\n"),
             rt("• "),
             rt("기본값 무음(OFF)", bold=True, color="orange"),
             rt(": 펌웨어 기본값은 OFF 상태로 설정되어 있어 사용자가 직접 켜기 전까지 완벽히 무음으로 동작합니다.\n"),
@@ -437,6 +460,26 @@ def update_or_create_keymap_page():
                 [rt("기능 분류", bold=True)],
                 [rt("단축키 조합 (Key Combo)", bold=True)],
                 [rt("동작 설명", bold=True)]
+            ]),
+            table_row_block([
+                [rt("매크로 1 녹화/종료", bold=True)],
+                [rt("Fn + 7", code=True)],
+                "슬롯 1 매크로 녹화 시작/종료 토글 (빨간색 숨쉬기 LED, 새 녹화 시 덮어쓰기)"
+            ]),
+            table_row_block([
+                [rt("매크로 1 재생", bold=True)],
+                [rt("Fn + 8", code=True)],
+                "슬롯 1 매크로 12ms 안전 딜레이로 재생 (빨간색 점등 LED)"
+            ]),
+            table_row_block([
+                [rt("매크로 2 녹화/종료", bold=True)],
+                [rt("Fn + 9", code=True)],
+                "슬롯 2 매크로 녹화 시작/종료 토글 (보라색 숨쉬기 LED, 새 녹화 시 덮어쓰기)"
+            ]),
+            table_row_block([
+                [rt("매크로 2 재생", bold=True)],
+                [rt("Fn + 0", code=True)],
+                "슬롯 2 매크로 12ms 안전 딜레이로 재생 (보라색 점등 LED)"
             ]),
             table_row_block([
                 [rt("마스터 사운드 토글", bold=True)],

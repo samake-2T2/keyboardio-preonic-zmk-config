@@ -70,6 +70,26 @@ bool preonic_sound_toggle_clicky(void);
  */
 bool preonic_sound_is_clicky_enabled(void);
 
+/**
+ * @brief Play dynamic macro recording start chime (rising 2-tone A6 -> D7).
+ */
+void preonic_sound_play_macro_rec_start(void);
+
+/**
+ * @brief Play dynamic macro recording stop chime (double confirmation beep).
+ */
+void preonic_sound_play_macro_rec_stop(void);
+
+/**
+ * @brief Play dynamic macro playback confirmation click/chirp.
+ */
+void preonic_sound_play_macro_play(void);
+
+/**
+ * @brief Play dynamic macro buffer full warning buzz.
+ */
+void preonic_sound_play_macro_full(void);
+
 #ifdef __cplusplus
 }
 #endif

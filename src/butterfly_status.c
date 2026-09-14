@@ -71,6 +71,10 @@ static enum zmk_activity_state current_activity = ZMK_ACTIVITY_ACTIVE;
 static bool is_battery_gauge = false;
 static bool low_battery_warned = false;
 
+static enum butterfly_macro_mode current_macro_mode = BUTTERFLY_MACRO_IDLE;
+static int64_t macro_anim_start_time = 0;
+static int64_t macro_play_end_time = 0;
+
 static inline struct led_rgb make_rgb(uint8_t r, uint8_t g, uint8_t b) {
     return (struct led_rgb){ .r = r, .g = g, .b = b };
 }
@@ -130,6 +134,47 @@ static void butterfly_work_handler(struct k_work *work) {
         state_change_time = k_uptime_get();
     }
 #endif
+
+    if (current_macro_mode == BUTTERFLY_MACRO_PLAY_1 || current_macro_mode == BUTTERFLY_MACRO_PLAY_2) {
+        if (k_uptime_get() >= macro_play_end_time) {
+            current_macro_mode = BUTTERFLY_MACRO_IDLE;
+            state_change_time = k_uptime_get();
+        } else {
+            uint8_t brt = (uint8_t)CONFIG_BUTTERFLY_BRIGHTNESS;
+            struct led_rgb pixels[BUTTERFLY_NUM_LEDS];
+            for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
+                if (current_macro_mode == BUTTERFLY_MACRO_PLAY_1) {
+                    pixels[i] = make_rgb(brt, 0, 0); // Solid Red flash
+                } else {
+                    pixels[i] = make_rgb(brt, 0, brt); // Solid Purple flash
+                }
+            }
+            update_leds(pixels);
+            int64_t rem = macro_play_end_time - k_uptime_get();
+            k_work_reschedule(&butterfly_work, K_MSEC(rem > 0 ? rem : 1));
+            return;
+        }
+    }
+
+    if (current_macro_mode == BUTTERFLY_MACRO_REC_1 || current_macro_mode == BUTTERFLY_MACRO_REC_2) {
+        int64_t elapsed = (k_uptime_get() - macro_anim_start_time) % 1400;
+        uint32_t phase = (elapsed < 700) ? (uint32_t)elapsed : (uint32_t)(1400 - elapsed);
+        uint8_t max_b = (uint8_t)CONFIG_BUTTERFLY_BRIGHTNESS;
+        uint8_t min_b = 20;
+        uint8_t brt = min_b + (uint8_t)(((uint32_t)(max_b - min_b) * phase) / 700);
+
+        struct led_rgb pixels[BUTTERFLY_NUM_LEDS];
+        for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
+            if (current_macro_mode == BUTTERFLY_MACRO_REC_1) {
+                pixels[i] = make_rgb(brt, 0, 0); // Red breathing pulse
+            } else {
+                pixels[i] = make_rgb(brt, 0, brt); // Purple breathing pulse
+            }
+        }
+        update_leds(pixels);
+        k_work_reschedule(&butterfly_work, K_MSEC(25));
+        return;
+    }
 
     if (is_battery_gauge) {
         uint8_t soc = zmk_battery_state_of_charge();
@@ -271,6 +316,18 @@ void butterfly_show_battery(void) {
     }
     boot_anim_done = true;
     is_battery_gauge = true;
+    k_work_reschedule(&butterfly_work, K_NO_WAIT);
+}
+
+void butterfly_set_macro_mode(enum butterfly_macro_mode mode) {
+    current_macro_mode = mode;
+    if (mode == BUTTERFLY_MACRO_REC_1 || mode == BUTTERFLY_MACRO_REC_2) {
+        macro_anim_start_time = k_uptime_get();
+    } else if (mode == BUTTERFLY_MACRO_PLAY_1 || mode == BUTTERFLY_MACRO_PLAY_2) {
+        macro_play_end_time = k_uptime_get() + 150;
+    } else {
+        state_change_time = k_uptime_get();
+    }
     k_work_reschedule(&butterfly_work, K_NO_WAIT);
 }
 

@@ -372,7 +372,7 @@ func_keys = [
     {"col": 9, "row": 0, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
     {"col": 10, "row": 0, "main": "HOLD", "sub": "Fn Active", "bg": COLOR_LAYER_FN},
     {"col": 11, "row": 0, "main": "Mute", "sub": "Vol Up/Dn", "bg": COLOR_MOD, "is_knob": True},
-    # Row 1 (Output & Bluetooth Profiles)
+    # Row 1 (Output & Bluetooth Profiles, Dynamic Macros)
     {"col": 0, "row": 1, "main": "OUT TOG", "sub": "USB ↔ BLE", "bg": COLOR_BLE},
     {"col": 1, "row": 1, "main": "BT 0", "sub": "Wing 0", "bg": COLOR_BLE},
     {"col": 2, "row": 1, "main": "BT 1", "sub": "Wing 1", "bg": COLOR_BLE},
@@ -380,10 +380,10 @@ func_keys = [
     {"col": 4, "row": 1, "main": "BT 3", "sub": "Wing 3", "bg": COLOR_BLE},
     {"col": 5, "row": 1, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
     {"col": 6, "row": 1, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
-    {"col": 7, "row": 1, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
-    {"col": 8, "row": 1, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
-    {"col": 9, "row": 1, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
-    {"col": 10, "row": 1, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
+    {"col": 7, "row": 1, "main": "Rec 1", "sub": "Dyn Rec/Stop", "bg": COLOR_DANGER, "tag": "Fn+7"},
+    {"col": 8, "row": 1, "main": "Play 1", "sub": "Dyn Play", "bg": COLOR_FEATURE, "tag": "Fn+8"},
+    {"col": 9, "row": 1, "main": "Rec 2", "sub": "Dyn Rec/Stop", "bg": COLOR_LAYER_RAISE, "tag": "Fn+9"},
+    {"col": 10, "row": 1, "main": "Play 2", "sub": "Dyn Play", "bg": COLOR_SYM, "tag": "Fn+0"},
     {"col": 11, "row": 1, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
     # Row 2 (Battery Typer on P)
     {"col": 0, "row": 2, "main": "▽", "bg": COLOR_TRANS, "fg": TEXT_DIM},
@@ -446,6 +446,6 @@ os.makedirs(out_dir, exist_ok=True)
 render_layer("Keyboardio Preonic — Layer 0: Base Layer (기본 레이어)", "Standard 5x12 MIT Layout (Alphanumerics, Centered 2U Spacebar, Top Fn & Media Knob)", base_keys, os.path.join(out_dir, "layer0_base.png"))
 render_layer("Keyboardio Preonic — Layer 1: Lower Layer (로워 레이어)", "Numeric Keypad (Tenkeyless Numpad on Right Hand) & Navigation Keys (Home, End, PgUp, PgDn)", lower_keys, os.path.join(out_dir, "layer1_lower.png"))
 render_layer("Keyboardio Preonic — Layer 2: Raise Layer (레이즈 레이어)", "Programming Symbols & Full Mouse Emulation (Move, Click, Wheel Scroll)", raise_keys, os.path.join(out_dir, "layer2_raise.png"))
-render_layer("Keyboardio Preonic — Layer 3: Function & Tri Layer (펑션 레이어)", "Hardware Controls: Bluetooth Profiles, Sound On/Off (Fn+S), Audio Clicky (Fn+C), Battery Gauge (Fn+B), Typer (Fn+P), Bootloader", func_keys, os.path.join(out_dir, "layer3_func.png"))
+render_layer("Keyboardio Preonic — Layer 3: Function & Tri Layer (펑션 레이어)", "Hardware Controls: Dynamic Macro (Fn+7~0), BLE Profiles, Sound (Fn+S), Clicky (Fn+C), Battery Gauge (Fn+B), Typer (Fn+P), Bootloader", func_keys, os.path.join(out_dir, "layer3_func.png"))
 
 print(f"All 4 layer images successfully re-generated into {out_dir}!")

@@ -4,6 +4,7 @@ if(CONFIG_KEYBOARDIO_BUTTERFLY_STATUS)
     target_sources_ifdef(CONFIG_KEYBOARDIO_BUTTERFLY_STATUS app PRIVATE
         src/butterfly_status.c
         src/battery_typer.c
+        src/dynamic_macro.c
     )
     zephyr_include_directories(include)
 endif()
