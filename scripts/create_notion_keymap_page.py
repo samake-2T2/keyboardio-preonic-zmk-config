@@ -9,7 +9,7 @@ TARGET_PAGE_ID = os.environ.get("NOTION_PAGE_ID", "3db96981-2b85-817b-adc0-c8a46
 PARENT_PAGE_ID = os.environ.get("NOTION_PARENT_PAGE_ID", "3d696981-2b85-802f-931b-cddb91fe1cea")
 NOTION_VERSION = "2025-09-03"
 
-GITHUB_IMG_BASE = "https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.6.0/docs/images"
+GITHUB_IMG_BASE = "https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.7.0/docs/images"
 
 def notion_request(url, method="GET", data=None, retries=5):
     headers = {
