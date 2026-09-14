@@ -4,7 +4,8 @@ import urllib.request
 import urllib.error
 
 NOTION_API_TOKEN = os.environ.get("NOTION_API_TOKEN")
-PARENT_PAGE_ID = "3d696981-2b85-802f-931b-cddb91fe1cea"
+PARENT_PAGE_ID = os.environ.get("NOTION_PARENT_PAGE_ID", "3d696981-2b85-802f-931b-cddb91fe1cea")
+TARGET_PAGE_ID = os.environ.get("NOTION_PAGE_ID")
 NOTION_VERSION = "2025-09-03"
 
 GITHUB_IMG_BASE = "https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/master/docs/images"
@@ -137,7 +138,6 @@ def table_block(rows, table_width=3, has_column_header=True):
     }
 
 def create_keymap_page():
-    print("Creating Notion page...")
     initial_blocks = [
         callout_block([
             rt("본 문서는 ", bold=True),
@@ -153,28 +153,37 @@ def create_keymap_page():
             rt("로터리 인코더(음량/음소거)", bold=True, color="green"),
             rt("\n• 배터리 모니터링: ", bold=True),
             rt("비프음 오디오 게이지(구간별 음계 + 15% 저배터리 자동 경고음) & 텍스트 백분율 자동 타이퍼(XX%)\n"),
-            rt("• 피드백 및 편의: ", bold=True),
-            rt("키 클릭음 토글(&clicky_toggle), 마우스 커서/클릭 에뮬레이션, 다이렉트 부트로더 진입\n\n"),
+            rt("• 피에조 사운드 시스템: ", bold=True),
+            rt("마스터 사운드 On/Off 토글(기본값 OFF 무음, Fn + S), 타건 클릭음(Fn + C), 부팅 코인 차임\n"),
+            rt("• 무선 연결 및 제어: ", bold=True),
+            rt("4-Device 블루투스 멀티페어링(Fn + Q/W/E/R), 마우스 커서/클릭 에뮬레이션, 다이렉트 부트로더 진입\n\n"),
             rt("🔗 GitHub 펌웨어 저장소 바로가기", bold=True, link="https://github.com/samake-2T2/keyboardio-preonic-zmk-config")
         ], emoji="⌨️", color="blue_background"),
         divider_block()
     ]
 
-    page_payload = {
-        "parent": {"page_id": PARENT_PAGE_ID},
-        "icon": {"type": "emoji", "emoji": "⌨️"},
-        "properties": {
-            "title": {
-                "title": [{"type": "text", "text": {"content": "⌨️ Keyboardio Preonic 레이어별 키맵 가이드 (MIT Layout)"}}]
-            }
-        },
-        "children": initial_blocks
-    }
-
-    page = notion_request("https://api.notion.com/v1/pages", method="POST", data=page_payload)
-    page_id = page["id"]
-    page_url = page["url"]
-    print(f"Page created: {page_id} -> {page_url}")
+    if TARGET_PAGE_ID:
+        page_id = TARGET_PAGE_ID
+        page_url = f"https://notion.so/{TARGET_PAGE_ID.replace('-', '')}"
+        print(f"Targeting existing Notion page: {page_id}")
+        # Append initial overview block to existing page
+        notion_request(f"https://api.notion.com/v1/blocks/{page_id}/children", method="PATCH", data={"children": initial_blocks})
+    else:
+        print("Creating new Notion page...")
+        page_payload = {
+            "parent": {"page_id": PARENT_PAGE_ID},
+            "icon": {"type": "emoji", "emoji": "⌨️"},
+            "properties": {
+                "title": {
+                    "title": [{"type": "text", "text": {"content": "⌨️ Keyboardio Preonic 레이어별 키맵 가이드 (MIT Layout)"}}]
+                }
+            },
+            "children": initial_blocks
+        }
+        page = notion_request("https://api.notion.com/v1/pages", method="POST", data=page_payload)
+        page_id = page["id"]
+        page_url = page["url"]
+        print(f"Page created: {page_id} -> {page_url}")
 
     # Section 1: Overview & Table of Contents
     sec1_blocks = [
@@ -210,7 +219,7 @@ def create_keymap_page():
             table_row_block([
                 [rt("Layer 3: Function & Tri", bold=True, color="purple")],
                 "상단 Fn 키 누름 OR Lower + Raise 동시 입력",
-                "BLE 프로필(1~3), 배터리 비프음/타이퍼, 클릭 사운드 토글, 부트로더 진입"
+                "BLE 프로필(1~4), 마스터 사운드 토글(기본 OFF), 클릭 사운드 토글, 배터리 게이지/타이퍼, 부트로더 진입"
             ])
         ], table_width=3, has_column_header=True),
         divider_block()
@@ -342,13 +351,27 @@ def create_keymap_page():
             rt("   • 한/영 입력기 상태에 구애받지 않는 안전한 다이렉트 숫자/퍼센트 전송 기술이 적용되어 있습니다.")
         ], emoji="🔋", color="gray_background"),
         callout_block([
+            rt("🔇 마스터 사운드 On/Off 토글 (Fn + S):\n", bold=True, color="blue"),
+            rt("• 내장 피에조 부저의 모든 사운드(부팅음, 클릭키, 배터리 경고음)를 총괄하는 마스터 스위치입니다.\n"),
+            rt("• "),
+            rt("기본값 무음(OFF)", bold=True, color="orange"),
+            rt(": 펌웨어 기본값은 OFF 상태로 설정되어 있어 사용자가 직접 켜기 전까지 완벽히 무음으로 동작합니다.\n"),
+            rt("• "),
+            rt("상태 리텐션(GPREGRET2)", bold=True),
+            rt(": 켜진 상태는 nRF52840 하드웨어 레지스터에 보존되어 딥슬립(절전모드) 복귀 후에도 유지됩니다.\n"),
+            rt("• "),
+            rt("절전모드 복귀 부팅음 차단", bold=True),
+            rt(": 절전모드에서 깨어날 때는 부팅 차임이 울리지 않도록 하드웨어 리셋 원인 필터링이 적용되어 있습니다.\n"),
+            rt("• 토글 피드백: On 전환 시 2200Hz 높은 확인음, Off 전환 시 1000Hz 낮은 확인음이 울립니다.")
+        ], emoji="🔇", color="gray_background"),
+        callout_block([
             rt("🔊 오디오 클릭 사운드 토글 (Fn + C):\n", bold=True, color="blue"),
             rt("• 내장 피에조 부저를 이용한 기계식 타건 클릭음(&clicky_toggle)을 On/Off 전환합니다.\n"),
-            rt("• On 전환 시 상승 알림음, Off 전환 시 하강 알림음이 울립니다.")
+            rt("• On 전환 시 상승 알림음, Off 전환 시 하강 알림음이 울립니다 (마스터 사운드가 On인 경우에만 출력).")
         ], emoji="🔊", color="gray_background"),
         callout_block([
             rt("📡 블루투스(BLE) 및 USB 유무선 제어:\n", bold=True, color="blue"),
-            rt("• Fn + Q / W / E: ", bold=True), rt("BLE 프로필 1, 2, 3번 즉시 전환\n"),
+            rt("• Fn + Q / W / E / R: ", bold=True), rt("BLE 프로필 1, 2, 3, 4번 즉시 전환 (최대 4대 기기 멀티페어링)\n"),
             rt("• Fn + T: ", bold=True), rt("현재 활성화된 프로필의 BLE 페어링 정보 초기화 (&bt BT_CLR)\n"),
             rt("• Fn + Y: ", bold=True), rt("USB 유선 출력과 블루투스 무선 출력 모드 수동 토글 (&out OUT_TOG)\n"),
             rt("• 나비 LED 색상: USB 모드는 화이트(White), BLE 모드는 블루(Cyan/Blue)로 점등되어 배터리 게이지와 확실히 구별됩니다.")
@@ -382,6 +405,11 @@ def create_keymap_page():
                 [rt("동작 설명", bold=True)]
             ]),
             table_row_block([
+                [rt("마스터 사운드 토글", bold=True)],
+                [rt("Fn + S", code=True)],
+                "전체 피에조 사운드 On/Off (기본 OFF 무음, 딥슬립 설정 유지)"
+            ]),
+            table_row_block([
                 [rt("배터리 청각/시각 확인", bold=True)],
                 [rt("Fn + B (Hold)", code=True)],
                 "누르고 있는 동안 나비 날개 LED에 잔량 표시 및 비프음 재생"
@@ -408,8 +436,8 @@ def create_keymap_page():
             ]),
             table_row_block([
                 [rt("BLE 프로필 전환", bold=True)],
-                [rt("Fn + Q / W / E", code=True)],
-                "블루투스 페어링 슬롯 1, 2, 3 선택"
+                [rt("Fn + Q / W / E / R", code=True)],
+                "블루투스 페어링 슬롯 1, 2, 3, 4 선택"
             ]),
             table_row_block([
                 [rt("BLE 페어링 삭제", bold=True)],
