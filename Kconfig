@@ -81,7 +81,7 @@ if KEYBOARDIO_PREONIC_SOUND
 
 config PREONIC_SOUND_MASTER_DEFAULT
 	bool "Master sound enabled by default on boot"
-	default y
+	default n
 	help
 	  Master switch for all piezo sound effects. Can be toggled with Fn + S.
 

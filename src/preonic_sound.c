@@ -63,7 +63,7 @@ static bool cold_boot_done = false;
 
 #if defined(NRF_POWER)
 #define GPREGRET_MAGIC_MASK  0xF0
-#define GPREGRET_MAGIC_VAL   0x50 // Magic tag 'S' (Sound)
+#define GPREGRET_MAGIC_VAL   0x60 // Magic tag 'S' v2 (Default OFF)
 #define GPREGRET_SOUND_BIT   (1U << 0)
 #define GPREGRET_CLICKY_BIT  (1U << 1)
 
