@@ -42,6 +42,14 @@ static const uint8_t ALLOWED_LENGTHS[] = { 12, 16, 20, 24 };
 
 static uint8_t current_length_idx = DEFAULT_LENGTH_INDEX;
 
+#define ENCODER_PULSES_PER_DETENT 4
+#define ENCODER_RESET_TIMEOUT_MS 300
+#define ENCODER_MIN_STEP_INTERVAL_MS 60
+
+static int8_t pulse_accumulator = 0;
+static int64_t last_pulse_time = 0;
+static int64_t last_step_time = 0;
+
 struct pw_step {
     uint32_t keycode;
     bool pressed;
@@ -197,6 +205,8 @@ static void pw_type_work_handler(struct k_work *work) {
 }
 
 void password_generator_cycle_length(int direction) {
+    uint8_t old_idx = current_length_idx;
+
     if (direction > 0) {
         if (current_length_idx < ARRAY_SIZE(ALLOWED_LENGTHS) - 1) {
             current_length_idx++;
@@ -205,6 +215,10 @@ void password_generator_cycle_length(int direction) {
         if (current_length_idx > 0) {
             current_length_idx--;
         }
+    }
+
+    if (current_length_idx == old_idx) {
+        return;
     }
 
     uint8_t len = ALLOWED_LENGTHS[current_length_idx];
@@ -290,13 +304,38 @@ static int password_generator_event_listener(const zmk_event_t *eh) {
         if (zmk_keymap_layer_active(FN_LAYER_INDEX) || zmk_keymap_layer_active(TRI_LAYER_INDEX)) {
             if (sev->channel_data_size > 0) {
                 int val = sev->channel_data[0].value.val1;
-                if (val > 0) {
-                    password_generator_cycle_length(1);
-                } else if (val < 0) {
-                    password_generator_cycle_length(-1);
+                int64_t now = k_uptime_get();
+
+                // Reset accumulator if idle for > 300ms
+                if (now - last_pulse_time > ENCODER_RESET_TIMEOUT_MS) {
+                    pulse_accumulator = 0;
+                }
+                last_pulse_time = now;
+
+                // Reset on direction change for instant reverse response
+                if ((pulse_accumulator > 0 && val < 0) || (pulse_accumulator < 0 && val > 0)) {
+                    pulse_accumulator = 0;
+                }
+
+                pulse_accumulator += val;
+
+                if (pulse_accumulator >= ENCODER_PULSES_PER_DETENT) {
+                    if (now - last_step_time >= ENCODER_MIN_STEP_INTERVAL_MS) {
+                        password_generator_cycle_length(1);
+                        last_step_time = now;
+                    }
+                    pulse_accumulator = 0;
+                } else if (pulse_accumulator <= -ENCODER_PULSES_PER_DETENT) {
+                    if (now - last_step_time >= ENCODER_MIN_STEP_INTERVAL_MS) {
+                        password_generator_cycle_length(-1);
+                        last_step_time = now;
+                    }
+                    pulse_accumulator = 0;
                 }
                 return ZMK_EV_EVENT_HANDLED;
             }
+        } else {
+            pulse_accumulator = 0;
         }
     }
 
