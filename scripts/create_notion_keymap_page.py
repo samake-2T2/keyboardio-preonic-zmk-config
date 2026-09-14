@@ -335,7 +335,7 @@ def update_or_create_keymap_page():
             rt("주요 기능 상세:\n", bold=True),
             rt("• 왼손 정밀 마우스 에뮬레이션 (ZMK Mouse Keys & Pointer):\n", bold=True, color="purple"),
             rt("   - 커서 이동: ", bold=True),
-            rt("E (상), S (좌), D (하), F (우) - 부드러운 2차 가속 곡선 적용\n"),
+            rt("E (상), S (좌), D (하), F (우) - 직관적인 1차 선형 가속(Linear) 적용\n"),
             rt("   - 마우스 클릭: ", bold=True),
             rt("W (좌클릭 LMB), R (우클릭 RMB), C (휠클릭 MMB)\n"),
             rt("   - 마우스 휠 스크롤: ", bold=True),
