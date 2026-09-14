@@ -390,7 +390,7 @@ def update_or_create_keymap_page():
             rt("(`A-Z`, `a-z`, `0-9`, `_`, `-`)로만 구성된 패스워드를 생성합니다. PostgreSQL, MySQL, Redis 등 DB 접속 URI(`postgres://user:pass@host/db`) 파싱 오류나 Docker `.env`, YAML, XML 파싱 시 특수문자 충돌/이스케이프 문제를 원천 차단합니다. (노브 클릭 대기 없이 Fn + D로 즉시 생성 가능)\n"),
             rt("• "),
             rt("웹 확장(Web Extended) 모드 (Fn + 노브 더블 클릭 또는 Fn + W)", bold=True),
-            rt(": 특수문자 필수 사이트를 위해 `@`, `.` 기호를 포함하여 생성합니다. (노브 250ms 내 더블 클릭 또는 Fn + W 직관키)\n"),
+            rt(": 국내외 포털/금융권 특수문자 필수 가입 요건을 100% 만족하는 표준 웹 특수문자(`!`, `@`, `#`, `$`, `%`, `*`, `?`, `_`, `-`, `.`)를 포함하여 생성합니다. (노브 250ms 내 더블 클릭 또는 Fn + W 직관키)\n"),
             rt("• "),
             rt("순수 영숫자(Alphanumeric) 모드 (Fn + 노브 롱 클릭(0.4초) 또는 Fn + A)", bold=True),
             rt(": 특수문자 사용이 금지된 레거시 시스템을 위해 영문 대소문자 및 숫자(`A-Z, a-z, 0-9`)만으로 생성합니다. (노브를 0.4초 누르면 880Hz 확인음과 함께 생성되거나 Fn + A 직관키로 즉시 생성)\n"),
@@ -512,7 +512,7 @@ def update_or_create_keymap_page():
             table_row_block([
                 [rt("웹 확장 패스워드 생성", bold=True)],
                 [rt("Fn + 노브 더블 클릭\n또는 Fn + W", code=True)],
-                "특수문자 필수 사이트용 패스워드 자동 타이핑 (A-Z, a-z, 0-9, _, -, @, .)"
+                "국내외 웹/금융권 표준 특수문자 패스워드 자동 타이핑 (A-Z, a-z, 0-9 + ! @ # $ % * ? _ - . @)"
             ]),
             table_row_block([
                 [rt("영숫자 패스워드 생성", bold=True)],

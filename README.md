@@ -51,7 +51,7 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
   * **True Hardware Entropy**: Powered by Nordic nRF52840 on-chip True Random Number Generator (TRNG) for cryptographic-grade entropy.
   * **Rotary Knob & Butterfly LED Gauge**: While holding `Fn`, rotate the knob to select length (12, 16, 20, 24 chars). The butterfly wings illuminate 1 to 4 wings in warm gold with distinct pitch feedback (C5, E5, G5, C6). Damped 2-click per step feel. Selection is remembered in NVS Flash.
   * **DB & Config Safe Preset (`Fn + Knob Single Click` or `Fn + D`)**: Generates passwords strictly composed of `A-Z`, `a-z`, `0-9`, `_`, `-`. 100% safe in PostgreSQL/MySQL/Redis connection URIs, Docker `.env`, YAML, and XML without escape or parsing errors.
-  * **Web Extended Preset (`Fn + Knob Double Click` or `Fn + W`)**: Adds `@` and `.` for web portal signup requirements.
+  * **Web Extended Preset (`Fn + Knob Double Click` or `Fn + W`)**: Includes standard web special characters (`!`, `@`, `#`, `$`, `%`, `*`, `?`, `_`, `-`, `.`) to satisfy all global/domestic web portal and banking password validation requirements while avoiding XML/SQL/JSON breaking characters.
   * **Alphanumeric Preset (`Fn + Knob Long Press 0.4s` or `Fn + A`)**: Pure alphanumeric (`A-Z, a-z, 0-9`) for legacy systems forbidding special characters.
   * **Async Non-Blocking Typing**: Types out smoothly at 12ms intervals with automatic modifier masking.
 * **Mouse Emulation (ZMK Pointing)**: Integrated mouse cursor movement, clicking, and scrolling on the Raise layer.
@@ -100,7 +100,7 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
 * **Rotary Knob & Direct Keys (Hardware TRNG Password Generator)**:
   * **Turn Knob** (`Fn + Rotate Knob`): Cycle password length (12, 16, 20, 24 characters). Lights 1~4 butterfly wings in warm gold with musical pitch tones (C5, E5, G5, C6). Damped 2-click step. Persisted in NVS Flash.
   * **Single Click Knob** (`Fn + Click`) or **`Fn + D`**: Generate & type **DB & Config Safe** password (`A-Z, a-z, 0-9, _, -`). Zero-escape, 100% safe in PostgreSQL/MySQL/Redis connection URIs, Docker `.env`, YAML, and XML.
-  * **Double Click Knob** (`Fn + Double Click`) or **`Fn + W`**: Generate & type **Web Extended** password (`A-Z, a-z, 0-9, _, -, @, .`).
+  * **Double Click Knob** (`Fn + Double Click`) or **`Fn + W`**: Generate & type **Web Extended** password (`A-Z, a-z, 0-9` + `! @ # $ % * ? _ - . @`).
   * **Long Press Knob (0.4s)** (`Fn + Hold Knob`) or **`Fn + A`**: Generate & type **Alphanumeric** password (`A-Z, a-z, 0-9`).
 * **Bottom Row**:
   * `LCTRL` position: `&bootloader` (Enter DFU bootloader mode)
@@ -185,7 +185,7 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
   * **진정한 하드웨어 엔트로피**: nRF52840 SoC 내부 하드웨어 난수 생성기(TRNG)를 활용하여 예측 불가능한 암호학적 엔트로피 보장.
   * **로터리 노브 회전 & 나비 LED 4단계 게이지**: `Fn`을 누른 채 노브를 돌리면 패스워드 자리수가 즉시 순환(12, 16, 20, 24자)되며, 나비 날개 1~4개가 따뜻한 골드/앰버 색상으로 점등되고 도/미/솔/도 음계 피드백이 제공됩니다. 2클릭 1스텝 감도 조절로 안정적인 회전감을 제공하며, 설정된 길이는 Zephyr NVS 플래시에 영구 저장됩니다.
   * **DB & Config Safe 모드 (`Fn + 노브 1회 클릭` 또는 `Fn + D`)**: `A-Z`, `a-z`, `0-9`, `_`, `-` 조합으로만 생성. PostgreSQL/MySQL/Redis 접속 URI(`user:pass@host`), 도커 `.env`, YAML, XML 파싱 시 이스케이프 오류나 깨짐이 100% 없는 안전 문자열 생성.
-  * **웹 확장 모드 (`Fn + 노브 더블 클릭` 또는 `Fn + W`)**: 특수문자 필수 사이트를 위해 `@`, `.`를 포함하여 생성.
+  * **웹 확장 모드 (`Fn + 노브 더블 클릭` 또는 `Fn + W`)**: 국내외 웹사이트/금융권 특수문자 필수 가입 요건을 100% 만족하는 표준 웹 특수문자(`!`, `@`, `#`, `$`, `%`, `*`, `?`, `_`, `-`, `.`)를 포함하여 생성 (XSS/SQL 인젝션 방어 필터를 자극하는 `<, >, ", ', \, /` 등 위험 문자는 철저히 배제).
   * **순수 영숫자 모드 (`Fn + 노브 롱 클릭(0.4초)` 또는 `Fn + A`)**: 특수문자가 금지된 구형 시스템을 위해 순수 영문 대/소문자 및 숫자(`A-Z, a-z, 0-9`)만으로 생성.
   * **비동기 12ms 무지연 타이핑 & 모디파이어 자동 마스킹**: 타이핑 중 사용자가 누르고 있는 `Fn` 모디파이어를 자동으로 마스킹하여 키 입력 왜곡 없이 정밀하고 부드럽게 자동 타이핑.
 * **마우스 에뮬레이션 (ZMK Pointing)**: Raise 레이어에서 마우스 커서 이동, 클릭, 휠 스크롤 지원.
@@ -234,7 +234,7 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 * **로터리 노브 & 직관 단축키 (하드웨어 TRNG 패스워드 생성기)**:
   * **노브 회전** (`Fn + 노브 회전`): 패스워드 자리수 12 / 16 / 20 / 24자 순환 변경 (2클릭 1스텝 둔감화, 나비 날개 골드 1~4개 게이지 및 도/미/솔/도 음계 피드백, NVS 영구 저장)
   * **노브 1회 클릭** (`Fn + 노브 클릭`) 또는 **`Fn + D`**: **DB & Config Safe 패스워드** 생성 및 자동 타이핑 (`A-Z, a-z, 0-9, _, -` Zero-Escape 안전 문자)
-  * **노브 더블 클릭** (`Fn + 노브 더블 클릭`) 또는 **`Fn + W`**: **웹 확장(Web Extended) 패스워드** 생성 및 타이핑 (`@`, `.` 추가)
+  * **노브 더블 클릭** (`Fn + 노브 더블 클릭`) 또는 **`Fn + W`**: **웹 확장(Web Extended) 패스워드** 생성 및 타이핑 (`! @ # $ % * ? _ - . @` 표준 웹 특수문자 포함)
   * **노브 롱 클릭(0.4초)** (`Fn + 노브 롱 클릭`) 또는 **`Fn + A`**: **순수 영숫자(Alphanumeric) 패스워드** 생성 및 타이핑 (`A-Z, a-z, 0-9`)
 * **하단 행**:
   * `LCTRL` 자리: **`&bootloader`** (USB 외장 드라이브 부트로더 모드 진입)

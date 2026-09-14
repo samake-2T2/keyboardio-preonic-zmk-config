@@ -78,7 +78,7 @@ static const char UPPER_SET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 static const char LOWER_SET[] = "abcdefghijklmnopqrstuvwxyz";
 static const char DIGIT_SET[] = "0123456789";
 static const char DB_SAFE_SPECIALS[] = "_-";
-static const char WEB_SPECIALS[] = "_-@.";
+static const char WEB_SPECIALS[] = "_-@.!#$%*?";
 
 static const uint32_t letter_keys[26] = {
     A, B, C, D, E, F, G, H, I, J, K, L, M,
@@ -144,7 +144,7 @@ static void generate_password_string(char *out, uint8_t length, enum password_mo
     }
 
     // 5. Build combined pool for remaining characters
-    char pool[70];
+    char pool[128];
     size_t pool_len = 0;
     memcpy(pool + pool_len, UPPER_SET, 26); pool_len += 26;
     memcpy(pool + pool_len, LOWER_SET, 26); pool_len += 26;
@@ -190,6 +190,24 @@ static uint32_t char_to_keycode(char c) {
     }
     if (c == '@') {
         return AT;
+    }
+    if (c == '!') {
+        return LS(N1);
+    }
+    if (c == '#') {
+        return LS(N3);
+    }
+    if (c == '$') {
+        return LS(N4);
+    }
+    if (c == '%') {
+        return LS(N5);
+    }
+    if (c == '*') {
+        return LS(N8);
+    }
+    if (c == '?') {
+        return LS(SLASH);
     }
     return 0;
 }
