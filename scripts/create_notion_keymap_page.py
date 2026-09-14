@@ -178,7 +178,7 @@ def update_or_create_keymap_page():
             rt("PrtSc 화면 캡처, 독립 Fn 키, "),
             rt("로터리 인코더(음량 조절 / 클릭 시 음소거)", bold=True, color="green"),
             rt("\n• 스마트 하이브리드 USB/BLE 자동 전환: ", bold=True),
-            rt("USB 케이블 분리 또는 배터리 전원 인가 시 마지막 활성 BLE 프로필(0~3번)로 자동 복귀, Zero-Delay NVS 플래시 즉시 저장으로 돌발 전원 차단 시에도 설정 완벽 보존, PC 연결 시 USB 자동 전환, 충전기 연결 시 무선 BLE 유지\n"),
+            rt("USB 케이블 분리 또는 배터리 전원 인가 시 마지막 활성 BLE 프로필(0~3번)로 자동 복귀, NVS 플래시 안전 보존, PC 유선 연결 시 USB 자동 전환(순백색 점등), 충전기 연결 시 무선 BLE 유지\n"),
             rt("• 피에조 사운드 시스템: ", bold=True),
             rt("마스터 사운드 On/Off 토글(기본값 OFF 무음, Fn + S, NVS 플래시 영구 보존으로 전원 차단/재부팅 후에도 설정 유지), 절전모드 복귀 부팅음 차단, 타건 클릭음(Fn + C), 부팅 슈퍼마리오 코인 차임\n"),
             rt("• QMK 호환 다이나믹 매크로: ", bold=True),
@@ -431,16 +431,16 @@ def update_or_create_keymap_page():
         ], emoji="🔊", color="gray_background"),
         callout_block([
             rt("📡 스마트 하이브리드 USB/BLE 제어 & 나비 LED 인디케이터:\n", bold=True, color="blue"),
-            rt("1. 스마트 자동 출력 전환 & Zero-Delay NVS 보존:\n", bold=True),
+            rt("1. 스마트 자동 출력 전환 & NVS 플래시 보존:\n", bold=True),
             rt("   • 케이블 분리 & 배터리 부팅: ", bold=True, color="orange"),
-            rt("USB 케이블을 뽑거나 외부 전원 스위치를 켤 때 자동으로 마지막 사용 BLE 슬롯(0~3번)으로 즉시 전환되며, 플래시에 지연 없이 즉시 기록되어 돌발 전원 차단에도 설정이 유실되지 않습니다.\n"),
+            rt("USB 케이블을 뽑거나 외부 전원 스위치를 켤 때 자동으로 마지막 사용 BLE 슬롯(0~3번)으로 즉시 전환되며, 플래시에 안전하게 보존됩니다.\n"),
             rt("   • PC USB 연결 시: ", bold=True, color="green"),
-            rt("PC와 HID 통신이 연결되면 자동으로 USB 유선 출력 모드로 전환됩니다.\n"),
+            rt("PC와 HID 통신이 연결되면 자동으로 USB 유선 출력 모드로 전환되며 나비 로고가 순백색(Clean White)으로 점등됩니다.\n"),
             rt("   • 충전기/보조배터리 연결 시: ", bold=True, color="blue"),
             rt("전원 공급 전용(Power-only) 연결을 감지하여 블루투스 무선 입력을 가로채지 않고 BLE 모드를 유지합니다.\n"),
             rt("2. 프로필 선택 및 수동 제어:\n", bold=True),
             rt("   • Fn + 1 / 2 / 3 / 4: ", bold=True), rt("BLE 프로필 0, 1, 2, 3번 즉시 전환 (최대 4대 기기 멀티페어링)\n"),
-            rt("   • 나비 로고 LED 1:1 매핑: ", bold=True), rt("4개의 날개 조각이 4개 프로필에 1:1 대응 (대기: 하늘색 깜빡임, 연결: 사파이어 블루 점등 후 감광, PC USB 유선: 에메랄드 그린)\n"),
+            rt("   • 나비 로고 LED 1:1 매핑: ", bold=True), rt("4개의 날개 조각이 4개 프로필에 1:1 대응 (대기: 하늘색 깜빡임, 연결: 사파이어 블루 점등 후 감광, PC USB 유선: 순백색 Clean White)\n"),
             rt("   • Fn + ~ (Grave): ", bold=True), rt("USB 유선 출력과 블루투스 무선 출력 모드 수동 토글 (&out OUT_TOG)\n"),
             rt("   • Fn + → (하단 가장 우측 키): ", bold=True), rt("현재 활성화된 프로필의 BLE 페어링 정보 초기화 (&bt BT_CLR)")
         ], emoji="📡", color="gray_background"),
@@ -545,7 +545,7 @@ def update_or_create_keymap_page():
             table_row_block([
                 [rt("USB / BLE 전환", bold=True)],
                 [rt("Fn + ~ (Grave)", code=True)],
-                "유무선 출력 수동 토글 (케이블 분리/전원 인가 시 BLE 자동 전환 & 무지연 플래시 저장)"
+                "유무선 출력 수동 토글 (케이블 분리/전원 인가 시 BLE 자동 전환 & NVS 플래시 보존)"
             ]),
             table_row_block([
                 [rt("음소거 / 볼륨", bold=True)],
