@@ -1,6 +1,10 @@
 # Keyboardio Preonic - ZMK Firmware Configuration
 
 <p align="center">
+  <a href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/tag/v1.6.0"><img src="https://img.shields.io/badge/Release-v1.6.0-blue.svg?style=for-the-badge" alt="Latest Release v1.6.0"></a>
+</p>
+
+<p align="center">
   <a href="#english">English</a> | <a href="#한국어">한국어</a>
 </p>
 
@@ -10,6 +14,9 @@
 ## English
 
 Custom ZMK firmware configuration specifically developed for the **Keyboardio Preonic**, manufactured by [Keyboardio](https://keyboard.io).
+
+> [!TIP]
+> **Latest Release v1.6.0**: Added **QMK-Compatible Dynamic Macro System** (`Fn + 7` Rec 1, `Fn + 8` Play 1, `Fn + 9` Rec 2, `Fn + 0` Play 2) with NVS flash persistence across reboots, independent slots with clean overwrite, LED pulse/flash feedback, and 12ms BLE safe typing delay.
 
 > [!IMPORTANT]
 > **Hardware Compatibility Note**:
@@ -46,23 +53,23 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
 ### 🗺️ Layer Map
 
 #### 1. Base Layer
-![Base Layer](docs/images/layer0_base.png)
+![Base Layer](https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.6.0/docs/images/layer0_base.png)
 * **Top Row (Right)**: `PrintScreen` | `Fn (L_FN)` | `Knob Click (Mute)`
 * **Main Grid**: Standard Preonic ortholinear alpha layout with 2U Spacebar.
 * **Thumbs**: `LCTRL`, `LGUI`, `LALT`, `RALT`, `Lower`, `Space`, `Raise`, Arrow keys (`Left`, `Down`, `Up`, `Right`).
 
 #### 2. Lower Layer (Numpad & Navigation)
-![Lower Layer](docs/images/layer1_lower.png)
+![Lower Layer](https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.6.0/docs/images/layer1_lower.png)
 * **Right Hand**: Dedicated 10-key numeric keypad (`KP_N0` ~ `KP_N9`, `.`, `Enter`).
 * **Left Hand**: `F1` ~ `F11`, `Home`, `End`, `Page Up`, `Page Down`, `Insert`, `Delete`.
 
 #### 3. Raise Layer (Symbols & Mouse Keys)
-![Raise Layer](docs/images/layer2_raise.png)
+![Raise Layer](https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.6.0/docs/images/layer2_raise.png)
 * **Symbols**: Brackets, braces, parentheses, mathematical operators.
 * **Mouse Emulation**: Cursor movement (`MOVE_UP`, `MOVE_DOWN`, etc.), buttons (`LCLK`, `RCLK`, `MCLK`, `MB4`, `MB5`), and wheel scrolling (`SCRL_UP`, `SCRL_DOWN`, etc.).
 
 #### 4. Function Layer (Official Keyboardio Preonic Layout)
-![Function Layer](docs/images/layer3_func.png)
+![Function Layer](https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.6.0/docs/images/layer3_func.png)
 * **Number Row**:
   * `Grave` position: `&out OUT_TOG` (Toggle between USB and BLE output)
   * `1` ~ `4`: `&bt BT_SEL 0` ~ `&bt BT_SEL 3` (Select Bluetooth profiles 0 to 3, max 4 devices)
@@ -121,6 +128,9 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 
 [Keyboardio(키보디오)](https://keyboard.io) 사에서 개발 및 제조한 **Keyboardio Preonic** 기계식 키보드 전용 ZMK 펌웨어 설정 저장소입니다.
 
+> [!TIP]
+> **최신 릴리즈 v1.6.0**: **QMK 호환 다이나믹 매크로 시스템** 탑재 (`Fn + 7` 녹화1, `Fn + 8` 재생1, `Fn + 9` 녹화2, `Fn + 0` 재생2). NVS 플래시 메모리 영구 보존, 2개 독립 슬롯(새 녹화 시 자동 덮어쓰기), 슬롯별 LED 색상 분리(빨강/보라) 및 마스터 사운드 연동 오디오 피드백, 12ms BLE 무선 안전 딜레이 적용.
+
 > [!IMPORTANT]
 > **하드웨어 호환성 안내**:
 > 본 저장소는 **Keyboardio사의 Preonic 모델 전용**으로 구성되어 있습니다. nRF52840 무선 BLE SoC, 상단 2개 보조 버튼(PrintScreen, Fn), EC11 로터리 인코더 노브, 중앙 나비 로고 RGB 언더글로우를 포함한 Keyboardio 고유의 기판/핀맵 사양을 지원합니다.
@@ -156,23 +166,23 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 ### 🗺️ 레이어 구성
 
 #### 1. 기본 레이어 (Base Layer)
-![기본 레이어](docs/images/layer0_base.png)
+![기본 레이어](https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.6.0/docs/images/layer0_base.png)
 * **상단 우측 3키**: `PrintScreen` (화면 캡처) | `Fn (L_FN)` (펑션 레이어 진입) | `노브 클릭` (음소거)
 * **알파벳 열**: 표준 Preonic 직교 영문 자판 및 중앙 2U 스페이스바.
 * **하단 열**: `LCTRL`, `LGUI`, `LALT`, `RALT`, `Lower`, `Space`, `Raise`, 방향키 (`Left`, `Down`, `Up`, `Right`).
 
 #### 2. 로워 레이어 (Lower Layer - 숫자 패드 & 내비게이션)
-![로워 레이어](docs/images/layer1_lower.png)
+![로워 레이어](https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.6.0/docs/images/layer1_lower.png)
 * **우측 손**: 텐키리스 숫자 키패드(`KP_N0` ~ `KP_N9`, `.`, `Enter`).
 * **좌측 손**: `F1` ~ `F11`, `Home`, `End`, `Page Up`, `Page Down`, `Insert`, `Delete`.
 
 #### 3. 레이즈 레이어 (Raise Layer - 특수기호 & 마우스)
-![레이즈 레이어](docs/images/layer2_raise.png)
+![레이즈 레이어](https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.6.0/docs/images/layer2_raise.png)
 * **특수 기호**: 괄호(`[]`, `{}`, `()`), 연산 기호 등 프로그래밍에 유용한 기호 배치.
 * **마우스 제어**: 커서 이동(`MOVE_UP`, `MOVE_DOWN` 등), 클릭(`좌클릭`, `우클릭`, `휠클릭`, `앞/뒤로가기`), 휠 스크롤.
 
 #### 4. 펑션 레이어 (Function Layer - 공식 순정 키맵 규격)
-![펑션 레이어](docs/images/layer3_func.png)
+![펑션 레이어](https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.6.0/docs/images/layer3_func.png)
 * **숫자 행**:
   * `Grave` 자리: **`&out OUT_TOG`** (USB 유선 / 블루투스 무선 출력 모드 전환)
   * `1 ~ 4` 자리: **`&bt BT_SEL 0 ~ 3`** (블루투스 기기 프로필 0번 ~ 3번, 총 4대 선택)
