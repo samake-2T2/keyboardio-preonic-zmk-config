@@ -2,6 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/tag/v1.6.0"><img src="https://img.shields.io/badge/Release-v1.6.0-blue.svg?style=for-the-badge" alt="Latest Release v1.6.0"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License"></a>
 </p>
 
 <p align="center">
@@ -252,5 +253,14 @@ Keyboardio Preonic 상단 중앙의 나비 로고에는 4개의 어드레서블 
 │   ├── info.json                 # GUI 도구 호환용 표준 메타데이터
 │   └── west.yml                  # ZMK 빌드 매니페스트
 ├── zephyr/                       # Zephyr 모듈 매니페스트 (module.yml)
-└── build.yaml                    # 빌드 타겟 보드 및 스니펫 지정
+├── build.yaml                    # 빌드 타겟 보드 및 스니펫 지정
+└── LICENSE                       # MIT License
 ```
+
+---
+
+### 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+Copyright (c) 2026 samake-2T2.
+
