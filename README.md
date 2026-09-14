@@ -40,19 +40,23 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
 ### 🗺️ Layer Map
 
 #### 1. Base Layer
+![Base Layer](docs/images/layer0_base.png)
 * **Top Row (Right)**: `PrintScreen` | `Fn (L_FN)` | `Knob Click (Mute)`
 * **Main Grid**: Standard Preonic ortholinear alpha layout with 2U Spacebar.
 * **Thumbs**: `LCTRL`, `LGUI`, `LALT`, `RALT`, `Lower`, `Space`, `Raise`, Arrow keys (`Left`, `Down`, `Up`, `Right`).
 
 #### 2. Lower Layer (Numpad & Navigation)
+![Lower Layer](docs/images/layer1_lower.png)
 * **Right Hand**: Dedicated 10-key numeric keypad (`KP_N0` ~ `KP_N9`, `.`, `Enter`).
 * **Left Hand**: `F1` ~ `F11`, `Home`, `End`, `Page Up`, `Page Down`, `Insert`, `Delete`.
 
 #### 3. Raise Layer (Symbols & Mouse Keys)
+![Raise Layer](docs/images/layer2_raise.png)
 * **Symbols**: Brackets, braces, parentheses, mathematical operators.
 * **Mouse Emulation**: Cursor movement (`MOVE_UP`, `MOVE_DOWN`, etc.), buttons (`LCLK`, `RCLK`, `MCLK`, `MB4`, `MB5`), and wheel scrolling (`SCRL_UP`, `SCRL_DOWN`, etc.).
 
 #### 4. Function Layer (Official Keyboardio Preonic Layout)
+![Function Layer](docs/images/layer3_func.png)
 * **Number Row**:
   * `Grave` position: `&out OUT_TOG` (Toggle between USB and BLE output)
   * `1` ~ `4`: `&bt BT_SEL 0` ~ `&bt BT_SEL 3` (Select Bluetooth profiles 0 to 3, max 4 devices)
@@ -135,19 +139,23 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 ### 🗺️ 레이어 구성
 
 #### 1. 기본 레이어 (Base Layer)
+![기본 레이어](docs/images/layer0_base.png)
 * **상단 우측 3키**: `PrintScreen` (화면 캡처) | `Fn (L_FN)` (펑션 레이어 진입) | `노브 클릭` (음소거)
 * **알파벳 열**: 표준 Preonic 직교 영문 자판 및 중앙 2U 스페이스바.
 * **하단 열**: `LCTRL`, `LGUI`, `LALT`, `RALT`, `Lower`, `Space`, `Raise`, 방향키 (`Left`, `Down`, `Up`, `Right`).
 
 #### 2. 로워 레이어 (Lower Layer - 숫자 패드 & 내비게이션)
+![로워 레이어](docs/images/layer1_lower.png)
 * **우측 손**: 텐키리스 숫자 키패드(`KP_N0` ~ `KP_N9`, `.`, `Enter`).
 * **좌측 손**: `F1` ~ `F11`, `Home`, `End`, `Page Up`, `Page Down`, `Insert`, `Delete`.
 
 #### 3. 레이즈 레이어 (Raise Layer - 특수기호 & 마우스)
+![레이즈 레이어](docs/images/layer2_raise.png)
 * **특수 기호**: 괄호(`[]`, `{}`, `()`), 연산 기호 등 프로그래밍에 유용한 기호 배치.
 * **마우스 제어**: 커서 이동(`MOVE_UP`, `MOVE_DOWN` 등), 클릭(`좌클릭`, `우클릭`, `휠클릭`, `앞/뒤로가기`), 휠 스크롤.
 
 #### 4. 펑션 레이어 (Function Layer - 공식 순정 키맵 규격)
+![펑션 레이어](docs/images/layer3_func.png)
 * **숫자 행**:
   * `Grave` 자리: **`&out OUT_TOG`** (USB 유선 / 블루투스 무선 출력 모드 전환)
   * `1 ~ 4` 자리: **`&bt BT_SEL 0 ~ 3`** (블루투스 기기 프로필 0번 ~ 3번, 총 4대 선택)
