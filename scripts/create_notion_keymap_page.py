@@ -9,7 +9,7 @@ TARGET_PAGE_ID = os.environ.get("NOTION_PAGE_ID", "3db96981-2b85-817b-adc0-c8a46
 PARENT_PAGE_ID = os.environ.get("NOTION_PARENT_PAGE_ID", "3d696981-2b85-802f-931b-cddb91fe1cea")
 NOTION_VERSION = "2025-09-03"
 
-GITHUB_IMG_BASE = "https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.8.0/docs/images"
+GITHUB_IMG_BASE = "https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.9.0/docs/images"
 
 def notion_request(url, method="GET", data=None, retries=5):
     headers = {
@@ -177,7 +177,7 @@ def update_or_create_keymap_page():
         callout_block([
             rt("본 문서는 ", bold=True),
             rt("Keyboardio Preonic (nRF52840)", bold=True, color="blue"),
-            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드 (v1.8.0)입니다.\n\n"),
+            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드 (v1.9.0)입니다.\n\n"),
             rt("특징 요약:\n", bold=True),
             rt("• 레이아웃: ", bold=True),
             rt("5x12 직교(Ortholinear) 배열 + "),
@@ -642,6 +642,69 @@ def update_or_create_keymap_page():
 
     print("Appending Section 6...")
     notion_request(f"https://api.notion.com/v1/blocks/{page_id}/children", method="PATCH", data={"children": sec6_blocks})
+
+    sec7_blocks = [
+        h2_block("7. Preonic Studio (실시간 웹 GUI & 물리적 보안 락)"),
+        callout_block([
+            rt("Preonic Studio", bold=True, color="blue"),
+            rt("는 Keyboardio Preonic 전용으로 개발된 100% 독립형(Clean-Room MIT) 실시간 웹 설정 도구입니다.\n"),
+            rt("VIA/VIAL과 유사하지만 GPL 라이선스 오염이 전혀 없으며, Chrome/Edge 브라우저에서 "),
+            rt("preonic-studio.html", code=True),
+            rt(" 파일을 더블 클릭하는 것만으로 Web Serial을 통해 즉시 동작합니다.")
+        ], emoji="🎛️"),
+        h3_block("7.1 물리적 보안 락 (Physical Security Lock)"),
+        bullet_block([
+            rt("기본 잠금 상태: ", bold=True),
+            rt("키보드 연결 시 또는 5분간 입력이 없으면 자동으로 보안 잠금(Locked) 모드로 전환되어 악의적인 웹 스크립트의 매크로/키 탈취를 원천 방지합니다.")
+        ]),
+        bullet_block([
+            rt("잠금 해제 (Unlock): ", bold=True),
+            rt("키보드에서 직접 "),
+            rt("Fn + Z", code=True, bold=True),
+            rt(" 키를 누르면 물리적 소유자 인증이 완료되며 상승 2음 차임 재생과 함께 나비 LED가 호박색으로 더블 점멸하고 웹 GUI가 즉시 활성화됩니다.")
+        ]),
+        bullet_block([
+            rt("즉시 재잠금: ", bold=True),
+            rt("웹 GUI의 [Lock] 버튼을 누르거나 케이블 분리 시 즉시 재잠금됩니다.")
+        ]),
+        h3_block("7.2 6대 동적 제어 기능"),
+        table_block([
+            table_row_block(["탭 이름", "설정 가능 항목", "비고"]),
+            table_row_block([
+                [rt("⌨️ Keymap", bold=True)],
+                "5x12 MIT 레이아웃 실시간 키 리매핑, 레이어 0~4 전환, 키코드 피커",
+                "Flash(NVS) 영구 저장"
+            ]),
+            table_row_block([
+                [rt("📜 Macros", bold=True)],
+                "슬롯 1~3 텍스트 직접 입력/주입, 실시간 재생, PC JSON 백업/복원",
+                "12ms 비동기 안전 재생"
+            ]),
+            table_row_block([
+                [rt("🎛️ Rotary Knob", bold=True)],
+                "레이어별 CW/CCW 액션 커스터마이징, 펄스 감도(디텐트 분주비 2~16) 조절",
+                "즉시 적용"
+            ]),
+            table_row_block([
+                [rt("🔑 Password", bold=True)],
+                "기본 길이(12/16/20/24), 커스텀 특수문자 풀, 타이핑 딜레이 조절 및 엔트로피 테스트",
+                "하드웨어 TRNG 연동"
+            ]),
+            table_row_block([
+                [rt("🖱️ Mouse/Scroll", bold=True)],
+                "마우스 이동 및 스크롤 선형/지수 가속 곡선, 도달 시간, 부드러운 스크롤 샌드박스",
+                "실시간 스크롤 체감 테스트"
+            ]),
+            table_row_block([
+                [rt("🔊 Audio/Battery", bold=True)],
+                "마스터 사운드, 클릭키 주파수 슬라이더, Test Tone 즉시 비프 테스트, 배터리 mV/SoC% 모니터링",
+                "피에조 부저 즉각 반응"
+            ])
+        ], table_width=3, has_column_header=True)
+    ]
+
+    print("Appending Section 7...")
+    notion_request(f"https://api.notion.com/v1/blocks/{page_id}/children", method="PATCH", data={"children": sec7_blocks})
 
     print("All sections successfully updated and appended!")
     return page_id, page_url
