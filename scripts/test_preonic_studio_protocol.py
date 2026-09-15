@@ -26,6 +26,8 @@ CMD_SET_AUDIO_CFG = 0x61
 CMD_TEST_PIEZO = 0x62
 EVT_UNLOCKED = 0xFE
 EVT_LOCKED = 0xFD
+EVT_LAYER_CHANGED = 0xFC
+EVT_KEY_TEST = 0xFB
 
 ERR_OK = 0x00
 ERR_INVALID = 0x01
@@ -344,7 +346,7 @@ class PreonicStudioDispatcher:
     def __init__(self):
         self.locked = True
         self.keymap = {}
-        self.knobs = {i: {"cw_beh": 1, "cw_param": 0xE9, "ccw_beh": 1, "ccw_param": 0xEA, "ppd": 2} for i in range(5)}
+        self.knobs = {i: {"cw_beh": 1, "cw_param": 0xE9, "ccw_beh": 1, "ccw_param": 0xEA, "ppd": 2} for i in range(8)}
         self.macros = {1: "", 2: "", 3: ""}
         self.pw_config = {"len": 16, "interval": 12, "specials": "!@#$%*?_-.@"}
         self.mouse_cfg = {"mmv_time": 500, "mmv_exp": 1, "msc_time": 300, "msc_exp": 1, "msc_step": 10}
@@ -442,7 +444,7 @@ class PreonicStudioDispatcher:
             self.send_packet(CMD_PING, seq, bytes([ERR_OK]))
         elif cmd == CMD_HANDSHAKE:
             name_bytes = b"Preonic".ljust(16, b"\x00")
-            resp = bytes([1, 9, 0, 1 if self.locked else 0, 5, 5, 12]) + name_bytes
+            resp = bytes([2, 0, 0, 1 if self.locked else 0, 8, 5, 12]) + name_bytes
             self.send_packet(CMD_HANDSHAKE, seq, resp)
         elif cmd == CMD_GET_LOCK_STATUS:
             rem = self.auto_lock_remaining if not self.locked else 0
@@ -576,14 +578,26 @@ class TestPreonicStudioDispatcher(unittest.TestCase):
         self.assertEqual(resp["cmd"], CMD_HANDSHAKE)
         self.assertEqual(resp["seq"], 1)
         data = resp["data"]
-        self.assertEqual(data[0], 1) # major
-        self.assertEqual(data[1], 9) # minor
-        self.assertEqual(data[2], 0) # patch
+        self.assertEqual(data[0], 2) # major v2
+        self.assertEqual(data[1], 0) # minor v0
+        self.assertEqual(data[2], 0) # patch v0
         self.assertEqual(data[3], 1) # locked by default
-        self.assertEqual(data[4], 5) # layers
+        self.assertEqual(data[4], 8) # 8 layers
         self.assertEqual(data[5], 5) # rows
         self.assertEqual(data[6], 12) # cols
         self.assertTrue(data[7:].startswith(b"Preonic"))
+
+    def test_layer_changed_and_key_test_events(self):
+        layer_pkt = encode_packet(EVT_LAYER_CHANGED, 0, bytes([5])) # switched to layer 5
+        decoded_layer = decode_packet(layer_pkt)
+        self.assertEqual(decoded_layer["cmd"], EVT_LAYER_CHANGED)
+        self.assertEqual(decoded_layer["data"][0], 5)
+
+        key_pkt = encode_packet(EVT_KEY_TEST, 0, bytes([40, 1])) # key 40 pressed
+        decoded_key = decode_packet(key_pkt)
+        self.assertEqual(decoded_key["cmd"], EVT_KEY_TEST)
+        self.assertEqual(decoded_key["data"][0], 40)
+        self.assertEqual(decoded_key["data"][1], 1)
 
     def test_lock_status(self):
         pkt = encode_packet(CMD_GET_LOCK_STATUS, 2)

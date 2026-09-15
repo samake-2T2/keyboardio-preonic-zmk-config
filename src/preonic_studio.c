@@ -24,6 +24,7 @@
 #include <zmk/event_manager.h>
 #include <zmk/events/position_state_changed.h>
 #include <zmk/events/activity_state_changed.h>
+#include <zmk/events/layer_state_changed.h>
 
 #include "preonic_studio.h"
 #include "preonic_sound.h"
@@ -39,11 +40,11 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define FN_LAYER_INDEX 3
 #define TRI_LAYER_INDEX 4
 
-#define NUM_LAYERS 5
+#define NUM_LAYERS PREONIC_STUDIO_NUM_LAYERS
 #define NUM_ROWS 5
 #define NUM_COLS 12
-#define FW_VERSION_MAJOR 1
-#define FW_VERSION_MINOR 9
+#define FW_VERSION_MAJOR 2
+#define FW_VERSION_MINOR 0
 #define FW_VERSION_PATCH 0
 #define DEVICE_NAME "Preonic"
 
@@ -94,11 +95,13 @@ struct studio_audio_config {
 };
 
 static struct studio_knob_config knob_configs[NUM_LAYERS] = {
-    { .cw_beh = 0x01, .cw_param = 0x80 | 0xE9, .ccw_beh = 0x01, .ccw_param = 0x80 | 0xEA, .pulses_per_detent = 2 },
-    { .cw_beh = 0x01, .cw_param = 0x80 | 0xE9, .ccw_beh = 0x01, .ccw_param = 0x80 | 0xEA, .pulses_per_detent = 2 },
-    { .cw_beh = 0x01, .cw_param = 0x80 | 0xE9, .ccw_beh = 0x01, .ccw_param = 0x80 | 0xEA, .pulses_per_detent = 2 },
-    { .cw_beh = 0x01, .cw_param = 0x80 | 0xE9, .ccw_beh = 0x01, .ccw_param = 0x80 | 0xEA, .pulses_per_detent = 2 },
-    { .cw_beh = 0x01, .cw_param = 0x80 | 0xE9, .ccw_beh = 0x01, .ccw_param = 0x80 | 0xEA, .pulses_per_detent = 2 },
+    [0 ... NUM_LAYERS - 1] = {
+        .cw_beh = 0x01,
+        .cw_param = 0x80 | 0xE9,
+        .ccw_beh = 0x01,
+        .ccw_param = 0x80 | 0xEA,
+        .pulses_per_detent = 2
+    }
 };
 
 static struct studio_mouse_config mouse_cfg = {
@@ -230,87 +233,150 @@ static uint8_t macro_steps_to_ascii(const struct dyn_macro_step *steps, uint16_t
 
 static uint8_t behavior_dev_to_type(const char *dev_name) {
     if (!dev_name) {
-        return 0x05; // none
+        return PREONIC_BEH_NONE;
+    }
+    if (strstr(dev_name, "caps_word") != NULL) {
+        return PREONIC_BEH_CAPS_WORD;
+    }
+    if (strstr(dev_name, "tog") != NULL || strstr(dev_name, "toggle_layer") != NULL) {
+        return PREONIC_BEH_TOG;
+    }
+    if (strstr(dev_name, "mkp") != NULL || strstr(dev_name, "mouse_key") != NULL) {
+        return PREONIC_BEH_MKP;
+    }
+    if (strstr(dev_name, "mod_tap") != NULL || strcmp(dev_name, "mt") == 0) {
+        return PREONIC_BEH_MT;
+    }
+    if (strstr(dev_name, "layer_tap") != NULL || strcmp(dev_name, "lt") == 0) {
+        return PREONIC_BEH_LT;
+    }
+    if (strstr(dev_name, "sticky_key") != NULL || strcmp(dev_name, "sk") == 0) {
+        return PREONIC_BEH_SK;
+    }
+    if (strstr(dev_name, "sticky_layer") != NULL || strcmp(dev_name, "sl") == 0) {
+        return PREONIC_BEH_SL;
     }
     if (strstr(dev_name, "kp") != NULL || strstr(dev_name, "key_press") != NULL) {
-        return 0x01;
+        return PREONIC_BEH_KP;
     }
     if (strstr(dev_name, "mo") != NULL || strstr(dev_name, "momentary") != NULL) {
-        return 0x02;
+        return PREONIC_BEH_MO;
     }
     if (strstr(dev_name, "to") != NULL || strstr(dev_name, "to_layer") != NULL) {
-        return 0x03;
+        return PREONIC_BEH_TO;
     }
     if (strstr(dev_name, "trans") != NULL) {
-        return 0x04;
+        return PREONIC_BEH_TRANS;
     }
     if (strstr(dev_name, "none") != NULL) {
-        return 0x05;
+        return PREONIC_BEH_NONE;
     }
     if (strstr(dev_name, "bt") != NULL || strstr(dev_name, "bluetooth") != NULL) {
-        return 0x06;
+        return PREONIC_BEH_BT;
     }
     if (strstr(dev_name, "out") != NULL || strstr(dev_name, "outputs") != NULL) {
-        return 0x07;
+        return PREONIC_BEH_OUT;
     }
     if (strstr(dev_name, "studio_unlock") != NULL) {
-        return 0x08;
+        return PREONIC_BEH_STUDIO_UNLOCK;
     }
     if (strstr(dev_name, "reset") != NULL || strstr(dev_name, "bootload") != NULL) {
-        return 0x09;
+        return PREONIC_BEH_SYS_RESET;
     }
-    return 0x01;
+    return PREONIC_BEH_KP;
 }
 
 static const char *behavior_type_to_dev(uint8_t beh_type) {
     switch (beh_type) {
-    case 0x01: // &kp
+    case PREONIC_BEH_KP:
 #if DT_NODE_EXISTS(DT_NODELABEL(kp))
         return DEVICE_DT_NAME(DT_NODELABEL(kp));
 #else
         return "key_press";
 #endif
-    case 0x02: // &mo
+    case PREONIC_BEH_MO:
 #if DT_NODE_EXISTS(DT_NODELABEL(mo))
         return DEVICE_DT_NAME(DT_NODELABEL(mo));
 #else
         return "momentary_layer";
 #endif
-    case 0x03: // &to
+    case PREONIC_BEH_TO:
 #if DT_NODE_EXISTS(DT_NODELABEL(to))
         return DEVICE_DT_NAME(DT_NODELABEL(to));
 #else
         return "to_layer";
 #endif
-    case 0x04: // &trans
+    case PREONIC_BEH_TRANS:
 #if DT_NODE_EXISTS(DT_NODELABEL(trans))
         return DEVICE_DT_NAME(DT_NODELABEL(trans));
 #else
         return "transparent";
 #endif
-    case 0x05: // &none
+    case PREONIC_BEH_NONE:
 #if DT_NODE_EXISTS(DT_NODELABEL(none))
         return DEVICE_DT_NAME(DT_NODELABEL(none));
 #else
         return "none";
 #endif
-    case 0x06: // &bt
+    case PREONIC_BEH_BT:
 #if DT_NODE_EXISTS(DT_NODELABEL(bt))
         return DEVICE_DT_NAME(DT_NODELABEL(bt));
 #else
         return "bluetooth";
 #endif
-    case 0x07: // &out
+    case PREONIC_BEH_OUT:
 #if DT_NODE_EXISTS(DT_NODELABEL(out))
         return DEVICE_DT_NAME(DT_NODELABEL(out));
 #else
         return "outputs";
 #endif
-    case 0x09: // &sys_reset
+    case PREONIC_BEH_SYS_RESET:
 #if DT_NODE_EXISTS(DT_NODELABEL(sys_reset))
         return DEVICE_DT_NAME(DT_NODELABEL(sys_reset));
 #else
         return "sysreset";
+#endif
+    case PREONIC_BEH_TOG:
+#if DT_NODE_EXISTS(DT_NODELABEL(tog))
+        return DEVICE_DT_NAME(DT_NODELABEL(tog));
+#else
+        return "toggle_layer";
+#endif
+    case PREONIC_BEH_CAPS_WORD:
+#if DT_NODE_EXISTS(DT_NODELABEL(caps_word))
+        return DEVICE_DT_NAME(DT_NODELABEL(caps_word));
+#else
+        return "caps_word";
+#endif
+    case PREONIC_BEH_MT:
+#if DT_NODE_EXISTS(DT_NODELABEL(mt))
+        return DEVICE_DT_NAME(DT_NODELABEL(mt));
+#else
+        return "mod_tap";
+#endif
+    case PREONIC_BEH_LT:
+#if DT_NODE_EXISTS(DT_NODELABEL(lt))
+        return DEVICE_DT_NAME(DT_NODELABEL(lt));
+#else
+        return "layer_tap";
+#endif
+    case PREONIC_BEH_MKP:
+#if DT_NODE_EXISTS(DT_NODELABEL(mkp))
+        return DEVICE_DT_NAME(DT_NODELABEL(mkp));
+#else
+        return "mouse_key_press";
+#endif
+    case PREONIC_BEH_SK:
+#if DT_NODE_EXISTS(DT_NODELABEL(sk))
+        return DEVICE_DT_NAME(DT_NODELABEL(sk));
+#else
+        return "sticky_key";
+#endif
+    case PREONIC_BEH_SL:
+#if DT_NODE_EXISTS(DT_NODELABEL(sl))
+        return DEVICE_DT_NAME(DT_NODELABEL(sl));
+#else
+        return "sticky_layer";
 #endif
     default:
         return NULL;
@@ -927,6 +993,13 @@ static void uart_cb(const struct device *dev, void *user_data) {
 static int preonic_studio_event_listener(const zmk_event_t *eh) {
     const struct zmk_position_state_changed *pos_ev = as_zmk_position_state_changed(eh);
     if (pos_ev != NULL) {
+        if (was_dtr_active) {
+            uint8_t key_evt[2];
+            key_evt[0] = (uint8_t)pos_ev->position;
+            key_evt[1] = pos_ev->state ? 1 : 0;
+            send_packet(EVT_KEY_TEST, 0, key_evt, 2);
+        }
+
         if (!pos_ev->state) {
             return 0; // key released
         }
@@ -947,6 +1020,15 @@ static int preonic_studio_event_listener(const zmk_event_t *eh) {
         }
     }
 
+    const struct zmk_layer_state_changed *layer_ev = as_zmk_layer_state_changed(eh);
+    if (layer_ev != NULL) {
+        if (was_dtr_active) {
+            uint8_t active_layer = (uint8_t)zmk_keymap_highest_layer_active();
+            send_packet(EVT_LAYER_CHANGED, 0, &active_layer, 1);
+        }
+        return 0;
+    }
+
     struct zmk_activity_state_changed *act_ev = as_zmk_activity_state_changed(eh);
     if (act_ev != NULL) {
         if (act_ev->state == ZMK_ACTIVITY_SLEEP) {
@@ -964,6 +1046,7 @@ static int preonic_studio_event_listener(const zmk_event_t *eh) {
 ZMK_LISTENER(preonic_studio, preonic_studio_event_listener);
 ZMK_SUBSCRIPTION(preonic_studio, zmk_position_state_changed);
 ZMK_SUBSCRIPTION(preonic_studio, zmk_activity_state_changed);
+ZMK_SUBSCRIPTION(preonic_studio, zmk_layer_state_changed);
 
 #if IS_ENABLED(CONFIG_SETTINGS)
 static int studio_settings_set(const char *name, size_t len, settings_read_cb read_cb, void *cb_arg) {

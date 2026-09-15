@@ -511,6 +511,43 @@
       opacity: 0.65;
     }
 
+        .keycap.key-pressing {
+      background: linear-gradient(180deg, #10b981, #059669) !important;
+      border-color: #34d399 !important;
+      box-shadow: 0 0 16px rgba(52, 211, 153, 0.8) !important;
+      transform: scale(0.95);
+      color: #fff !important;
+    }
+
+    .keycap.key-tested {
+      background: linear-gradient(180deg, #065f46, #064e3b) !important;
+      border-color: #10b981 !important;
+      color: #a7f3d0 !important;
+    }
+
+    .keycap.key-tested .primary-label {
+      color: #34d399 !important;
+    }
+
+    .keycap.key-dual {
+      background: linear-gradient(180deg, #78350f, #451a03) !important;
+      border-color: #f59e0b !important;
+    }
+
+    .keycap.key-dual .primary-label {
+      color: #fde68a !important;
+    }
+
+    .keycap.key-toggle {
+      background: linear-gradient(180deg, #831843, #500724) !important;
+      border-color: #ec4899 !important;
+    }
+
+    .keycap.key-mouse {
+      background: linear-gradient(180deg, #0f766e, #134e4a) !important;
+      border-color: #14b8a6 !important;
+    }
+
     .keycap.key-unlock {
       background: linear-gradient(180deg, #b45309, #78350f);
       border-color: #f59e0b;
@@ -1128,9 +1165,21 @@
         <span id="batteryIcon">🔋</span>
         <span id="batteryText">--% (-- mV)</span>
       </div>
+
+      <div id="liveLayerBadge" class="pill-badge" style="border-color: rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.15); color: #a5b4fc;" title="Active Layer synced in real time from keyboard">
+        <span class="indicator-dot" style="background-color: #818cf8;"></span>
+        <span>Active: <strong id="liveLayerName">Base</strong></span>
+      </div>
     </div>
 
     <div class="actions-group">
+      <button id="btnBackupProfile" class="btn btn-secondary" title="Export full settings (.preonic.json) to PC">
+        📥 Backup All
+      </button>
+      <button id="btnRestoreProfile" class="btn btn-secondary" title="Import full settings (.preonic.json) from PC">
+        📤 Restore All
+      </button>
+      <input type="file" id="fileProfileInput" accept=".json" style="display: none;">
       <button id="btnDemoMode" class="btn btn-secondary" title="Test all features without physical hardware">
         🎮 Demo Mode
       </button>
@@ -1153,6 +1202,7 @@
     <button class="tab-btn" data-tab="tab-password">🔑 Password Generator</button>
     <button class="tab-btn" data-tab="tab-mouse">🖱️ Mouse & Scroll</button>
     <button class="tab-btn" data-tab="tab-audio">🔊 Audio & Status</button>
+    <button class="tab-btn" data-tab="tab-tester">🔍 Key Tester</button>
   </nav>
 
   <!-- Main Content Area -->
@@ -1199,8 +1249,11 @@
           <button class="layer-btn active" data-layer="0">0: Base</button>
           <button class="layer-btn" data-layer="1">1: Lower</button>
           <button class="layer-btn" data-layer="2">2: Raise</button>
-          <button class="layer-btn" data-layer="3">3: Function</button>
-          <button class="layer-btn" data-layer="4">4: TriFunction</button>
+          <button class="layer-btn" data-layer="3">3: Func</button>
+          <button class="layer-btn" data-layer="4">4: Tri</button>
+          <button class="layer-btn" data-layer="5">5: Extra 1</button>
+          <button class="layer-btn" data-layer="6">6: Extra 2</button>
+          <button class="layer-btn" data-layer="7">7: Extra 3</button>
         </div>
 
         <!-- Physical Visual Keyboard -->
@@ -1659,6 +1712,48 @@
       </div>
     </section>
 
+    <!-- TAB 7: SWITCH MATRIX & KEY TESTER -->
+    <section id="tab-tester" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🔍 Interactive Switch Matrix & Chatter Tester</div>
+            <div class="card-subtitle">Real-time hardware switch contact diagnostics, press counters, and visual matrix verification</div>
+          </div>
+          <div class="actions-group">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); cursor: pointer;">
+              <input type="checkbox" id="chkTesterSound" checked>
+              <span>Click Sound</span>
+            </label>
+            <button id="btnResetTester" class="btn btn-secondary">
+              🔄 Reset Tester
+            </button>
+          </div>
+        </div>
+
+        <!-- Tester Status Dashboard -->
+        <div style="display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
+          <div class="pill-badge" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #34d399; padding: 6px 14px; font-size: 13px;">
+            <span>Tested Keys: </span>
+            <strong id="testerCount" style="margin-left: 4px;">0 / 62</strong>
+          </div>
+          <div class="pill-badge" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 6px 14px; font-size: 13px;">
+            <span>Last Pressed: </span>
+            <strong id="testerLastKey" style="margin-left: 4px;">None</strong>
+          </div>
+          <div id="testerChatterBadge" class="pill-badge" style="background: rgba(107, 114, 128, 0.1); border-color: rgba(107, 114, 128, 0.3); color: #9ca3af; padding: 6px 14px; font-size: 13px;">
+            <span>Chatter Status: </span>
+            <strong id="testerChatterText" style="margin-left: 4px;">Clean</strong>
+          </div>
+        </div>
+
+        <!-- Physical Visual Keyboard for Tester -->
+        <div class="keyboard-container" id="testerKeyboardContainer">
+          <!-- Dynamically generated in JavaScript -->
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- KEYCODE PICKER MODAL -->
@@ -1676,13 +1771,17 @@
         <!-- Categories -->
         <div class="picker-categories">
           <button class="picker-cat-btn active" data-cat="alpha">A-Z Letters</button>
-          <button class="picker-cat-btn" data-cat="numbers">Numbers & Symbols</button>
+          <button class="picker-cat-btn" data-cat="numbers">Numbers & Punct</button>
+          <button class="picker-cat-btn" data-cat="numpad">🔢 Numpad</button>
           <button class="picker-cat-btn" data-cat="nav">Navigation & Edit</button>
           <button class="picker-cat-btn" data-cat="mods">Modifiers</button>
-          <button class="picker-cat-btn" data-cat="fn">Function (F1-F12)</button>
+          <button class="picker-cat-btn" data-cat="fn">Function (F1-F24)</button>
           <button class="picker-cat-btn" data-cat="media">Media & Sound</button>
-          <button class="picker-cat-btn" data-cat="layers">Layer Switch (&mo / &to)</button>
+          <button class="picker-cat-btn" data-cat="apps">🖥️ Apps & Web</button>
+          <button class="picker-cat-btn" data-cat="mouse">🖱️ Mouse Keys</button>
+          <button class="picker-cat-btn" data-cat="layers">Layers (&mo/to/tog)</button>
           <button class="picker-cat-btn" data-cat="system">Special & System</button>
+          <button class="picker-cat-btn" data-cat="dual" style="border-color: rgba(245, 158, 11, 0.5); color: #fbbf24;">⚡ Dual-Action (Tap-Hold)</button>
         </div>
 
         <!-- Keycode Item Grid -->
@@ -1778,6 +1877,8 @@
 
     const EVT_UNLOCKED        = 0xFE;
     const EVT_LOCKED          = 0xFD;
+    const EVT_LAYER_CHANGED   = 0xFC;
+    const EVT_KEY_TEST        = 0xFB;
 
     const STATUS_OK           = 0x00;
     const STATUS_ERR_INVALID  = 0x01;
@@ -1793,6 +1894,16 @@
     const BEH_OUT           = 0x07; // &out
     const BEH_STUDIO_UNLOCK = 0x08; // &studio_unlock
     const BEH_RESET         = 0x09; // &bootloader / &sys_reset
+    const BEH_TOG           = 0x0A; // &tog
+    const BEH_CAPS_WORD     = 0x0B; // &caps_word
+    const BEH_MT            = 0x0C; // &mt
+    const BEH_LT            = 0x0D; // &lt
+    const BEH_MKP           = 0x0E; // &mkp
+    const BEH_SK            = 0x0F; // &sk
+    const BEH_SL            = 0x10; // &sl
+
+    const NUM_LAYERS = 8;
+    const LAYER_NAMES = ["Base", "Lower", "Raise", "Func", "Tri", "Extra 1", "Extra 2", "Extra 3"];
 
     // Audio Chime Synthesizer using Web Audio API
     class AudioChime {
@@ -1867,7 +1978,7 @@
 
     // Default Keycode Database
     const KEYCODES = [
-      // Letters
+      // Letters (A-Z)
       { code: 0x04, name: "A", cat: "alpha", desc: "Key A" },
       { code: 0x05, name: "B", cat: "alpha", desc: "Key B" },
       { code: 0x06, name: "C", cat: "alpha", desc: "Key C" },
@@ -1895,7 +2006,7 @@
       { code: 0x1C, name: "Y", cat: "alpha", desc: "Key Y" },
       { code: 0x1D, name: "Z", cat: "alpha", desc: "Key Z" },
 
-      // Numbers & Symbols
+      // Numbers & Punctuation
       { code: 0x1E, name: "1", cat: "numbers", desc: "1 and !" },
       { code: 0x1F, name: "2", cat: "numbers", desc: "2 and @" },
       { code: 0x20, name: "3", cat: "numbers", desc: "3 and #" },
@@ -1910,13 +2021,33 @@
       { code: 0x2E, name: "=", cat: "numbers", desc: "Equal / Plus" },
       { code: 0x2F, name: "[", cat: "numbers", desc: "Left Bracket" },
       { code: 0x30, name: "]", cat: "numbers", desc: "Right Bracket" },
-      { code: 0x31, name: "\\", cat: "numbers", desc: "Backslash / Pipe" },
+      { code: 0x31, name: "\\\\", cat: "numbers", desc: "Backslash / Pipe" },
       { code: 0x33, name: ";", cat: "numbers", desc: "Semicolon / Colon" },
       { code: 0x34, name: "'", cat: "numbers", desc: "Apostrophe / Quote" },
       { code: 0x35, name: "`", cat: "numbers", desc: "Grave / Tilde" },
       { code: 0x36, name: ",", cat: "numbers", desc: "Comma / Less-Than" },
       { code: 0x37, name: ".", cat: "numbers", desc: "Period / Greater-Than" },
       { code: 0x38, name: "/", cat: "numbers", desc: "Slash / Question Mark" },
+
+      // Numpad (Full Keypad Set)
+      { code: 0x53, name: "NumLock", cat: "numpad", desc: "Numpad Num Lock" },
+      { code: 0x54, name: "KP /", cat: "numpad", desc: "Keypad Divide" },
+      { code: 0x55, name: "KP *", cat: "numpad", desc: "Keypad Multiply" },
+      { code: 0x56, name: "KP -", cat: "numpad", desc: "Keypad Subtract" },
+      { code: 0x57, name: "KP +", cat: "numpad", desc: "Keypad Add" },
+      { code: 0x58, name: "KP Enter", cat: "numpad", desc: "Keypad Enter" },
+      { code: 0x59, name: "KP 1", cat: "numpad", desc: "Keypad 1 and End" },
+      { code: 0x5A, name: "KP 2", cat: "numpad", desc: "Keypad 2 and Down" },
+      { code: 0x5B, name: "KP 3", cat: "numpad", desc: "Keypad 3 and PgDn" },
+      { code: 0x5C, name: "KP 4", cat: "numpad", desc: "Keypad 4 and Left" },
+      { code: 0x5D, name: "KP 5", cat: "numpad", desc: "Keypad 5" },
+      { code: 0x5E, name: "KP 6", cat: "numpad", desc: "Keypad 6 and Right" },
+      { code: 0x5F, name: "KP 7", cat: "numpad", desc: "Keypad 7 and Home" },
+      { code: 0x60, name: "KP 8", cat: "numpad", desc: "Keypad 8 and Up" },
+      { code: 0x61, name: "KP 9", cat: "numpad", desc: "Keypad 9 and PgUp" },
+      { code: 0x62, name: "KP 0", cat: "numpad", desc: "Keypad 0 and Ins" },
+      { code: 0x63, name: "KP .", cat: "numpad", desc: "Keypad Decimal and Del" },
+      { code: 0x67, name: "KP =", cat: "numpad", desc: "Keypad Equal" },
 
       // Navigation & Edit
       { code: 0x28, name: "Enter", cat: "nav", desc: "Return / Enter" },
@@ -1935,8 +2066,11 @@
       { code: 0x51, name: "Down", cat: "nav", desc: "Down Arrow" },
       { code: 0x52, name: "Up", cat: "nav", desc: "Up Arrow" },
       { code: 0x46, name: "PrtSc", cat: "nav", desc: "Print Screen" },
+      { code: 0x47, name: "ScrLk", cat: "nav", desc: "Scroll Lock" },
+      { code: 0x48, name: "Pause", cat: "nav", desc: "Pause / Break" },
+      { code: 0x65, name: "Menu", cat: "nav", desc: "Application / Context Menu" },
 
-      // Modifiers
+      // Modifiers & Caps
       { code: 0xE0, name: "LCtrl", cat: "mods", desc: "Left Control" },
       { code: 0xE1, name: "LShift", cat: "mods", desc: "Left Shift" },
       { code: 0xE2, name: "LAlt", cat: "mods", desc: "Left Alt" },
@@ -1946,8 +2080,9 @@
       { code: 0xE6, name: "RAlt", cat: "mods", desc: "Right Alt" },
       { code: 0xE7, name: "RGUI", cat: "mods", desc: "Right GUI (Win/Cmd)" },
       { code: 0x39, name: "Caps", cat: "mods", desc: "Caps Lock" },
+      { beh: BEH_CAPS_WORD, p1: 0, name: "Caps Word", cat: "mods", desc: "Capitalize next word only (&caps_word)" },
 
-      // Function Keys
+      // Function Keys (Full F1 - F24)
       { code: 0x3A, name: "F1", cat: "fn", desc: "Function 1" },
       { code: 0x3B, name: "F2", cat: "fn", desc: "Function 2" },
       { code: 0x3C, name: "F3", cat: "fn", desc: "Function 3" },
@@ -1960,28 +2095,76 @@
       { code: 0x43, name: "F10", cat: "fn", desc: "Function 10" },
       { code: 0x44, name: "F11", cat: "fn", desc: "Function 11" },
       { code: 0x45, name: "F12", cat: "fn", desc: "Function 12" },
+      { code: 0x68, name: "F13", cat: "fn", desc: "Function 13" },
+      { code: 0x69, name: "F14", cat: "fn", desc: "Function 14" },
+      { code: 0x6A, name: "F15", cat: "fn", desc: "Function 15" },
+      { code: 0x6B, name: "F16", cat: "fn", desc: "Function 16" },
+      { code: 0x6C, name: "F17", cat: "fn", desc: "Function 17" },
+      { code: 0x6D, name: "F18", cat: "fn", desc: "Function 18" },
+      { code: 0x6E, name: "F19", cat: "fn", desc: "Function 19" },
+      { code: 0x6F, name: "F20", cat: "fn", desc: "Function 20" },
+      { code: 0x70, name: "F21", cat: "fn", desc: "Function 21" },
+      { code: 0x71, name: "F22", cat: "fn", desc: "Function 22" },
+      { code: 0x72, name: "F23", cat: "fn", desc: "Function 23" },
+      { code: 0x73, name: "F24", cat: "fn", desc: "Function 24" },
 
-      // Media
+      // Media & Sound
       { code: 0x80 | 0xE2, name: "Mute", cat: "media", desc: "Mute Audio" },
       { code: 0x80 | 0xE9, name: "Vol +", cat: "media", desc: "Volume Up" },
       { code: 0x80 | 0xEA, name: "Vol -", cat: "media", desc: "Volume Down" },
       { code: 0x80 | 0xCD, name: "Play/Pause", cat: "media", desc: "Play/Pause Media" },
       { code: 0x80 | 0xB5, name: "Next", cat: "media", desc: "Next Track" },
       { code: 0x80 | 0xB6, name: "Prev", cat: "media", desc: "Previous Track" },
+      { code: 0x80 | 0xB7, name: "Stop", cat: "media", desc: "Stop Playback" },
+      { code: 0x80 | 0x6F, name: "Bri +", cat: "media", desc: "Brightness Up" },
+      { code: 0x80 | 0x70, name: "Bri -", cat: "media", desc: "Brightness Down" },
 
-      // Layers (&mo and &to)
+      // Apps & Browser & International
+      { code: 0x80 | 0x192, name: "Calc", cat: "apps", desc: "Launch Calculator" },
+      { code: 0x80 | 0x194, name: "My PC", cat: "apps", desc: "File Explorer / PC" },
+      { code: 0x80 | 0x223, name: "Home", cat: "apps", desc: "Browser Homepage" },
+      { code: 0x80 | 0x224, name: "Back", cat: "apps", desc: "Browser Back" },
+      { code: 0x80 | 0x225, name: "Forward", cat: "apps", desc: "Browser Forward" },
+      { code: 0x80 | 0x227, name: "Refresh", cat: "apps", desc: "Browser Refresh" },
+      { code: 0x80 | 0x221, name: "Search", cat: "apps", desc: "Browser Search" },
+      { code: 0x80 | 0x18A, name: "Mail", cat: "apps", desc: "Mail Client" },
+      { code: 0x90, name: "한/영", cat: "apps", desc: "Korean Hangul / English (LANG1)" },
+      { code: 0x91, name: "한자", cat: "apps", desc: "Korean Hanja (LANG2)" },
+
+      // Mouse Buttons
+      { beh: BEH_MKP, p1: 0, name: "Mouse L", cat: "mouse", desc: "Mouse Left Button (&mkp LCLK)" },
+      { beh: BEH_MKP, p1: 1, name: "Mouse R", cat: "mouse", desc: "Mouse Right Button (&mkp RCLK)" },
+      { beh: BEH_MKP, p1: 2, name: "Mouse M", cat: "mouse", desc: "Mouse Middle Button (&mkp MCLK)" },
+      { beh: BEH_MKP, p1: 3, name: "Mouse B4", cat: "mouse", desc: "Mouse Button 4 (Back)" },
+      { beh: BEH_MKP, p1: 4, name: "Mouse B5", cat: "mouse", desc: "Mouse Button 5 (Forward)" },
+
+      // Layers (MO, TO, TOG for all 8 layers)
       { beh: BEH_MO, p1: 0, name: "MO(Base)", cat: "layers", desc: "Momentary Layer 0" },
       { beh: BEH_MO, p1: 1, name: "MO(Lower)", cat: "layers", desc: "Momentary Layer 1" },
       { beh: BEH_MO, p1: 2, name: "MO(Raise)", cat: "layers", desc: "Momentary Layer 2" },
       { beh: BEH_MO, p1: 3, name: "MO(Func)", cat: "layers", desc: "Momentary Layer 3" },
       { beh: BEH_MO, p1: 4, name: "MO(Tri)", cat: "layers", desc: "Momentary Layer 4" },
+      { beh: BEH_MO, p1: 5, name: "MO(Extra1)", cat: "layers", desc: "Momentary Layer 5" },
+      { beh: BEH_MO, p1: 6, name: "MO(Extra2)", cat: "layers", desc: "Momentary Layer 6" },
+      { beh: BEH_MO, p1: 7, name: "MO(Extra3)", cat: "layers", desc: "Momentary Layer 7" },
       { beh: BEH_TO, p1: 0, name: "TO(Base)", cat: "layers", desc: "Switch to Layer 0" },
       { beh: BEH_TO, p1: 1, name: "TO(Lower)", cat: "layers", desc: "Switch to Layer 1" },
       { beh: BEH_TO, p1: 2, name: "TO(Raise)", cat: "layers", desc: "Switch to Layer 2" },
       { beh: BEH_TO, p1: 3, name: "TO(Func)", cat: "layers", desc: "Switch to Layer 3" },
       { beh: BEH_TO, p1: 4, name: "TO(Tri)", cat: "layers", desc: "Switch to Layer 4" },
+      { beh: BEH_TO, p1: 5, name: "TO(Extra1)", cat: "layers", desc: "Switch to Layer 5" },
+      { beh: BEH_TO, p1: 6, name: "TO(Extra2)", cat: "layers", desc: "Switch to Layer 6" },
+      { beh: BEH_TO, p1: 7, name: "TO(Extra3)", cat: "layers", desc: "Switch to Layer 7" },
+      { beh: BEH_TOG, p1: 0, name: "TOG(Base)", cat: "layers", desc: "Toggle Layer 0 ON/OFF" },
+      { beh: BEH_TOG, p1: 1, name: "TOG(Lower)", cat: "layers", desc: "Toggle Layer 1 ON/OFF" },
+      { beh: BEH_TOG, p1: 2, name: "TOG(Raise)", cat: "layers", desc: "Toggle Layer 2 ON/OFF" },
+      { beh: BEH_TOG, p1: 3, name: "TOG(Func)", cat: "layers", desc: "Toggle Layer 3 ON/OFF" },
+      { beh: BEH_TOG, p1: 4, name: "TOG(Tri)", cat: "layers", desc: "Toggle Layer 4 ON/OFF" },
+      { beh: BEH_TOG, p1: 5, name: "TOG(Extra1)", cat: "layers", desc: "Toggle Layer 5 ON/OFF" },
+      { beh: BEH_TOG, p1: 6, name: "TOG(Extra2)", cat: "layers", desc: "Toggle Layer 6 ON/OFF" },
+      { beh: BEH_TOG, p1: 7, name: "TOG(Extra3)", cat: "layers", desc: "Toggle Layer 7 ON/OFF" },
 
-      // System & Special
+      // Special & System
       { beh: BEH_TRANS, p1: 0, name: "Trans", cat: "system", desc: "Transparent (&trans)" },
       { beh: BEH_NONE, p1: 0, name: "None", cat: "system", desc: "Disabled (&none)" },
       { beh: BEH_STUDIO_UNLOCK, p1: 0, name: "Unlock Key", cat: "system", desc: "Preonic Physical Unlock" },
@@ -2002,12 +2185,33 @@
         return { primary: found ? found.name : `0x${p1.toString(16)}`, sub: "&kp" };
       }
       if (beh === BEH_MO) {
-        const layerNames = ["Base", "Lower", "Raise", "Func", "Tri"];
-        const name = layerNames[p1] || p1;
+        const name = LAYER_NAMES[p1] || ("L" + p1);
         return { primary: name, sub: `&mo ${p1}` };
       }
       if (beh === BEH_TO) {
-        return { primary: `TO(${p1})`, sub: `&to` };
+        return { primary: `TO(${LAYER_NAMES[p1] || p1})`, sub: `&to` };
+      }
+      if (beh === BEH_TOG) {
+        return { primary: `TOG(${LAYER_NAMES[p1] || p1})`, sub: `&tog` };
+      }
+      if (beh === BEH_CAPS_WORD) {
+        return { primary: "CAPS WRD", sub: "&caps_word" };
+      }
+      if (beh === BEH_MT) {
+        const modMap = { 0x01: "CTL", 0x02: "SFT", 0x04: "ALT", 0x08: "GUI", 0x10: "RCTL", 0x20: "RSFT", 0x40: "RALT", 0x80: "RGUI" };
+        const keyItem = KEYCODES.find(k => k.code === p2);
+        const kName = keyItem ? keyItem.name : `0x${p2.toString(16)}`;
+        return { primary: `${modMap[p1] || "MOD"}/${kName}`, sub: "&mt" };
+      }
+      if (beh === BEH_LT) {
+        const lShort = ["L0", "L1", "L2", "L3", "L4", "L5", "L6", "L7"];
+        const keyItem = KEYCODES.find(k => k.code === p2);
+        const kName = keyItem ? keyItem.name : `0x${p2.toString(16)}`;
+        return { primary: `${lShort[p1] || "L" + p1}/${kName}`, sub: "&lt" };
+      }
+      if (beh === BEH_MKP) {
+        const mbMap = ["MB1(L)", "MB2(R)", "MB3(M)", "MB4", "MB5"];
+        return { primary: mbMap[p1] || `MB${p1}`, sub: "&mkp" };
       }
       if (beh === BEH_TRANS) {
         return { primary: "▽", sub: "&trans" };
@@ -2035,7 +2239,7 @@
     // Default 5-Layer Keymap initialization
     function generateDefaultKeymap() {
       const layers = [];
-      for (let l = 0; l < 5; l++) {
+      for (let l = 0; l < NUM_LAYERS; l++) {
         const keys = new Array(62);
         for (let i = 0; i < 62; i++) {
           keys[i] = { beh: BEH_TRANS, p1: 0, p2: 0 };
@@ -2102,13 +2306,10 @@
         this.battery = { mv: 4040, soc: 82 };
         this.keymaps = generateDefaultKeymap();
         this.macros = { 1: "", 2: "", 3: "" };
-        this.knobConfigs = [
-          { cwBeh: 1, cwParam: 0x80 | 0xE9, ccwBeh: 1, ccwParam: 0x80 | 0xEA, ppd: 2 },
-          { cwBeh: 1, cwParam: 0x80 | 0xE9, ccwBeh: 1, ccwParam: 0x80 | 0xEA, ppd: 2 },
-          { cwBeh: 1, cwParam: 0x80 | 0xE9, ccwBeh: 1, ccwParam: 0x80 | 0xEA, ppd: 2 },
-          { cwBeh: 1, cwParam: 0x80 | 0xE9, ccwBeh: 1, ccwParam: 0x80 | 0xEA, ppd: 2 },
-          { cwBeh: 1, cwParam: 0x80 | 0xE9, ccwBeh: 1, ccwParam: 0x80 | 0xEA, ppd: 2 },
-        ];
+        this.knobConfigs = [];
+        for (let i = 0; i < NUM_LAYERS; i++) {
+          this.knobConfigs.push({ cwBeh: 1, cwParam: 0x80 | 0xE9, ccwBeh: 1, ccwParam: 0x80 | 0xEA, ppd: 2 });
+        }
         this.pwConfig = {
           defaultLen: 16,
           intervalMs: 12,
@@ -2305,6 +2506,14 @@
         }
         if (cmd === EVT_LOCKED) {
           onFirmwareLocked(payload[0]);
+          return;
+        }
+        if (cmd === EVT_LAYER_CHANGED) {
+          onFirmwareLayerChanged(payload[0]);
+          return;
+        }
+        if (cmd === EVT_KEY_TEST) {
+          onFirmwareKeyTest(payload[0], payload[1]);
           return;
         }
 
@@ -2714,9 +2923,15 @@
       if (subElem) subElem.innerText = sub;
 
       // Class styling
-      keycap.classList.remove("key-mod", "key-layer", "key-trans", "key-unlock");
+      keycap.classList.remove("key-mod", "key-layer", "key-trans", "key-unlock", "key-dual", "key-toggle", "key-mouse");
 
-      if (binding.beh === BEH_TRANS) {
+      if (binding.beh === BEH_MT || binding.beh === BEH_LT) {
+        keycap.classList.add("key-dual");
+      } else if (binding.beh === BEH_TOG) {
+        keycap.classList.add("key-toggle");
+      } else if (binding.beh === BEH_MKP) {
+        keycap.classList.add("key-mouse");
+      } else if (binding.beh === BEH_TRANS) {
         keycap.classList.add("key-trans");
       } else if (binding.beh === BEH_MO || binding.beh === BEH_TO) {
         keycap.classList.add("key-layer");
@@ -2782,6 +2997,11 @@
       const grid = document.getElementById("pickerGrid");
       grid.innerHTML = "";
 
+      if (catName === "dual") {
+        renderDualActionBuilder(grid);
+        return;
+      }
+
       const filtered = KEYCODES.filter(k => k.cat === catName);
       filtered.forEach(item => {
         const div = document.createElement("div");
@@ -2797,6 +3017,119 @@
         });
         grid.appendChild(div);
       });
+    }
+
+    function renderDualActionBuilder(container) {
+      const card = document.createElement("div");
+      card.style.cssText = "grid-column: 1 / -1; background: var(--bg-card); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color);";
+      card.innerHTML = `
+        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">
+          ⚡ <strong>Dual-Function (Tap-Hold)</strong>: Triggers a key when tapped quickly, and a modifier or layer when held down.
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dual-Action Type</label>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" id="btnDualMt" class="btn btn-primary active">Mod-Tap (&mt)</button>
+            <button type="button" id="btnDualLt" class="btn btn-secondary">Layer-Tap (&lt)</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 14px;">
+          <label class="form-label">Tap Action (Short Press Key)</label>
+          <select id="selDualTap" class="form-control" style="background: var(--bg-panel); color: #fff; border: 1px solid var(--border-color); padding: 8px; border-radius: var(--radius-sm); width: 100%;">
+          </select>
+        </div>
+        <div class="form-group" id="grpDualMod" style="margin-top: 14px;">
+          <label class="form-label">Hold Action (Modifier for &mt)</label>
+          <select id="selDualMod" class="form-control" style="background: var(--bg-panel); color: #fff; border: 1px solid var(--border-color); padding: 8px; border-radius: var(--radius-sm); width: 100%;">
+            <option value="2">Left Shift (LSFT)</option>
+            <option value="1">Left Control (LCTL)</option>
+            <option value="4">Left Alt (LALT)</option>
+            <option value="8">Left GUI / Win / Cmd (LGUI)</option>
+            <option value="32">Right Shift (RSFT)</option>
+            <option value="16">Right Control (RCTL)</option>
+            <option value="64">Right Alt (RALT)</option>
+            <option value="128">Right GUI (RGUI)</option>
+          </select>
+        </div>
+        <div class="form-group" id="grpDualLayer" style="margin-top: 14px; display: none;">
+          <label class="form-label">Hold Action (Layer for &lt)</label>
+          <select id="selDualLayer" class="form-control" style="background: var(--bg-panel); color: #fff; border: 1px solid var(--border-color); padding: 8px; border-radius: var(--radius-sm); width: 100%;">
+            <option value="0">0: Base</option>
+            <option value="1">1: Lower</option>
+            <option value="2">2: Raise</option>
+            <option value="3">3: Func</option>
+            <option value="4">4: Tri</option>
+            <option value="5">5: Extra 1</option>
+            <option value="6">6: Extra 2</option>
+            <option value="7">7: Extra 3</option>
+          </select>
+        </div>
+      `;
+
+      container.appendChild(card);
+
+      const selTap = card.querySelector("#selDualTap");
+      const selMod = card.querySelector("#selDualMod");
+      const selLayer = card.querySelector("#selDualLayer");
+      const btnMt = card.querySelector("#btnDualMt");
+      const btnLt = card.querySelector("#btnDualLt");
+      const grpMod = card.querySelector("#grpDualMod");
+      const grpLayer = card.querySelector("#grpDualLayer");
+
+      let mode = "mt";
+
+      const tapKeys = KEYCODES.filter(k => (k.cat === "alpha" || k.cat === "numbers" || k.cat === "nav") && k.code);
+      tapKeys.forEach(k => {
+        const opt = document.createElement("option");
+        opt.value = k.code;
+        opt.innerText = `${k.name} (${k.desc})`;
+        selTap.appendChild(opt);
+      });
+      selTap.value = "44"; // Space
+
+      function updateDualSelection() {
+        const tapCode = parseInt(selTap.value, 10);
+        if (mode === "mt") {
+          const modVal = parseInt(selMod.value, 10);
+          pendingPickerSelection = {
+            beh: BEH_MT,
+            p1: modVal,
+            p2: tapCode
+          };
+        } else {
+          const layerVal = parseInt(selLayer.value, 10);
+          pendingPickerSelection = {
+            beh: BEH_LT,
+            p1: layerVal,
+            p2: tapCode
+          };
+        }
+        updatePickerSelectionPreview();
+      }
+
+      btnMt.addEventListener("click", () => {
+        mode = "mt";
+        btnMt.className = "btn btn-primary active";
+        btnLt.className = "btn btn-secondary";
+        grpMod.style.display = "block";
+        grpLayer.style.display = "none";
+        updateDualSelection();
+      });
+
+      btnLt.addEventListener("click", () => {
+        mode = "lt";
+        btnLt.className = "btn btn-primary active";
+        btnMt.className = "btn btn-secondary";
+        grpMod.style.display = "none";
+        grpLayer.style.display = "block";
+        updateDualSelection();
+      });
+
+      selTap.addEventListener("change", updateDualSelection);
+      selMod.addEventListener("change", updateDualSelection);
+      selLayer.addEventListener("change", updateDualSelection);
+
+      updateDualSelection();
     }
 
     // Password Preview Generator (Mirror of Firmware TRNG Algorithm)

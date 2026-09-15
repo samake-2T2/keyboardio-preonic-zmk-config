@@ -16,6 +16,8 @@ extern "C" {
 #define PREONIC_STUDIO_EOF 0xAD
 #define PREONIC_STUDIO_MAX_PAYLOAD 64
 
+#define PREONIC_STUDIO_NUM_LAYERS 8
+
 #define CMD_PING            0x01
 #define CMD_HANDSHAKE       0x02
 #define CMD_GET_LOCK_STATUS 0x03
@@ -46,6 +48,25 @@ extern "C" {
 
 #define EVT_UNLOCKED        0xFE
 #define EVT_LOCKED          0xFD
+#define EVT_LAYER_CHANGED   0xFC
+#define EVT_KEY_TEST        0xFB
+
+#define PREONIC_BEH_KP            0x01
+#define PREONIC_BEH_MO            0x02
+#define PREONIC_BEH_TO            0x03
+#define PREONIC_BEH_TRANS         0x04
+#define PREONIC_BEH_NONE          0x05
+#define PREONIC_BEH_BT            0x06
+#define PREONIC_BEH_OUT           0x07
+#define PREONIC_BEH_STUDIO_UNLOCK 0x08
+#define PREONIC_BEH_SYS_RESET     0x09
+#define PREONIC_BEH_TOG           0x0A
+#define PREONIC_BEH_CAPS_WORD     0x0B
+#define PREONIC_BEH_MT            0x0C
+#define PREONIC_BEH_LT            0x0D
+#define PREONIC_BEH_MKP           0x0E
+#define PREONIC_BEH_SK            0x0F
+#define PREONIC_BEH_SL            0x10
 
 #define STATUS_OK           0x00
 #define STATUS_ERR_INVALID  0x01

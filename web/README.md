@@ -65,22 +65,30 @@ To protect your stored macros (which may contain passwords or tokens) and preven
 
 ### ⌨️ Tab 1: Keymap Editor
 - **MIT Layout Representation**: Visual 5x12 ortholinear key grid + 3 top keys (PrtSc, Fn, Mute) + centered 2u Spacebar.
-- **Layer Selector**: Switch between 5 layers:
+- **8-Layer Architecture**: Switch between 8 layers:
   - `0: Base` (Standard typing layout)
   - `1: Lower` (Numpad, Navigation, F1–F12)
   - `2: Raise` (Mouse keys, Brackets, Symbols)
   - `3: Function` (Bluetooth, Output, Studio Unlock, Reset)
   - `4: TriFunction` (Activated when Lower + Raise are held together)
-- **Click-to-Edit**: Click any keycap to open the categorized Keycode Picker modal:
-  - Letters (A–Z)
-  - Numbers & Symbols
-  - Navigation & Editing
-  - Modifiers (Shift, Ctrl, Alt, GUI)
-  - Media & Volume
-  - Layer operations (`&mo`, `&to`)
-  - Special commands (`&trans`, `&none`, `&bt`, `&out`, `&bootloader`, `&sys_reset`, `&studio_unlock`)
-- **Save to Flash**: Click **💾 Save to Flash** (`CMD_SAVE_KEYMAP`) to commit pending changes into Zephyr NVS flash memory so they persist across reboots and reconnections.
+  - `5: Extra 1` (Gaming / Work layout)
+  - `6: Extra 2` (Creative / Media layout)
+  - `7: Extra 3` (Macro / Custom layout)
+- **Live Layer HUD**: Synchronizes active layer in real-time as you switch layers on your physical keyboard (`EVT_LAYER_CHANGED`).
+- **Comprehensive Keycode Picker**:
+  - Letters (A–Z), Numbers & Punctuation
+  - **Full Numpad**: 0-9, Operators, Enter, Equal, NumLock
+  - **Function Keys**: F1 through F24
+  - **Navigation & Modifiers**: Including Scroll Lock, Pause/Break, Menu, and **Caps Word (`&caps_word`)**
+  - **Apps & Browser**: Calculator, My PC, Browser Home/Back/Forward/Refresh/Search, Mail, and **Korean 한/영 (LANG1) & 한자 (LANG2)**
+  - **Mouse Keys**: MB1 (Left), MB2 (Right), MB3 (Middle), MB4, MB5
+  - **Layer Controls**: Momentary (`&mo`), Layer Switch (`&to`), Layer Toggle (`&tog`) across all 8 layers
+  - **⚡ Dual-Action (Tap-Hold) Builder**:
+    - **Mod-Tap (`&mt`)**: Tap for key, hold for modifier (Ctrl, Shift, Alt, GUI).
+    - **Layer-Tap (`&lt`)**: Tap for key, hold for target layer.
+- **Save to Flash**: Click **💾 Save to Flash** (`CMD_SAVE_KEYMAP`) to commit pending changes into Zephyr NVS flash memory.
 - **Revert Changes**: Click **↩ Revert Changes** (`CMD_DISCARD_KEYMAP`) to discard uncommitted RAM changes.
+- **Full Profile Backup / Restore**: Export and import complete keyboard configurations (`.preonic.json`) with one click from the top bar.
 
 ### 📜 Tab 2: Macro Manager
 - **Slots 1, 2, 3**: Live step counter (up to 128 steps) and character length meter.
@@ -91,7 +99,7 @@ To protect your stored macros (which may contain passwords or tokens) and preven
   - **📤 Restore Macros (.json)**: Upload a JSON backup file to restore your macros.
 
 ### 🎛️ Tab 3: Rotary Knob
-- **Per-Layer Behavior**: Configure Clockwise (CW) and Counter-Clockwise (CCW) actions for each layer (Volume Up/Down, Scrolling, Page Up/Down, Track skipping).
+- **Per-Layer Behavior**: Configure Clockwise (CW) and Counter-Clockwise (CCW) actions for all 8 layers (Volume Up/Down, Scrolling, Page Up/Down, Track skipping).
 - **Detent Sensitivity Slider**: Adjust the pulses-per-detent divider (2..16, default 2 for standard EC11 encoders).
 - Click **💾 Apply Knob Settings** (`CMD_SET_KNOB`) to apply and store to NVS.
 
@@ -117,6 +125,12 @@ To protect your stored macros (which may contain passwords or tokens) and preven
   - **🔔 Play Test Tone on Keyboard** (`CMD_TEST_PIEZO`): Hear the tone on the keyboard buzzer immediately!
 - **Live Telemetry**: Real-time MAX17048 battery gauge (mV and SoC %), active BLE profile, and USB endpoint status.
 
+### 🔍 Tab 7: Switch Matrix & Chatter Tester
+- **Interactive Diagnostics**: 5x12 physical switch matrix tester rendering all 62 keys.
+- **Real-Time Stream**: Keyboard streams exact physical key position events over Web Serial (`EVT_KEY_TEST`).
+- **Chatter Detection**: Automatically flags bounce intervals `< 15ms` as potential switch contact chatter.
+- **Progress Tracking**: Shows tested count (`X / 62`) with color-coded persistent highlights.
+
 ---
 
 ## 5. Protocol Specification
@@ -134,6 +148,8 @@ Preonic Studio communicates over USB CDC ACM using a framed binary packet protoc
 - **Asynchronous Events**:
   - `0xFE`: `EVT_UNLOCKED` (Pushed when `Fn + Z` is pressed on hardware)
   - `0xFD`: `EVT_LOCKED` (Pushed on 300s inactivity or host disconnect)
+  - `0xFC`: `EVT_LAYER_CHANGED` (Pushed when active layer switches)
+  - `0xFB`: `EVT_KEY_TEST` (Pushed on physical key press/release for diagnostics)
 
 ---
 
