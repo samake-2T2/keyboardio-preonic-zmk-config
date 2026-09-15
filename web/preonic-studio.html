@@ -548,6 +548,49 @@
       border-color: #14b8a6 !important;
     }
 
+    .keycap.key-empty {
+      background: rgba(255, 255, 255, 0.02) !important;
+      border: 1px dashed rgba(255, 255, 255, 0.12) !important;
+      border-bottom: 2px dashed rgba(255, 255, 255, 0.1) !important;
+      box-shadow: none !important;
+      cursor: pointer;
+    }
+
+    .keycap.key-empty:hover {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-color: rgba(255, 255, 255, 0.25) !important;
+      transform: none !important;
+    }
+
+    .keycap.key-empty .key-pos-badge {
+      color: #4b5563;
+    }
+
+    .keymap-sync-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: var(--radius-sm);
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .keymap-sync-banner.synced {
+      background: rgba(6, 78, 59, 0.5);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #a7f3d0;
+    }
+
+    .keymap-sync-banner.syncing {
+      background: rgba(30, 58, 138, 0.5);
+      border-color: rgba(59, 130, 246, 0.4);
+      color: #bfdbfe;
+    }
+
     .keycap.key-unlock {
       background: linear-gradient(180deg, #b45309, #78350f);
       border-color: #f59e0b;
@@ -1256,25 +1299,30 @@
           <button class="layer-btn" data-layer="7">7: Extra 3</button>
         </div>
 
+        <!-- Dynamic Keymap Sync Status Banner -->
+        <div id="keymapSyncStatus" class="keymap-sync-banner">
+          🔌 키보드가 연결되지 않았습니다. 상단 우측 <strong>[Connect USB]</strong> 버튼을 눌러 연결하면 현재 저장된 키맵이 로드됩니다.
+        </div>
+
         <!-- Physical Visual Keyboard -->
         <div class="keyboard-container">
           <!-- Top Row: Spacer (9 cols) + 3 Top Keys (3 cols) -->
           <div class="kb-top-row">
             <div class="kb-top-spacer"></div>
-            <div id="key-0" class="keycap key-mod" data-idx="0">
+            <div id="key-0" class="keycap key-empty" data-idx="0">
               <span class="key-pos-badge">0</span>
-              <span class="primary-label">PrtSc</span>
-              <span class="sub-label">&kp</span>
+              <span class="primary-label" id="key-pri-0"></span>
+              <span class="sub-label" id="key-sub-0"></span>
             </div>
-            <div id="key-1" class="keycap key-layer" data-idx="1">
+            <div id="key-1" class="keycap key-empty" data-idx="1">
               <span class="key-pos-badge">1</span>
-              <span class="primary-label">Fn</span>
-              <span class="sub-label">&mo 3</span>
+              <span class="primary-label" id="key-pri-1"></span>
+              <span class="sub-label" id="key-sub-1"></span>
             </div>
-            <div id="key-2" class="keycap key-mod" data-idx="2">
+            <div id="key-2" class="keycap key-empty" data-idx="2">
               <span class="key-pos-badge">2</span>
-              <span class="primary-label">Mute</span>
-              <span class="sub-label">&kp</span>
+              <span class="primary-label" id="key-pri-2"></span>
+              <span class="sub-label" id="key-sub-2"></span>
             </div>
           </div>
 
@@ -1901,6 +1949,8 @@
     const BEH_MKP           = 0x0E; // &mkp
     const BEH_SK            = 0x0F; // &sk
     const BEH_SL            = 0x10; // &sl
+    const BEH_MMV           = 0x11; // &mmv (Mouse Move)
+    const BEH_MSC           = 0x12; // &msc (Mouse Scroll)
 
     const NUM_LAYERS = 8;
     const LAYER_NAMES = ["Base", "Lower", "Raise", "Func", "Tri", "Extra 1", "Extra 2", "Extra 3"];
@@ -2131,12 +2181,22 @@
       { code: 0x90, name: "한/영", cat: "apps", desc: "Korean Hangul / English (LANG1)" },
       { code: 0x91, name: "한자", cat: "apps", desc: "Korean Hanja (LANG2)" },
 
-      // Mouse Buttons
+      // Mouse Buttons & Actions
       { beh: BEH_MKP, p1: 0, name: "Mouse L", cat: "mouse", desc: "Mouse Left Button (&mkp LCLK)" },
       { beh: BEH_MKP, p1: 1, name: "Mouse R", cat: "mouse", desc: "Mouse Right Button (&mkp RCLK)" },
       { beh: BEH_MKP, p1: 2, name: "Mouse M", cat: "mouse", desc: "Mouse Middle Button (&mkp MCLK)" },
       { beh: BEH_MKP, p1: 3, name: "Mouse B4", cat: "mouse", desc: "Mouse Button 4 (Back)" },
       { beh: BEH_MKP, p1: 4, name: "Mouse B5", cat: "mouse", desc: "Mouse Button 5 (Forward)" },
+      // Mouse Movement (Cursor)
+      { beh: BEH_MMV, p1: 0x0000FDA8, name: "Move Up (↑)", cat: "mouse", desc: "Move Mouse Cursor Up (&mmv MOVE_UP)" },
+      { beh: BEH_MMV, p1: 0x00000258, name: "Move Down (↓)", cat: "mouse", desc: "Move Mouse Cursor Down (&mmv MOVE_DOWN)" },
+      { beh: BEH_MMV, p1: 0xFDA80000, name: "Move Left (←)", cat: "mouse", desc: "Move Mouse Cursor Left (&mmv MOVE_LEFT)" },
+      { beh: BEH_MMV, p1: 0x02580000, name: "Move Right (→)", cat: "mouse", desc: "Move Mouse Cursor Right (&mmv MOVE_RIGHT)" },
+      // Mouse Wheel Scrolling
+      { beh: BEH_MSC, p1: 0x0000000A, name: "Scroll Up (↑)", cat: "mouse", desc: "Scroll Wheel Up (&msc SCRL_UP)" },
+      { beh: BEH_MSC, p1: 0x0000FFF6, name: "Scroll Down (↓)", cat: "mouse", desc: "Scroll Wheel Down (&msc SCRL_DOWN)" },
+      { beh: BEH_MSC, p1: 0xFFF60000, name: "Scroll Left (←)", cat: "mouse", desc: "Scroll Wheel Left (&msc SCRL_LEFT)" },
+      { beh: BEH_MSC, p1: 0x000A0000, name: "Scroll Right (→)", cat: "mouse", desc: "Scroll Wheel Right (&msc SCRL_RIGHT)" },
 
       // Layers (MO, TO, TOG for all 8 layers)
       { beh: BEH_MO, p1: 0, name: "MO(Base)", cat: "layers", desc: "Momentary Layer 0" },
@@ -2212,6 +2272,28 @@
       if (beh === BEH_MKP) {
         const mbMap = ["MB1(L)", "MB2(R)", "MB3(M)", "MB4", "MB5"];
         return { primary: mbMap[p1] || `MB${p1}`, sub: "&mkp" };
+      }
+      if (beh === BEH_MMV) {
+        const rawY = p1 & 0xFFFF;
+        const rawX = (p1 >>> 16) & 0xFFFF;
+        const y = (rawY & 0x8000) ? (rawY - 0x10000) : rawY;
+        const x = (rawX & 0x8000) ? (rawX - 0x10000) : rawX;
+        if (y < 0) return { primary: "Move ↑", sub: "&mmv" };
+        if (y > 0) return { primary: "Move ↓", sub: "&mmv" };
+        if (x < 0) return { primary: "Move ←", sub: "&mmv" };
+        if (x > 0) return { primary: "Move →", sub: "&mmv" };
+        return { primary: "Mouse Move", sub: "&mmv" };
+      }
+      if (beh === BEH_MSC) {
+        const rawY = p1 & 0xFFFF;
+        const rawX = (p1 >>> 16) & 0xFFFF;
+        const y = (rawY & 0x8000) ? (rawY - 0x10000) : rawY;
+        const x = (rawX & 0x8000) ? (rawX - 0x10000) : rawX;
+        if (y > 0) return { primary: "Scrl ↑", sub: "&msc" };
+        if (y < 0) return { primary: "Scrl ↓", sub: "&msc" };
+        if (x < 0) return { primary: "Scrl ←", sub: "&msc" };
+        if (x > 0) return { primary: "Scrl →", sub: "&msc" };
+        return { primary: "Mouse Scrl", sub: "&msc" };
       }
       if (beh === BEH_TRANS) {
         return { primary: "▽", sub: "&trans" };
@@ -2293,6 +2375,18 @@
       return layers;
     }
 
+    function createEmptyKeymap() {
+      const layers = [];
+      for (let l = 0; l < NUM_LAYERS; l++) {
+        const keys = new Array(62);
+        for (let i = 0; i < 62; i++) {
+          keys[i] = null;
+        }
+        layers.push(keys);
+      }
+      return layers;
+    }
+
     // Application State
     class AppState {
       constructor() {
@@ -2304,7 +2398,7 @@
         this.selectedKeyIndex = null;
         this.activeMacroSlot = 1;
         this.battery = { mv: 4040, soc: 82 };
-        this.keymaps = generateDefaultKeymap();
+        this.keymaps = createEmptyKeymap();
         this.macros = { 1: "", 2: "", 3: "" };
         this.knobConfigs = [];
         for (let i = 0; i < NUM_LAYERS; i++) {
@@ -2590,6 +2684,90 @@
       soundChime.playLock();
       const reasonText = (reason === 1) ? "inactivity timeout (300s)" : "host disconnect";
       showToast(`Keyboard locked due to ${reasonText}.`, "warning");
+    }
+
+    // Event Handler for Firmware Layer Changed
+    function onFirmwareLayerChanged(layer) {
+      if (layer >= 0 && layer < NUM_LAYERS) {
+        state.activeLayer = layer;
+        document.querySelectorAll(".layer-btn:not(.knob-layer-btn)").forEach(b => {
+          if (parseInt(b.dataset.layer, 10) === layer) {
+            b.classList.add("active");
+          } else {
+            b.classList.remove("active");
+          }
+        });
+        renderAllKeycaps();
+      }
+    }
+
+    // Event Handler for Physical Key Matrix & Chatter Testing
+    const testedKeys = new Set();
+    let lastKeyPressTime = 0;
+    let lastKeyIndex = -1;
+
+    function onFirmwareKeyTest(keyIdx, pressed) {
+      const now = performance.now();
+      if (pressed) {
+        testedKeys.add(keyIdx);
+        const countElem = document.getElementById("testerCount");
+        if (countElem) countElem.innerText = `${testedKeys.size} / 62`;
+        const lastKeyElem = document.getElementById("testerLastKey");
+        if (lastKeyElem) lastKeyElem.innerText = `#${keyIdx}`;
+
+        // Chatter detection (<15ms repeat on same key)
+        if (lastKeyIndex === keyIdx && (now - lastKeyPressTime) < 15 && (now - lastKeyPressTime) > 0) {
+          const chatterBadge = document.getElementById("testerChatterBadge");
+          const chatterText = document.getElementById("testerChatterText");
+          if (chatterBadge && chatterText) {
+            chatterBadge.style.background = "rgba(239, 68, 68, 0.2)";
+            chatterBadge.style.borderColor = "rgba(239, 68, 68, 0.6)";
+            chatterBadge.style.color = "#f87171";
+            chatterText.innerText = `Chatter Detected! (${Math.round(now - lastKeyPressTime)}ms on Key #${keyIdx})`;
+          }
+        }
+        lastKeyPressTime = now;
+        lastKeyIndex = keyIdx;
+
+        const chkSound = document.getElementById("chkTesterSound");
+        if (chkSound && chkSound.checked) {
+          soundChime.playTone(1800, 10);
+        }
+      }
+
+      // Visual highlight on Tab 7 tester grid
+      const testerKey = document.getElementById(`tester-key-${keyIdx}`);
+      if (testerKey) {
+        if (pressed) {
+          testerKey.classList.add("key-pressing");
+        } else {
+          testerKey.classList.remove("key-pressing");
+          testerKey.classList.add("key-tested");
+        }
+      }
+    }
+
+    function initTesterGrid() {
+      const container = document.getElementById("testerKeyboardContainer");
+      if (!container) return;
+      container.innerHTML = `
+        <div class="kb-top-row">
+          <div class="kb-top-spacer"></div>
+          <div id="tester-key-0" class="keycap tester-keycap" data-idx="0"><span class="key-pos-badge">0</span><span class="primary-label">PrtSc</span></div>
+          <div id="tester-key-1" class="keycap tester-keycap" data-idx="1"><span class="key-pos-badge">1</span><span class="primary-label">Fn</span></div>
+          <div id="tester-key-2" class="keycap tester-keycap" data-idx="2"><span class="key-pos-badge">2</span><span class="primary-label">Mute</span></div>
+        </div>
+        <div id="testerGrid" class="kb-grid"></div>
+      `;
+      const grid = document.getElementById("testerGrid");
+      for (let idx = 3; idx <= 61; idx++) {
+        const k = document.createElement("div");
+        k.id = `tester-key-${idx}`;
+        k.className = "keycap tester-keycap";
+        if (idx === 56) k.classList.add("space-2u");
+        k.innerHTML = `<span class="key-pos-badge">${idx}</span><span class="primary-label">#${idx}</span>`;
+        grid.appendChild(k);
+      }
     }
 
     // Simulation Engine for Demo / Offline Mode
@@ -2906,30 +3084,32 @@
       if (!keycap) return;
 
       const layer = state.activeLayer;
-      const binding = state.keymaps[layer][idx] || { beh: BEH_NONE, p1: 0, p2: 0 };
+      const binding = (state.keymaps && state.keymaps[layer]) ? state.keymaps[layer][idx] : null;
+
+      let priElem = document.getElementById(`key-pri-${idx}`) || keycap.querySelector(".primary-label");
+      let subElem = document.getElementById(`key-sub-${idx}`) || keycap.querySelector(".sub-label");
+
+      keycap.classList.remove("key-mod", "key-layer", "key-trans", "key-unlock", "key-dual", "key-toggle", "key-mouse", "key-empty");
+
+      if (!binding) {
+        if (priElem) priElem.innerText = "";
+        if (subElem) subElem.innerText = "";
+        keycap.classList.add("key-empty");
+        keycap.classList.remove("selected");
+        return;
+      }
+
       const { primary, sub } = formatBindingLabel(binding.beh, binding.p1, binding.p2);
-
-      let priElem = document.getElementById(`key-pri-${idx}`);
-      let subElem = document.getElementById(`key-sub-${idx}`);
-
-      if (!priElem) {
-        priElem = keycap.querySelector(".primary-label");
-      }
-      if (!subElem) {
-        subElem = keycap.querySelector(".sub-label");
-      }
 
       if (priElem) priElem.innerText = primary;
       if (subElem) subElem.innerText = sub;
 
       // Class styling
-      keycap.classList.remove("key-mod", "key-layer", "key-trans", "key-unlock", "key-dual", "key-toggle", "key-mouse");
-
       if (binding.beh === BEH_MT || binding.beh === BEH_LT) {
         keycap.classList.add("key-dual");
       } else if (binding.beh === BEH_TOG) {
         keycap.classList.add("key-toggle");
-      } else if (binding.beh === BEH_MKP) {
+      } else if (binding.beh === BEH_MKP || binding.beh === BEH_MMV || binding.beh === BEH_MSC) {
         keycap.classList.add("key-mouse");
       } else if (binding.beh === BEH_TRANS) {
         keycap.classList.add("key-trans");
@@ -2955,11 +3135,17 @@
     }
 
     function onKeycapClicked(idx) {
+      if (!state.connected && !state.demoMode) {
+        showToast("키보드를 먼저 연결하거나 Demo Mode를 켜주세요.", "warning");
+        return;
+      }
       state.selectedKeyIndex = idx;
       renderAllKeycaps();
 
       const layer = state.activeLayer;
-      const b = state.keymaps[layer][idx] || { beh: BEH_NONE, p1: 0, p2: 0 };
+      const b = (state.keymaps && state.keymaps[layer] && state.keymaps[layer][idx])
+        ? state.keymaps[layer][idx]
+        : { beh: BEH_NONE, p1: 0, p2: 0 };
       const { primary, sub } = formatBindingLabel(b.beh, b.p1, b.p2);
 
       document.getElementById("inspectKeyName").innerText = `Key #${idx} on Layer ${layer}: ${primary}`;
@@ -3236,6 +3422,9 @@
         // Fetch Lock Status & Status
         await pollKeyboardStatus();
         showToast("Connected to Keyboardio Preonic!", "success");
+
+        // Automatically load configured keymap from keyboard
+        await loadKeymapFromDevice();
       } catch (err) {
         console.warn("Connection error:", err);
         showToast(err.message || "Failed to connect to Preonic USB serial.", "error");
@@ -3246,9 +3435,78 @@
       await serialDriver.disconnect();
       state.connected = false;
       state.locked = true;
+      state.keymaps = createEmptyKeymap();
+      state.selectedKeyIndex = null;
+      renderAllKeycaps();
       updateConnectionUI();
       updateSecurityUI();
+      const banner = document.getElementById("keymapSyncStatus");
+      if (banner) {
+        banner.className = "keymap-sync-banner";
+        banner.style.display = "flex";
+        banner.innerHTML = "🔌 키보드가 연결되지 않았습니다. 상단 우측 <strong>[Connect USB]</strong> 버튼을 눌러 연결하면 현재 저장된 키맵이 로드됩니다.";
+      }
       showToast("Disconnected from Preonic.", "info");
+    }
+
+    async function loadKeymapFromDevice() {
+      const banner = document.getElementById("keymapSyncStatus");
+      if (banner) {
+        banner.className = "keymap-sync-banner syncing";
+        banner.style.display = "flex";
+        banner.innerHTML = `🔄 키보드로부터 현재 설정된 키맵을 읽어오는 중... <strong id="keymapSyncProgress">0%</strong>`;
+      }
+      try {
+        // Read active layer first and render immediately
+        const active = state.activeLayer;
+        await loadLayerFromDevice(active);
+        renderAllKeycaps();
+
+        // Read remaining layers
+        for (let l = 0; l < NUM_LAYERS; l++) {
+          if (l === active) continue;
+          if (!state.connected) break;
+          await loadLayerFromDevice(l);
+          const prog = document.getElementById("keymapSyncProgress");
+          if (prog) {
+            prog.innerText = `${Math.round(((l + 1) / NUM_LAYERS) * 100)}%`;
+          }
+        }
+        if (banner) {
+          banner.className = "keymap-sync-banner synced";
+          banner.innerHTML = `✅ 키보드 키맵 실시간 동기화 완료 (${NUM_LAYERS}개 레이어 로드됨)`;
+          setTimeout(() => {
+            if (state.connected && banner) {
+              banner.style.display = "none";
+            }
+          }, 3000);
+        }
+      } catch (err) {
+        console.warn("Failed to load keymaps from device:", err);
+        if (banner) {
+          banner.className = "keymap-sync-banner";
+          banner.innerHTML = `⚠️ 키맵 읽기 중 오류 발생: ${err.message}`;
+        }
+      }
+    }
+
+    async function loadLayerFromDevice(layer) {
+      if (!state.keymaps[layer]) {
+        state.keymaps[layer] = new Array(62);
+      }
+      for (let i = 0; i <= 61; i++) {
+        const resp = await serialDriver.sendCommand(CMD_GET_KEY, new Uint8Array([layer, i]));
+        if (resp && resp.data.length >= 11) {
+          const d = resp.data;
+          const beh = d[2];
+          const p1 = (d[3] | (d[4] << 8) | (d[5] << 16) | (d[6] << 24)) >>> 0;
+          const p2 = (d[7] | (d[8] << 8) | (d[9] << 16) | (d[10] << 24)) >>> 0;
+          state.keymaps[layer][i] = { beh, p1, p2 };
+        }
+      }
+      if (layer === state.activeLayer) {
+        renderAllKeycaps();
+      }
     }
 
     async function pollKeyboardStatus() {
@@ -3292,9 +3550,22 @@
         if (state.connected) return;
         state.demoMode = !state.demoMode;
         if (state.demoMode) {
+          state.keymaps = generateDefaultKeymap();
+          renderAllKeycaps();
+          const banner = document.getElementById("keymapSyncStatus");
+          if (banner) banner.style.display = "none";
           showToast("Simulation Demo Mode activated! Test all tabs offline.", "info");
           document.getElementById("demoUnlockSection").style.display = "block";
         } else {
+          state.keymaps = createEmptyKeymap();
+          state.selectedKeyIndex = null;
+          renderAllKeycaps();
+          const banner = document.getElementById("keymapSyncStatus");
+          if (banner) {
+            banner.className = "keymap-sync-banner";
+            banner.style.display = "flex";
+            banner.innerHTML = "🔌 키보드가 연결되지 않았습니다. 상단 우측 <strong>[Connect USB]</strong> 버튼을 눌러 연결하면 현재 저장된 키맵이 로드됩니다.";
+          }
           showToast("Exited Demo Mode.", "info");
           document.getElementById("demoUnlockSection").style.display = "none";
         }
@@ -3455,20 +3726,13 @@
       });
 
       document.getElementById("btnReadKeymap").addEventListener("click", async () => {
+        if (!state.connected) {
+          showToast("키보드가 연결되어 있지 않습니다. 먼저 연결해주세요.", "warning");
+          return;
+        }
         try {
-          const layer = state.activeLayer;
-          for (let i = 0; i <= 61; i++) {
-            const resp = await serialDriver.sendCommand(CMD_GET_KEY, new Uint8Array([layer, i]));
-            if (resp && resp.data.length >= 11) {
-              const d = resp.data;
-              const beh = d[2];
-              const p1 = d[3] | (d[4] << 8) | (d[5] << 16) | (d[6] << 24);
-              const p2 = d[7] | (d[8] << 8) | (d[9] << 16) | (d[10] << 24);
-              state.keymaps[layer][i] = { beh, p1, p2 };
-            }
-          }
-          renderAllKeycaps();
-          showToast(`Loaded keymap for Layer ${layer} from keyboard.`, "success");
+          await loadKeymapFromDevice();
+          showToast("키보드로부터 모든 레이어 키맵을 다시 동기화했습니다.", "success");
         } catch (err) {
           showToast(err.message, "error");
         }
@@ -3808,11 +4072,36 @@
         await pollKeyboardStatus();
         showToast("Telemetry data updated.", "info");
       });
+
+      // Key Tester Reset button
+      const btnResetTester = document.getElementById("btnResetTester");
+      if (btnResetTester) {
+        btnResetTester.addEventListener("click", () => {
+          testedKeys.clear();
+          const countElem = document.getElementById("testerCount");
+          if (countElem) countElem.innerText = "0 / 62";
+          const lastKeyElem = document.getElementById("testerLastKey");
+          if (lastKeyElem) lastKeyElem.innerText = "None";
+          const chatterBadge = document.getElementById("testerChatterBadge");
+          const chatterText = document.getElementById("testerChatterText");
+          if (chatterBadge && chatterText) {
+            chatterBadge.style.background = "rgba(107, 114, 128, 0.1)";
+            chatterBadge.style.borderColor = "rgba(107, 114, 128, 0.3)";
+            chatterBadge.style.color = "#9ca3af";
+            chatterText.innerText = "Clean";
+          }
+          document.querySelectorAll(".tester-keycap").forEach(k => {
+            k.classList.remove("key-pressing", "key-tested");
+          });
+          showToast("Key matrix tester reset.", "info");
+        });
+      }
     }
 
     // Initialize application on DOM ready
     window.addEventListener("DOMContentLoaded", () => {
       initKeyboardGrid();
+      initTesterGrid();
       setupEventHandlers();
       refreshPasswordPreview();
       updateConnectionUI();

@@ -712,6 +712,40 @@ class TestPreonicStudioDispatcher(unittest.TestCase):
         self.assertEqual(resp["seq"], 99)
         self.assertEqual(resp["data"], bytes([ERR_OK]))
 
+    def test_mouse_move_and_scroll_bindings(self):
+        self.disp.unlock()
+        # Set Key at Layer 2 (Raise), Key 15 to &mmv MOVE_UP (0x0000FDA8)
+        # beh_type = 0x11 (PREONIC_BEH_MMV)
+        p1 = 0x0000FDA8
+        payload = bytes([2, 15, 0x11]) + p1.to_bytes(4, "little") + (0).to_bytes(4, "little")
+        self.disp.process_bytes(encode_packet(CMD_SET_KEY, 70, payload))
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(resp["cmd"], CMD_SET_KEY)
+        self.assertEqual(resp["data"], bytes([ERR_OK]))
+
+        # Read back key
+        self.disp.process_bytes(encode_packet(CMD_GET_KEY, 71, bytes([2, 15])))
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(resp["cmd"], CMD_GET_KEY)
+        self.assertEqual(resp["data"][0], 2) # layer 2
+        self.assertEqual(resp["data"][1], 15) # idx 15
+        self.assertEqual(resp["data"][2], 0x11) # PREONIC_BEH_MMV
+        self.assertEqual(int.from_bytes(resp["data"][3:7], "little"), 0x0000FDA8)
+
+        # Set Key at Layer 2, Key 16 to &msc SCRL_UP (0x0000000A)
+        # beh_type = 0x12 (PREONIC_BEH_MSC)
+        payload2 = bytes([2, 16, 0x12]) + (10).to_bytes(4, "little") + (0).to_bytes(4, "little")
+        self.disp.process_bytes(encode_packet(CMD_SET_KEY, 72, payload2))
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(resp["cmd"], CMD_SET_KEY)
+
+        self.disp.process_bytes(encode_packet(CMD_GET_KEY, 73, bytes([2, 16])))
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(resp["cmd"], CMD_GET_KEY)
+        self.assertEqual(resp["data"][2], 0x12) # PREONIC_BEH_MSC
+        self.assertEqual(int.from_bytes(resp["data"][3:7], "little"), 10)
+
 if __name__ == "__main__":
     unittest.main()
+
 

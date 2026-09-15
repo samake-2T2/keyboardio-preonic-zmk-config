@@ -244,6 +244,12 @@ static uint8_t behavior_dev_to_type(const char *dev_name) {
     if (strstr(dev_name, "mkp") != NULL || strstr(dev_name, "mouse_key") != NULL) {
         return PREONIC_BEH_MKP;
     }
+    if (strstr(dev_name, "mmv") != NULL || strstr(dev_name, "mouse_move") != NULL) {
+        return PREONIC_BEH_MMV;
+    }
+    if (strstr(dev_name, "msc") != NULL || strstr(dev_name, "mouse_scroll") != NULL) {
+        return PREONIC_BEH_MSC;
+    }
     if (strstr(dev_name, "mod_tap") != NULL || strcmp(dev_name, "mt") == 0) {
         return PREONIC_BEH_MT;
     }
@@ -365,6 +371,18 @@ static const char *behavior_type_to_dev(uint8_t beh_type) {
         return DEVICE_DT_NAME(DT_NODELABEL(mkp));
 #else
         return "mouse_key_press";
+#endif
+    case PREONIC_BEH_MMV:
+#if DT_NODE_EXISTS(DT_NODELABEL(mmv))
+        return DEVICE_DT_NAME(DT_NODELABEL(mmv));
+#else
+        return "mouse_move";
+#endif
+    case PREONIC_BEH_MSC:
+#if DT_NODE_EXISTS(DT_NODELABEL(msc))
+        return DEVICE_DT_NAME(DT_NODELABEL(msc));
+#else
+        return "mouse_scroll";
 #endif
     case PREONIC_BEH_SK:
 #if DT_NODE_EXISTS(DT_NODELABEL(sk))
