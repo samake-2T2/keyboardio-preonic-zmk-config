@@ -116,8 +116,7 @@ endif # KEYBOARDIO_PREONIC_SOUND
 menuconfig KEYBOARDIO_PREONIC_STUDIO
 	bool "Keyboardio Preonic Studio Web & Serial RPC"
 	default y
-	select SERIAL
-	select UART_INTERRUPT_DRIVEN
+	depends on USB_CDC_ACM
 	select RING_BUFFER
 	help
 	  Enables Preonic Studio Web GUI serial protocol interface over USB CDC ACM UART,
