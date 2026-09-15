@@ -190,6 +190,18 @@ static inline int set_tone(uint32_t freq_hz) {
     return pwm_set(pwm_dev, SPEAKER_PWM_CHANNEL, period_ns, pulse_ns, 0);
 }
 
+static inline void play_piezo_freq(uint32_t freq_hz) {
+    k_work_cancel_delayable(&sound_work);
+    current_sound_state = SOUND_STATE_IDLE;
+    set_tone(freq_hz);
+}
+
+static inline void stop_piezo(void) {
+    k_work_cancel_delayable(&sound_work);
+    current_sound_state = SOUND_STATE_IDLE;
+    set_tone(0);
+}
+
 static void sound_work_handler(struct k_work *work) {
     ARG_UNUSED(work);
 
@@ -393,6 +405,32 @@ void preonic_sound_play_macro_full(void) {
     current_sound_state = SOUND_STATE_MACRO_FULL;
     set_tone(800); // Warning buzz for 150ms
     k_work_reschedule(&sound_work, K_MSEC(150));
+}
+
+void preonic_sound_play_studio_unlock(void) {
+    if (!sound_master_enabled) return;
+    play_piezo_freq(2000);
+    k_msleep(60);
+    play_piezo_freq(3000);
+    k_msleep(80);
+    stop_piezo();
+}
+
+void preonic_sound_play_studio_lock(void) {
+    if (!sound_master_enabled) return;
+    play_piezo_freq(3000);
+    k_msleep(60);
+    play_piezo_freq(2000);
+    k_msleep(80);
+    stop_piezo();
+}
+
+void preonic_sound_play_tone_ms(uint32_t freq_hz, uint32_t dur_ms) {
+    if (!sound_master_enabled) return;
+    if (dur_ms > 2000) dur_ms = 2000;
+    play_piezo_freq(freq_hz);
+    k_msleep(dur_ms);
+    stop_piezo();
 }
 
 static void boot_coin_work_handler(struct k_work *work) {

@@ -404,6 +404,32 @@ void butterfly_show_password_success(void) {
     k_work_reschedule(&butterfly_work, K_NO_WAIT);
 }
 
+void butterfly_show_studio_unlock(void) {
+    if (!device_is_ready(strip_dev) || current_activity == ZMK_ACTIVITY_SLEEP) {
+        return;
+    }
+    k_work_cancel_delayable(&butterfly_work);
+
+    struct led_rgb amber_pixels[BUTTERFLY_NUM_LEDS];
+    for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
+        amber_pixels[i] = make_rgb(220, 120, 0);
+    }
+    struct led_rgb off_pixels[BUTTERFLY_NUM_LEDS];
+    for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
+        off_pixels[i] = make_rgb(0, 0, 0);
+    }
+
+    for (int i = 0; i < 2; i++) {
+        update_leds(amber_pixels);
+        k_msleep(80);
+        update_leds(off_pixels);
+        k_msleep(80);
+    }
+
+    boot_anim_done = true;
+    butterfly_status_refresh();
+}
+
 static int butterfly_event_listener(const zmk_event_t *eh) {
     struct zmk_activity_state_changed *act_ev = as_zmk_activity_state_changed(eh);
     if (act_ev != NULL) {

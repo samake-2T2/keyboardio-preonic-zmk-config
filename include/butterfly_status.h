@@ -22,3 +22,4 @@ void butterfly_show_battery(void);
 void butterfly_set_macro_mode(enum butterfly_macro_mode mode);
 void butterfly_show_password_length(uint8_t length);
 void butterfly_show_password_success(void);
+void butterfly_show_studio_unlock(void);

@@ -90,6 +90,24 @@ void preonic_sound_play_macro_play(void);
  */
 void preonic_sound_play_macro_full(void);
 
+/**
+ * @brief Play Preonic Studio physical unlock tune (ascending 2-tone).
+ */
+void preonic_sound_play_studio_unlock(void);
+
+/**
+ * @brief Play Preonic Studio lock tune (descending 2-tone).
+ */
+void preonic_sound_play_studio_lock(void);
+
+/**
+ * @brief Play custom tone for specified duration in milliseconds (max 2000ms).
+ *
+ * @param freq_hz Frequency in Hertz
+ * @param dur_ms Duration in milliseconds (capped at 2000ms)
+ */
+void preonic_sound_play_tone_ms(uint32_t freq_hz, uint32_t dur_ms);
+
 #ifdef __cplusplus
 }
 #endif
