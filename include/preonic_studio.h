@@ -23,6 +23,7 @@ extern "C" {
 #define CMD_GET_LOCK_STATUS 0x03
 #define CMD_LOCK            0x04
 #define CMD_GET_STATUS      0x05
+#define CMD_BOOTLOADER      0x06
 
 #define CMD_GET_KEY         0x10
 #define CMD_SET_KEY         0x11

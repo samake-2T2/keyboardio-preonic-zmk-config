@@ -1172,9 +1172,198 @@
     .toast.error { border-left-color: var(--accent-red); }
     .toast.warning { border-left-color: var(--accent-amber); }
 
-    @keyframes slideInRight {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
+    /* GitHub Badge & Firmware Tab Styles */
+    .badge-github {
+      border-color: rgba(56, 189, 248, 0.4);
+      background: rgba(56, 189, 248, 0.12);
+      color: #7dd3fc;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    .badge-github:hover {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: rgba(56, 189, 248, 0.6);
+      transform: translateY(-1px);
+    }
+    .badge-update-avail {
+      border-color: rgba(245, 158, 11, 0.6) !important;
+      background: rgba(245, 158, 11, 0.15) !important;
+      color: #fbbf24 !important;
+      animation: pulseUpdate 2s infinite ease-in-out;
+    }
+    .badge-up-to-date {
+      border-color: rgba(16, 185, 129, 0.5) !important;
+      background: rgba(16, 185, 129, 0.12) !important;
+      color: #34d399 !important;
+    }
+    @keyframes pulseUpdate {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+      50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2); }
+    }
+
+    .fw-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
+      margin-top: 16px;
+    }
+    .fw-hero-card {
+      background: linear-gradient(145deg, #1e222b, #171920);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .fw-hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .fw-stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+    }
+    .fw-stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .fw-stat-val {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: monospace;
+    }
+    .fw-status-banner {
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .fw-status-banner.up-to-date {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+    .fw-status-banner.update-avail {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+    }
+    .fw-status-banner.checking {
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+    }
+    .fw-dl-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 14px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .fw-dl-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    .fw-dl-primary {
+      border-color: rgba(59, 130, 246, 0.4);
+      background: rgba(59, 130, 246, 0.08);
+    }
+    .fw-dl-primary:hover {
+      background: rgba(59, 130, 246, 0.16);
+      border-color: var(--accent-blue);
+    }
+    .fw-commit-item {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .fw-commit-item:last-child {
+      border-bottom: none;
+    }
+    .fw-commit-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .fw-commit-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-primary);
+      word-break: break-word;
+    }
+    .fw-commit-sha {
+      font-family: monospace;
+      font-size: 11px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #93c5fd;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .fw-commit-sha:hover {
+      border-color: var(--accent-blue);
+    }
+    .fw-commit-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .fw-step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .fw-step {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .fw-step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 11px;
+      flex-shrink: 0;
     }
   </style>
 </head>
@@ -1189,7 +1378,7 @@
         </svg>
       </div>
       <div class="brand-titles">
-        <h1>Preonic Studio <span class="badge-ver">v1.9.0</span></h1>
+        <h1>Preonic Studio <span class="badge-ver">v2.0.0</span></h1>
       </div>
     </div>
 
@@ -1212,6 +1401,11 @@
       <div id="liveLayerBadge" class="pill-badge" style="border-color: rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.15); color: #a5b4fc;" title="Active Layer synced in real time from keyboard">
         <span class="indicator-dot" style="background-color: #818cf8;"></span>
         <span>Active: <strong id="liveLayerName">Base</strong></span>
+      </div>
+
+      <div id="githubBadge" class="pill-badge badge-github" title="GitHub Firmware Status (Click to view updates)">
+        <span style="font-size: 13px;">🐙</span>
+        <span id="githubBadgeText">GitHub: checking...</span>
       </div>
     </div>
 
@@ -1246,6 +1440,7 @@
     <button class="tab-btn" data-tab="tab-mouse">🖱️ Mouse & Scroll</button>
     <button class="tab-btn" data-tab="tab-audio">🔊 Audio & Status</button>
     <button class="tab-btn" data-tab="tab-tester">🔍 Key Tester</button>
+    <button class="tab-btn" data-tab="tab-firmware">🚀 Firmware & Updates</button>
   </nav>
 
   <!-- Main Content Area -->
@@ -1802,6 +1997,196 @@
       </div>
     </section>
 
+    <!-- TAB 8: FIRMWARE & GITHUB UPDATES -->
+    <section id="tab-firmware" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🚀 Firmware Version & GitHub Integration</div>
+            <div class="card-subtitle">Real-time firmware version tracking, update alerts, commit history, and one-click UF2 downloads</div>
+          </div>
+          <div class="actions-group">
+            <button id="btnCheckUpdates" class="btn btn-secondary">
+              🔄 Check for Updates
+            </button>
+            <a id="linkRepo" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config" target="_blank" rel="noopener" class="btn btn-secondary">
+              🐙 Open GitHub Repo
+            </a>
+          </div>
+        </div>
+
+        <div class="fw-grid">
+          <!-- Card 1: Version Comparison Hero -->
+          <div class="fw-hero-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary);">Firmware Status</h3>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Installed hardware firmware vs latest GitHub release</p>
+              </div>
+              <span id="fwHeroBadge" class="pill-badge badge-github">🐙 GitHub Connected</span>
+            </div>
+
+            <div class="fw-hero-grid">
+              <div class="fw-stat-box">
+                <div class="fw-stat-label">Keyboard Firmware</div>
+                <div id="fwInstalledVer" class="fw-stat-val">Not Connected</div>
+                <div id="fwInstalledSub" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Connect USB to detect</div>
+              </div>
+              <div class="fw-stat-box">
+                <div class="fw-stat-label">Latest Release (GitHub)</div>
+                <div id="fwLatestVer" class="fw-stat-val">Loading...</div>
+                <div id="fwLatestDate" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Checking repository...</div>
+              </div>
+            </div>
+
+            <div id="fwStatusBanner" class="fw-status-banner checking">
+              <span>⏳</span>
+              <span id="fwStatusText">Connecting to GitHub REST API...</span>
+            </div>
+          </div>
+
+          <!-- Card 2: 1-Click Bootloader & Flashing -->
+          <div class="card" style="border-radius: var(--radius-lg);">
+            <div class="card-header" style="padding: 0 0 12px 0; border-bottom: 1px solid var(--border-color);">
+              <div>
+                <div class="card-title" style="font-size: 15px;">⚡ Quick Bootloader (DFU Flash Mode)</div>
+                <div class="card-subtitle">Put keyboard directly into USB drive mode without pressing physical buttons</div>
+              </div>
+            </div>
+            <p style="font-size: 12px; color: var(--text-secondary); margin: 12px 0;">
+              Clicking the button below sends a hardware command over Web Serial to reboot your Preonic keyboard into Adafruit nRF52 UF2 Bootloader mode. A USB drive named <code style="color: #93c5fd;">PREONIC</code> will mount on your computer.
+            </p>
+            <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+              <button id="btnRebootBootloader" class="btn btn-warning" style="flex: 1; padding: 12px; font-weight: 600;">
+                ⚡ Reboot Keyboard to Bootloader
+              </button>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: var(--radius-md); padding: 10px 14px; font-size: 12px; color: #fbbf24;">
+              💡 <strong>Safety note:</strong> Keyboard must be unlocked (<code style="background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">Fn + Z</code>) to prevent accidental reboot. You can also enter bootloader mode anytime by double-tapping the physical reset button or pressing <code style="background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">Fn + LCtrl</code>.
+            </div>
+          </div>
+
+          <!-- Card 3: Direct Firmware Downloads -->
+          <div class="card" style="border-radius: var(--radius-lg);">
+            <div class="card-header" style="padding: 0 0 12px 0; border-bottom: 1px solid var(--border-color);">
+              <div>
+                <div class="card-title" style="font-size: 15px;">📥 Direct Firmware Downloads (.uf2)</div>
+                <div class="card-subtitle">Compiled binary files ready to flash via drag-and-drop</div>
+              </div>
+            </div>
+            <div style="margin-top: 14px;">
+              <a id="btnDlFirmware" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.0/keyboardio_preonic__zmk.uf2" download="keyboardio_preonic__zmk.uf2" class="fw-dl-btn fw-dl-primary">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 20px;">📦</span>
+                  <div style="text-align: left;">
+                    <div style="font-weight: 600;">keyboardio_preonic__zmk.uf2</div>
+                    <div id="fwDlMetaMain" style="font-size: 11px; color: var(--text-muted);">Main Custom Firmware (~503 KB)</div>
+                  </div>
+                </div>
+                <span class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;">Download 📥</span>
+              </a>
+
+              <a id="btnDlReset" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.0/settings_reset-keyboardio_preonic__zmk.uf2" download="settings_reset-keyboardio_preonic__zmk.uf2" class="fw-dl-btn">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 20px;">🧹</span>
+                  <div style="text-align: left;">
+                    <div style="font-weight: 600;">settings_reset-keyboardio_preonic__zmk.uf2</div>
+                    <div id="fwDlMetaReset" style="font-size: 11px; color: var(--text-muted);">Erase Bluetooth & NVS Flash Storage (~175 KB)</div>
+                  </div>
+                </div>
+                <span class="btn btn-secondary" style="padding: 6px 14px; font-size: 12px;">Download 📥</span>
+              </a>
+
+              <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <a id="linkReleasePage" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases" target="_blank" rel="noopener" class="btn btn-secondary" style="flex: 1; text-align: center; text-decoration: none;">
+                  📂 View All GitHub Releases
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Step-by-Step Flashing Instructions -->
+          <div class="card" style="border-radius: var(--radius-lg);">
+            <div class="card-header" style="padding: 0 0 12px 0; border-bottom: 1px solid var(--border-color);">
+              <div>
+                <div class="card-title" style="font-size: 15px;">📖 Step-by-Step Flashing Guide</div>
+                <div class="card-subtitle">How to update your Preonic keyboard firmware in under 30 seconds</div>
+              </div>
+            </div>
+            <div class="fw-step-list" style="margin-top: 14px;">
+              <div class="fw-step">
+                <div class="fw-step-num">1</div>
+                <div>
+                  <strong>Download Firmware</strong>: Click the <code style="color: #60a5fa;">keyboardio_preonic__zmk.uf2</code> download button above to save the latest build to your computer.
+                </div>
+              </div>
+              <div class="fw-step">
+                <div class="fw-step-num">2</div>
+                <div>
+                  <strong>Enter Bootloader</strong>: Click <code style="color: #fbbf24;">Reboot Keyboard to Bootloader</code> above, or double-tap the physical reset button (or press <code style="color: #fbbf24;">Fn + LCtrl</code>).
+                </div>
+              </div>
+              <div class="fw-step">
+                <div class="fw-step-num">3</div>
+                <div>
+                  <strong>Locate USB Drive</strong>: A removable USB mass storage drive named <strong>PREONIC</strong> (or NICENANO) will appear in File Explorer / Finder.
+                </div>
+              </div>
+              <div class="fw-step">
+                <div class="fw-step-num">4</div>
+                <div>
+                  <strong>Drag & Drop UF2</strong>: Drag the downloaded <code style="color: #60a5fa;">.uf2</code> file into the <strong>PREONIC</strong> drive.
+                </div>
+              </div>
+              <div class="fw-step">
+                <div class="fw-step-num">5</div>
+                <div>
+                  <strong>Complete & Reboot</strong>: The drive will automatically unmount itself within 2 seconds, and the keyboard will reboot with the new firmware!
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5: Recent Commits & Changelog -->
+          <div class="card" style="grid-column: 1 / -1; border-radius: var(--radius-lg);">
+            <div class="card-header" style="padding: 0 0 12px 0; border-bottom: 1px solid var(--border-color);">
+              <div>
+                <div class="card-title" style="font-size: 15px;">📜 Recent GitHub Commits (Changelog)</div>
+                <div class="card-subtitle">Live commit activity from the master branch</div>
+              </div>
+              <span id="commitsCountBadge" class="pill-badge" style="font-size: 11px;">6 Commits</span>
+            </div>
+            <div id="fwCommitList" style="margin-top: 8px;">
+              <div style="padding: 16px; text-align: center; color: var(--text-muted);">
+                ⏳ Loading commit history from GitHub...
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6: Advanced Repository Settings -->
+          <div class="card" style="grid-column: 1 / -1; border-radius: var(--radius-lg); background: rgba(22, 24, 29, 0.6);">
+            <div class="card-header" style="padding: 0 0 10px 0;">
+              <div>
+                <div class="card-title" style="font-size: 14px;">⚙️ GitHub Repository Settings</div>
+                <div class="card-subtitle">Configure repository path or personal access token if using a private fork</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap;">
+              <div style="flex: 2; min-width: 260px;">
+                <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Repository (owner/repo)</label>
+                <input type="text" id="inputGhRepo" class="form-control" value="samake-2T2/keyboardio-preonic-zmk-config">
+              </div>
+              <div style="display: flex; align-items: flex-end; gap: 8px;">
+                <button id="btnSaveGhSettings" class="btn btn-primary" style="height: 38px;">Save Settings</button>
+                <button id="btnResetGhSettings" class="btn btn-secondary" style="height: 38px;">Reset Default</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- KEYCODE PICKER MODAL -->
@@ -1906,6 +2291,7 @@
     const CMD_GET_LOCK_STATUS = 0x03;
     const CMD_LOCK            = 0x04;
     const CMD_GET_STATUS      = 0x05;
+    const CMD_BOOTLOADER      = 0x06;
     const CMD_GET_KEY         = 0x10;
     const CMD_SET_KEY         = 0x11;
     const CMD_SAVE_KEYMAP     = 0x12;
@@ -2422,6 +2808,13 @@
           freqHz: 3000,
           durMs: 5
         };
+        this.firmwareVersion = null;
+        this.deviceName = "Preonic";
+        this.githubRepo = localStorage.getItem("preonic_gh_repo") || "samake-2T2/keyboardio-preonic-zmk-config";
+        this.githubLatestRelease = null;
+        this.githubCommits = [];
+        this.githubStatus = "checking";
+        this.githubCachedAt = 0;
       }
     }
 
@@ -2791,12 +3184,20 @@
               break;
             case CMD_HANDSHAKE: {
               const resp = new Uint8Array(23);
-              resp[0] = 1; resp[1] = 9; resp[2] = 0; // v1.9.0
+              resp[0] = 2; resp[1] = 0; resp[2] = 0; // v2.0.0
               resp[3] = state.locked ? 1 : 0;
-              resp[4] = 5; resp[5] = 5; resp[6] = 12;
+              resp[4] = 8; resp[5] = 5; resp[6] = 12;
               const name = new TextEncoder().encode("Preonic");
               resp.set(name, 7);
               resolve({ cmd, data: resp });
+              break;
+            }
+            case CMD_BOOTLOADER: {
+              if (state.locked) {
+                resolve({ cmd, data: new Uint8Array([STATUS_ERR_LOCKED]) });
+              } else {
+                resolve({ cmd, data: new Uint8Array([STATUS_OK]) });
+              }
               break;
             }
             case CMD_GET_LOCK_STATUS: {
@@ -3415,8 +3816,16 @@
         // Perform Handshake
         const resp = await serialDriver.sendCommand(CMD_HANDSHAKE, new Uint8Array([1, 0]));
         if (resp && resp.data.length >= 7) {
+          state.firmwareVersion = `${resp.data[0]}.${resp.data[1]}.${resp.data[2]}`;
           state.locked = (resp.data[3] !== 0);
+          state.layersCount = resp.data[4];
+          let devName = "";
+          if (resp.data.length >= 23) {
+            devName = new TextDecoder().decode(resp.data.slice(7, 23)).replace(/\0/g, "").trim();
+          }
+          state.deviceName = devName || "Preonic";
           updateSecurityUI();
+          updateFirmwareUI();
         }
 
         // Fetch Lock Status & Status
@@ -3435,11 +3844,13 @@
       await serialDriver.disconnect();
       state.connected = false;
       state.locked = true;
+      state.firmwareVersion = null;
       state.keymaps = createEmptyKeymap();
       state.selectedKeyIndex = null;
       renderAllKeycaps();
       updateConnectionUI();
       updateSecurityUI();
+      updateFirmwareUI();
       const banner = document.getElementById("keymapSyncStatus");
       if (banner) {
         banner.className = "keymap-sync-banner";
@@ -3550,6 +3961,7 @@
         if (state.connected) return;
         state.demoMode = !state.demoMode;
         if (state.demoMode) {
+          state.firmwareVersion = "2.0.0";
           state.keymaps = generateDefaultKeymap();
           renderAllKeycaps();
           const banner = document.getElementById("keymapSyncStatus");
@@ -3557,6 +3969,7 @@
           showToast("Simulation Demo Mode activated! Test all tabs offline.", "info");
           document.getElementById("demoUnlockSection").style.display = "block";
         } else {
+          state.firmwareVersion = null;
           state.keymaps = createEmptyKeymap();
           state.selectedKeyIndex = null;
           renderAllKeycaps();
@@ -3570,6 +3983,7 @@
           document.getElementById("demoUnlockSection").style.display = "none";
         }
         updateConnectionUI();
+        updateFirmwareUI();
       });
 
       // Lock / Unlock button in header
@@ -4096,6 +4510,380 @@
           showToast("Key matrix tester reset.", "info");
         });
       }
+
+      // GitHub Header Badge Click -> Navigate to Firmware tab
+      const githubBadge = document.getElementById("githubBadge");
+      if (githubBadge) {
+        githubBadge.addEventListener("click", () => {
+          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+          const fwTabBtn = document.querySelector('.tab-btn[data-tab="tab-firmware"]');
+          if (fwTabBtn) fwTabBtn.classList.add("active");
+          const fwPanel = document.getElementById("tab-firmware");
+          if (fwPanel) fwPanel.classList.add("active");
+        });
+      }
+
+      // Check Updates button in Tab 8
+      const btnCheckUpdates = document.getElementById("btnCheckUpdates");
+      if (btnCheckUpdates) {
+        btnCheckUpdates.addEventListener("click", () => {
+          checkGitHubUpdates(true);
+        });
+      }
+
+      // Reboot to Bootloader button
+      const btnRebootBootloader = document.getElementById("btnRebootBootloader");
+      if (btnRebootBootloader) {
+        btnRebootBootloader.addEventListener("click", () => {
+          doRebootBootloader();
+        });
+      }
+
+      // Save custom repository settings
+      const btnSaveGhSettings = document.getElementById("btnSaveGhSettings");
+      if (btnSaveGhSettings) {
+        btnSaveGhSettings.addEventListener("click", () => {
+          const input = document.getElementById("inputGhRepo");
+          if (input && input.value.trim()) {
+            state.githubRepo = input.value.trim();
+            localStorage.setItem("preonic_gh_repo", state.githubRepo);
+            showToast(`GitHub repository set to: ${state.githubRepo}`, "success");
+            checkGitHubUpdates(true);
+          }
+        });
+      }
+
+      // Reset custom repository settings
+      const btnResetGhSettings = document.getElementById("btnResetGhSettings");
+      if (btnResetGhSettings) {
+        btnResetGhSettings.addEventListener("click", () => {
+          state.githubRepo = "samake-2T2/keyboardio-preonic-zmk-config";
+          localStorage.removeItem("preonic_gh_repo");
+          const input = document.getElementById("inputGhRepo");
+          if (input) input.value = state.githubRepo;
+          showToast("GitHub repository reset to default.", "info");
+          checkGitHubUpdates(true);
+        });
+      }
+    }
+
+    // Helper functions for HTML escaping and semantic version comparison
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function parseSemVer(v) {
+      if (!v) return [0, 0, 0];
+      const clean = String(v).replace(/^v/i, "").split("-")[0];
+      const parts = clean.split(".").map(n => parseInt(n, 10) || 0);
+      while (parts.length < 3) parts.push(0);
+      return parts;
+    }
+
+    function compareSemVer(v1, v2) {
+      const p1 = parseSemVer(v1);
+      const p2 = parseSemVer(v2);
+      for (let i = 0; i < 3; i++) {
+        if (p1[i] > p2[i]) return 1;
+        if (p1[i] < p2[i]) return -1;
+      }
+      return 0;
+    }
+
+    function formatRelativeTime(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      const now = new Date();
+      const diffSec = Math.floor((now - d) / 1000);
+      if (diffSec < 60) return "Just now";
+      if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+      if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+      if (diffSec < 2592000) return `${Math.floor(diffSec / 86400)}d ago`;
+      return d.toLocaleDateString();
+    }
+
+    // GitHub API Integration
+    async function checkGitHubUpdates(force = false) {
+      const repo = state.githubRepo || "samake-2T2/keyboardio-preonic-zmk-config";
+      const now = Date.now();
+      if (!force && state.githubCachedAt && (now - state.githubCachedAt < 120000)) {
+        updateFirmwareUI();
+        return;
+      }
+
+      state.githubStatus = "checking";
+      updateFirmwareUI();
+
+      try {
+        // 1. Fetch latest release
+        let relData = null;
+        try {
+          const relRes = await fetch(`https://api.github.com/repos/${repo}/releases/latest`, {
+            headers: { "Accept": "application/vnd.github.v3+json" }
+          });
+          if (relRes.ok) {
+            relData = await relRes.json();
+          }
+        } catch (e) {
+          console.warn("Releases fetch error:", e);
+        }
+
+        // Fallback to tags if releases 404 or empty
+        if (!relData || !relData.tag_name) {
+          try {
+            const tagsRes = await fetch(`https://api.github.com/repos/${repo}/tags?per_page=1`, {
+              headers: { "Accept": "application/vnd.github.v3+json" }
+            });
+            if (tagsRes.ok) {
+              const tags = await tagsRes.json();
+              if (tags && tags.length > 0) {
+                relData = {
+                  tag_name: tags[0].name,
+                  name: tags[0].name,
+                  published_at: null,
+                  html_url: `https://github.com/${repo}/releases/tag/${tags[0].name}`,
+                  assets: []
+                };
+              }
+            }
+          } catch (e) {
+            console.warn("Tags fetch error:", e);
+          }
+        }
+        state.githubLatestRelease = relData;
+
+        // 2. Fetch latest commits
+        try {
+          const commRes = await fetch(`https://api.github.com/repos/${repo}/commits?per_page=6`, {
+            headers: { "Accept": "application/vnd.github.v3+json" }
+          });
+          if (commRes.ok) {
+            state.githubCommits = await commRes.json();
+          }
+        } catch (e) {
+          console.warn("Commits fetch error:", e);
+        }
+
+        state.githubCachedAt = Date.now();
+        state.githubStatus = "loaded";
+        showToast("GitHub updates checked.", "info");
+      } catch (err) {
+        console.warn("GitHub API error:", err);
+        state.githubStatus = "error";
+      }
+
+      updateFirmwareUI();
+    }
+
+    function updateFirmwareUI() {
+      const badge = document.getElementById("githubBadge");
+      const badgeText = document.getElementById("githubBadgeText");
+      const fwHeroBadge = document.getElementById("fwHeroBadge");
+      const fwInstalledVer = document.getElementById("fwInstalledVer");
+      const fwInstalledSub = document.getElementById("fwInstalledSub");
+      const fwLatestVer = document.getElementById("fwLatestVer");
+      const fwLatestDate = document.getElementById("fwLatestDate");
+      const fwStatusBanner = document.getElementById("fwStatusBanner");
+      const fwStatusText = document.getElementById("fwStatusText");
+      const fwCommitList = document.getElementById("fwCommitList");
+      const commitsCountBadge = document.getElementById("commitsCountBadge");
+      const btnDlFirmware = document.getElementById("btnDlFirmware");
+      const btnDlReset = document.getElementById("btnDlReset");
+      const fwDlMetaMain = document.getElementById("fwDlMetaMain");
+      const fwDlMetaReset = document.getElementById("fwDlMetaReset");
+      const linkReleasePage = document.getElementById("linkReleasePage");
+      const linkRepo = document.getElementById("linkRepo");
+      const inputGhRepo = document.getElementById("inputGhRepo");
+
+      const repo = state.githubRepo || "samake-2T2/keyboardio-preonic-zmk-config";
+      if (linkRepo) linkRepo.href = `https://github.com/${repo}`;
+      if (linkReleasePage) linkReleasePage.href = `https://github.com/${repo}/releases`;
+      if (inputGhRepo && document.activeElement !== inputGhRepo) inputGhRepo.value = repo;
+
+      // Installed version
+      if (state.connected || state.demoMode) {
+        const instVer = state.firmwareVersion || "2.0.0";
+        if (fwInstalledVer) fwInstalledVer.textContent = `v${instVer}`;
+        if (fwInstalledSub) fwInstalledSub.textContent = state.demoMode ? "Preonic (Demo Mode)" : `${state.deviceName} (Connected)`;
+      } else {
+        if (fwInstalledVer) fwInstalledVer.textContent = "Not Connected";
+        if (fwInstalledSub) fwInstalledSub.textContent = "Connect USB to detect";
+      }
+
+      // Latest GitHub version
+      const latestTag = state.githubLatestRelease ? state.githubLatestRelease.tag_name : null;
+      if (fwLatestVer) fwLatestVer.textContent = latestTag || (state.githubStatus === "checking" ? "Checking..." : "v2.0.0");
+      if (fwLatestDate) {
+        if (state.githubLatestRelease && state.githubLatestRelease.published_at) {
+          const d = new Date(state.githubLatestRelease.published_at);
+          fwLatestDate.textContent = `Released ${d.toLocaleDateString()}`;
+        } else if (state.githubStatus === "error") {
+          fwLatestDate.textContent = "GitHub rate limited / Offline";
+        } else {
+          fwLatestDate.textContent = "Latest available build";
+        }
+      }
+
+      // Version comparison & Status Banner
+      let isUpdateAvail = false;
+      let isUpToDate = false;
+      if (latestTag && (state.connected || state.demoMode)) {
+        const cmp = compareSemVer(state.firmwareVersion || "2.0.0", latestTag);
+        if (cmp < 0) {
+          isUpdateAvail = true;
+        } else {
+          isUpToDate = true;
+        }
+      }
+
+      if (badge && badgeText) {
+        badge.classList.remove("badge-update-avail", "badge-up-to-date");
+        if (state.githubStatus === "checking") {
+          badgeText.textContent = "GitHub: Checking...";
+        } else if (isUpdateAvail) {
+          badge.classList.add("badge-update-avail");
+          badgeText.textContent = `Update: ${latestTag} ⚡`;
+        } else if (isUpToDate) {
+          badge.classList.add("badge-up-to-date");
+          badgeText.textContent = `GitHub: ${latestTag || "v2.0.0"} ✓`;
+        } else if (latestTag) {
+          badgeText.textContent = `GitHub: ${latestTag}`;
+        } else {
+          badgeText.textContent = "GitHub: v2.0.0";
+        }
+      }
+
+      if (fwHeroBadge) {
+        if (isUpdateAvail) {
+          fwHeroBadge.className = "pill-badge badge-update-avail";
+          fwHeroBadge.textContent = "⚡ Update Available";
+        } else if (isUpToDate) {
+          fwHeroBadge.className = "pill-badge badge-up-to-date";
+          fwHeroBadge.textContent = "✓ Up to Date";
+        } else {
+          fwHeroBadge.className = "pill-badge badge-github";
+          fwHeroBadge.textContent = "🐙 GitHub Connected";
+        }
+      }
+
+      if (fwStatusBanner && fwStatusText) {
+        fwStatusBanner.className = "fw-status-banner";
+        if (isUpdateAvail) {
+          fwStatusBanner.classList.add("update-avail");
+          fwStatusText.innerHTML = `⚡ <strong>New Firmware Available (${latestTag})</strong> — Download the UF2 file below and flash in bootloader mode!`;
+        } else if (isUpToDate) {
+          fwStatusBanner.classList.add("up-to-date");
+          fwStatusText.innerHTML = `✅ <strong>Up to Date</strong> — Your Preonic keyboard is running the latest firmware (${latestTag || "v2.0.0"}).`;
+        } else if (state.githubStatus === "checking") {
+          fwStatusBanner.classList.add("checking");
+          fwStatusText.innerHTML = `⏳ Checking GitHub repository (${repo}) for latest releases and commits...`;
+        } else if (state.githubStatus === "error") {
+          fwStatusBanner.classList.add("checking");
+          fwStatusText.innerHTML = `ℹ️ Unable to reach GitHub API directly. You can still download builds from <a href="https://github.com/${repo}/releases" target="_blank" style="color:#60a5fa; text-decoration:underline;">GitHub Releases</a>.`;
+        } else {
+          fwStatusBanner.classList.add("checking");
+          fwStatusText.innerHTML = `🔌 Connect keyboard via USB to compare installed firmware version with GitHub release.`;
+        }
+      }
+
+      // Update download links
+      let mainUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.0"}/keyboardio_preonic__zmk.uf2`;
+      let resetUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.0"}/settings_reset-keyboardio_preonic__zmk.uf2`;
+
+      if (state.githubLatestRelease && Array.isArray(state.githubLatestRelease.assets)) {
+        const fwAsset = state.githubLatestRelease.assets.find(a => a.name.includes("preonic") && a.name.endsWith(".uf2") && !a.name.includes("reset"));
+        if (fwAsset && fwAsset.browser_download_url) {
+          mainUf2Url = fwAsset.browser_download_url;
+          if (fwDlMetaMain) {
+            const kb = Math.round(fwAsset.size / 1024);
+            fwDlMetaMain.textContent = `Main Custom Firmware (${kb} KB) • ${fwAsset.download_count || 0} downloads`;
+          }
+        }
+        const resetAsset = state.githubLatestRelease.assets.find(a => a.name.includes("reset") && a.name.endsWith(".uf2"));
+        if (resetAsset && resetAsset.browser_download_url) {
+          resetUf2Url = resetAsset.browser_download_url;
+          if (fwDlMetaReset) {
+            const kb = Math.round(resetAsset.size / 1024);
+            fwDlMetaReset.textContent = `Settings Reset Firmware (${kb} KB)`;
+          }
+        }
+      }
+
+      if (btnDlFirmware) btnDlFirmware.href = mainUf2Url;
+      if (btnDlReset) btnDlReset.href = resetUf2Url;
+
+      // Render Commits
+      if (fwCommitList) {
+        if (state.githubCommits && state.githubCommits.length > 0) {
+          if (commitsCountBadge) commitsCountBadge.textContent = `${state.githubCommits.length} Commits`;
+          fwCommitList.innerHTML = state.githubCommits.map(c => {
+            const fullMsg = c.commit?.message || "No commit message";
+            const firstLine = fullMsg.split("\n")[0];
+            const sha = (c.sha || "").substring(0, 7);
+            const author = c.commit?.author?.name || c.author?.login || "committer";
+            const relTime = formatRelativeTime(c.commit?.author?.date);
+            const htmlUrl = c.html_url || `https://github.com/${repo}/commit/${c.sha}`;
+            return `
+              <div class="fw-commit-item">
+                <div class="fw-commit-header">
+                  <span class="fw-commit-title">${escapeHtml(firstLine)}</span>
+                  <a href="${htmlUrl}" target="_blank" rel="noopener" class="fw-commit-sha">${sha} ↗</a>
+                </div>
+                <div class="fw-commit-meta">
+                  <span>👤 ${escapeHtml(author)}</span>
+                  <span>•</span>
+                  <span>🕒 ${relTime}</span>
+                </div>
+              </div>
+            `;
+          }).join("");
+        } else if (state.githubStatus === "checking") {
+          fwCommitList.innerHTML = `<div style="padding: 16px; text-align: center; color: var(--text-muted);">⏳ Loading commit history...</div>`;
+        } else {
+          fwCommitList.innerHTML = `<div style="padding: 16px; text-align: center; color: var(--text-muted);">No commits found or offline.</div>`;
+        }
+      }
+    }
+
+    // Reboot to DFU Bootloader
+    async function doRebootBootloader() {
+      if (!state.connected && !state.demoMode) {
+        showToast("Please connect your Preonic keyboard via USB first.", "warning");
+        return;
+      }
+      if (state.locked) {
+        showToast("Keyboard is locked. Press Fn + Z on the keyboard to unlock first.", "warning");
+        return;
+      }
+
+      const confirmed = confirm(
+        "⚡ Are you sure you want to reboot Preonic into Bootloader Mode?\n\n" +
+        "• The keyboard will disconnect and appear as a USB drive ('PREONIC') on your computer.\n" +
+        "• Drag & drop the downloaded .uf2 file onto the PREONIC drive to flash."
+      );
+      if (!confirmed) return;
+
+      try {
+        if (state.demoMode) {
+          showToast("[Demo Mode] Simulated reboot to bootloader completed.", "success");
+          return;
+        }
+        showToast("Sending bootloader reboot command...", "info");
+        await serialDriver.sendCommand(CMD_BOOTLOADER, new Uint8Array(0));
+        await doDisconnect();
+        showToast("Keyboard rebooted into Bootloader mode! Drag & drop UF2 file to flash.", "success");
+      } catch (err) {
+        console.log("Bootloader reboot triggered, serial connection closed:", err);
+        await doDisconnect();
+        showToast("Keyboard rebooted into Bootloader mode! Drag & drop UF2 file to flash.", "success");
+      }
     }
 
     // Initialize application on DOM ready
@@ -4106,6 +4894,7 @@
       refreshPasswordPreview();
       updateConnectionUI();
       updateSecurityUI();
+      checkGitHubUpdates();
       console.log("Preonic Studio Web GUI initialized successfully.");
     });
   </script>

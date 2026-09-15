@@ -8,6 +8,7 @@ CMD_HANDSHAKE = 0x02
 CMD_GET_LOCK_STATUS = 0x03
 CMD_LOCK = 0x04
 CMD_GET_STATUS = 0x05
+CMD_BOOTLOADER = 0x06
 CMD_GET_KEY = 0x10
 CMD_SET_KEY = 0x11
 CMD_SAVE_KEYMAP = 0x12
@@ -352,6 +353,7 @@ class PreonicStudioDispatcher:
         self.mouse_cfg = {"mmv_time": 500, "mmv_exp": 1, "msc_time": 300, "msc_exp": 1, "msc_step": 10}
         self.audio_cfg = {"master": 0, "clicky": 1, "freq": 3000, "dur": 5}
         self.auto_lock_remaining = 300
+        self.bootloader_triggered = False
         self.outbox = []
 
         self.state = "WAIT_SOF"
@@ -432,7 +434,7 @@ class PreonicStudioDispatcher:
             self.auto_lock_remaining = 300
 
         mutating_or_private = (
-            cmd in [CMD_SET_KEY, CMD_SAVE_KEYMAP, CMD_DISCARD_KEYMAP,
+            cmd in [CMD_BOOTLOADER, CMD_SET_KEY, CMD_SAVE_KEYMAP, CMD_DISCARD_KEYMAP,
                     CMD_SET_KNOB, CMD_GET_MACRO, CMD_SET_MACRO, CMD_PLAY_MACRO,
                     CMD_SET_PW_CONFIG, CMD_SET_MOUSE_CFG, CMD_SET_AUDIO_CFG, CMD_TEST_PIEZO]
         )
@@ -457,6 +459,9 @@ class PreonicStudioDispatcher:
             mv = 3300 + 82 * 9
             resp = bytes([mv & 0xFF, (mv >> 8) & 0xFF, 82, 0, 1, self.audio_cfg["master"], self.audio_cfg["clicky"]])
             self.send_packet(CMD_GET_STATUS, seq, resp)
+        elif cmd == CMD_BOOTLOADER:
+            self.bootloader_triggered = True
+            self.send_packet(CMD_BOOTLOADER, seq, bytes([ERR_OK]))
         elif cmd == CMD_GET_KEY:
             if len(data) < 2:
                 self.send_packet(cmd, seq, bytes([ERR_INVALID]))
@@ -744,6 +749,24 @@ class TestPreonicStudioDispatcher(unittest.TestCase):
         self.assertEqual(resp["cmd"], CMD_GET_KEY)
         self.assertEqual(resp["data"][2], 0x12) # PREONIC_BEH_MSC
         self.assertEqual(int.from_bytes(resp["data"][3:7], "little"), 10)
+
+    def test_bootloader_command(self):
+        # When locked, CMD_BOOTLOADER must fail with ERR_LOCKED
+        self.disp.lock()
+        self.disp.bootloader_triggered = False
+        self.disp.process_bytes(encode_packet(CMD_BOOTLOADER, 80, b""))
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(resp["cmd"], CMD_BOOTLOADER)
+        self.assertEqual(resp["data"], bytes([ERR_LOCKED]))
+        self.assertFalse(self.disp.bootloader_triggered)
+
+        # When unlocked, CMD_BOOTLOADER must succeed and trigger bootloader
+        self.disp.unlock()
+        self.disp.process_bytes(encode_packet(CMD_BOOTLOADER, 81, b""))
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(resp["cmd"], CMD_BOOTLOADER)
+        self.assertEqual(resp["data"], bytes([ERR_OK]))
+        self.assertTrue(self.disp.bootloader_triggered)
 
 if __name__ == "__main__":
     unittest.main()

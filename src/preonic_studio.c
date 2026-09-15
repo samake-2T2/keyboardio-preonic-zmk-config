@@ -9,6 +9,10 @@
 #include <zephyr/drivers/uart.h>
 #include <zephyr/sys/ring_buffer.h>
 #include <zephyr/sys/util.h>
+#include <zephyr/sys/reboot.h>
+#if IS_ENABLED(CONFIG_RETENTION_BOOT_MODE)
+#include <zephyr/retention/bootmode.h>
+#endif
 #include <zephyr/logging/log.h>
 #include <zephyr/settings/settings.h>
 #include <string.h>
@@ -524,6 +528,24 @@ static void preonic_studio_dispatch_command(uint8_t cmd, uint8_t seq, const uint
         resp[5] = preonic_sound_is_master_enabled() ? 1 : 0;
         resp[6] = preonic_sound_is_clicky_enabled() ? 1 : 0;
         send_packet(CMD_GET_STATUS, seq, resp, 7);
+        break;
+    }
+
+    case CMD_BOOTLOADER: {
+        if (studio_locked) {
+            uint8_t err = STATUS_ERR_LOCKED;
+            send_packet(CMD_BOOTLOADER, seq, &err, 1);
+            break;
+        }
+        uint8_t status = STATUS_OK;
+        send_packet(CMD_BOOTLOADER, seq, &status, 1);
+        k_msleep(100);
+#if IS_ENABLED(CONFIG_RETENTION_BOOT_MODE)
+        bootmode_set(BOOT_MODE_TYPE_BOOTLOADER);
+        sys_reboot(SYS_REBOOT_WARM);
+#else
+        sys_reboot(0x57);
+#endif
         break;
     }
 
