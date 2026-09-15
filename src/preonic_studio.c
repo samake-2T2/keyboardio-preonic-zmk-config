@@ -13,6 +13,8 @@
 #if IS_ENABLED(CONFIG_RETENTION_BOOT_MODE)
 #include <zephyr/retention/bootmode.h>
 #endif
+#include <zephyr/input/input.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/settings/settings.h>
 #include <string.h>
@@ -51,7 +53,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define NUM_COLS 12
 #define FW_VERSION_MAJOR 2
 #define FW_VERSION_MINOR 0
-#define FW_VERSION_PATCH 4
+#define FW_VERSION_PATCH 5
 #define DEVICE_NAME "Preonic"
 
 #if DT_HAS_CHOSEN(zmk_studio_rpc_uart)
@@ -415,6 +417,61 @@ static void dispatch_knob_action(uint8_t layer, bool is_cw) {
     if (layer >= NUM_LAYERS) layer = 0;
     uint8_t beh = is_cw ? knob_configs[layer].cw_beh : knob_configs[layer].ccw_beh;
     uint32_t param = is_cw ? knob_configs[layer].cw_param : knob_configs[layer].ccw_param;
+
+#if DT_NODE_EXISTS(DT_NODELABEL(msc))
+    if (beh == PREONIC_BEH_MSC) {
+        const struct device *msc_dev = DEVICE_DT_GET(DT_NODELABEL(msc));
+        if (msc_dev && device_is_ready(msc_dev)) {
+            int16_t x = 0;
+            int16_t y = 0;
+            if ((param & 0xFFFF0000) == 0xFFFF0000) {
+                // 32-bit sign extension (e.g. 0xFFFFFFF6 -> -10)
+                y = (int16_t)(param & 0xFFFF);
+            } else {
+                y = (int16_t)(param & 0xFFFF);
+                x = (int16_t)((param >> 16) & 0xFFFF);
+            }
+
+            int16_t scroll_y = (y > 0) ? 1 : ((y < 0) ? -1 : 0);
+            int16_t scroll_x = (x > 0) ? 1 : ((x < 0) ? -1 : 0);
+
+            if (scroll_x != 0) {
+                input_report_rel(msc_dev, INPUT_REL_HWHEEL, scroll_x, scroll_y == 0, K_NO_WAIT);
+            }
+            if (scroll_y != 0) {
+                input_report_rel(msc_dev, INPUT_REL_WHEEL, scroll_y, true, K_NO_WAIT);
+            }
+            return;
+        }
+    }
+#endif
+
+#if DT_NODE_EXISTS(DT_NODELABEL(mmv))
+    if (beh == PREONIC_BEH_MMV) {
+        const struct device *mmv_dev = DEVICE_DT_GET(DT_NODELABEL(mmv));
+        if (mmv_dev && device_is_ready(mmv_dev)) {
+            int16_t x = 0;
+            int16_t y = 0;
+            if ((param & 0xFFFF0000) == 0xFFFF0000) {
+                y = (int16_t)(param & 0xFFFF);
+            } else {
+                y = (int16_t)(param & 0xFFFF);
+                x = (int16_t)((param >> 16) & 0xFFFF);
+            }
+
+            int16_t move_y = (y > 0) ? 15 : ((y < 0) ? -15 : 0);
+            int16_t move_x = (x > 0) ? 15 : ((x < 0) ? -15 : 0);
+
+            if (move_x != 0) {
+                input_report_rel(mmv_dev, INPUT_REL_X, move_x, move_y == 0, K_NO_WAIT);
+            }
+            if (move_y != 0) {
+                input_report_rel(mmv_dev, INPUT_REL_Y, move_y, true, K_NO_WAIT);
+            }
+            return;
+        }
+    }
+#endif
 
     const char *dev_name = behavior_type_to_dev(beh);
     if (!dev_name) {

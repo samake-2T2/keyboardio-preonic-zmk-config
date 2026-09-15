@@ -1448,7 +1448,7 @@
         </svg>
       </div>
       <div class="brand-titles">
-        <h1>Preonic Studio <span class="badge-ver">v2.0.4</span></h1>
+        <h1>Preonic Studio <span class="badge-ver">v2.0.5</span></h1>
       </div>
     </div>
 
@@ -1745,6 +1745,25 @@
               <div style="margin-top: 10px;">
                 <button id="btnJumpToPwGen" class="btn btn-secondary" style="font-size: 11px; padding: 4px 12px; background: #78350f; border-color: #f59e0b;">
                   🔑 Open Password Generator Tab
+                </button>
+              </div>
+            </div>
+
+            <!-- Layer Modifier Guidance Notice for Layers 1, 2, 5, 6, 7 -->
+            <div id="knobLayerHintBox" style="display: none; background: rgba(30, 58, 138, 0.35); border: 1px solid rgba(59, 130, 246, 0.45); border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+              <div style="font-weight: 700; color: #93c5fd; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                <span id="knobLayerHintTitle">💡 레이어 전용 노브 설정 안내 (Layer-Specific Knob Action)</span>
+                <span class="pill-badge" style="background: rgba(59, 130, 246, 0.2); color: #bfdbfe; border: 1px solid rgba(59, 130, 246, 0.4); font-size: 10px;">Layer Action</span>
+              </div>
+              <div id="knobLayerHintDesc" style="font-size: 12px; color: #dbeafe; margin-top: 6px; line-height: 1.5;">
+                현재 설정 중인 노브 액션은 해당 레이어가 활성화된 상태(예: 키보드에서 <strong>Raise</strong> 또는 <strong>Lower</strong> 키를 누른 상태)에서 노브를 돌릴 때만 실행됩니다.
+              </div>
+              <div style="margin-top: 8px; font-size: 11px; color: #bfdbfe;">
+                ⚡ <em>평상시 기본 타이핑 상태(키를 누르지 않은 상태)에서 노브를 돌려 마우스 스크롤이나 볼륨 조절을 사용하시려면 <strong>[0: Base] 레이어</strong>를 선택하여 설정해주세요.</em>
+              </div>
+              <div style="margin-top: 10px;">
+                <button id="btnSwitchToBaseLayer" class="btn btn-secondary" style="font-size: 11px; padding: 4px 12px; background: #1e3a8a; border-color: #3b82f6; color: #fff;">
+                  🏠 0: Base 레이어로 전환 (Set on Base Layer)
                 </button>
               </div>
             </div>
@@ -2215,7 +2234,7 @@
               </div>
             </div>
             <div style="margin-top: 14px;">
-              <a id="btnDlFirmware" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.4/keyboardio_preonic__zmk.uf2" download="keyboardio_preonic__zmk.uf2" class="fw-dl-btn fw-dl-primary">
+              <a id="btnDlFirmware" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.5/keyboardio_preonic__zmk.uf2" download="keyboardio_preonic__zmk.uf2" class="fw-dl-btn fw-dl-primary">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <span style="font-size: 20px;">📦</span>
                   <div style="text-align: left;">
@@ -2226,7 +2245,7 @@
                 <span class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;">Download 📥</span>
               </a>
 
-              <a id="btnDlReset" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.4/settings_reset-keyboardio_preonic__zmk.uf2" download="settings_reset-keyboardio_preonic__zmk.uf2" class="fw-dl-btn">
+              <a id="btnDlReset" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.5/settings_reset-keyboardio_preonic__zmk.uf2" download="settings_reset-keyboardio_preonic__zmk.uf2" class="fw-dl-btn">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <span style="font-size: 20px;">🧹</span>
                   <div style="text-align: left;">
@@ -3417,7 +3436,7 @@
               break;
             case CMD_HANDSHAKE: {
               const resp = new Uint8Array(23);
-              resp[0] = 2; resp[1] = 0; resp[2] = 3; // v2.0.4
+              resp[0] = 2; resp[1] = 0; resp[2] = 5; // v2.0.5
               resp[3] = state.locked ? 1 : 0;
               resp[4] = 8; resp[5] = 5; resp[6] = 12;
               const name = new TextEncoder().encode("Preonic");
@@ -4168,10 +4187,10 @@
     const KNOB_ACTIONS = [
       { id: "vol_up", name: "Volume Up (C_VOLUME_UP)", beh: 0x01, param: zmkKey(HID_USAGE_CONSUMER, 0xE9) },
       { id: "vol_dn", name: "Volume Down (C_VOLUME_DOWN)", beh: 0x01, param: zmkKey(HID_USAGE_CONSUMER, 0xEA) },
-      { id: "scrl_up", name: "Mouse Scroll Up (↑)", beh: 0x12, param: 10 },
-      { id: "scrl_dn", name: "Mouse Scroll Down (↓)", beh: 0x12, param: 0xFFFFFFF6 },
-      { id: "scrl_right", name: "Mouse Scroll Right (→)", beh: 0x12, param: 10 },
-      { id: "scrl_left", name: "Mouse Scroll Left (←)", beh: 0x12, param: 0xFFFFFFF6 },
+      { id: "scrl_up", name: "Mouse Scroll Up (↑)", beh: 0x12, param: 0x0000000A },
+      { id: "scrl_dn", name: "Mouse Scroll Down (↓)", beh: 0x12, param: 0x0000FFF6 },
+      { id: "scrl_right", name: "Mouse Scroll Right (→)", beh: 0x12, param: 0x000A0000 },
+      { id: "scrl_left", name: "Mouse Scroll Left (←)", beh: 0x12, param: 0xFFF60000 },
       { id: "pg_up", name: "Page Up", beh: 0x01, param: zmkKey(HID_USAGE_KEY, 0x4B) },
       { id: "pg_dn", name: "Page Down", beh: 0x01, param: zmkKey(HID_USAGE_KEY, 0x4E) },
       { id: "arrow_up", name: "Arrow Up (↑)", beh: 0x01, param: zmkKey(HID_USAGE_KEY, 0x52) },
@@ -4195,6 +4214,11 @@
       const match = KNOB_ACTIONS.find(a => {
         if (a.beh !== beh) return false;
         if (a.param === param) return true;
+        // Backward-compatibility: 32-bit sign extension matching
+        if (a.id === "scrl_dn" && (param === 0xFFFFFFF6 || param === 0x0000FFF6)) return true;
+        if (a.id === "scrl_up" && (param === 0x0000000A || param === 10)) return true;
+        if (a.id === "scrl_right" && (param === 0x000A0000 || param === 10)) return true;
+        if (a.id === "scrl_left" && (param === 0xFFF60000 || param === 0xFFFFFFF6)) return true;
         const aId = a.param & 0xFFFF;
         const pId = param & 0xFFFF;
         return aId === pId;
@@ -4216,11 +4240,18 @@
       const ppdSlider = document.getElementById("knobPpdSlider");
       const ppdValue = document.getElementById("knobPpdValue");
       const noticeBox = document.getElementById("knobHwNoticeBox");
+      const hintBox = document.getElementById("knobLayerHintBox");
+      const hintTitle = document.getElementById("knobLayerHintTitle");
+      const hintDesc = document.getElementById("knobLayerHintDesc");
       const visualTitle = document.getElementById("knobVisualTitle");
       const visualSub = document.getElementById("knobVisualSub");
 
+      const layerNames = ["Base", "Lower", "Raise", "Func", "Tri", "Extra 1", "Extra 2", "Extra 3"];
+      const layerKeys = ["(기본 레이어)", "Lower 키", "Raise 키", "Fn 키", "Lower + Raise 키", "Extra 1", "Extra 2", "Extra 3"];
+
       if (layer === 3 || layer === 4) {
         if (noticeBox) noticeBox.style.display = "block";
+        if (hintBox) hintBox.style.display = "none";
         if (cwSelect) {
           cwSelect.value = "pw_length";
           cwSelect.disabled = true;
@@ -4233,6 +4264,15 @@
         if (visualSub) visualSub.innerText = "Rotate to cycle: 12 → 16 → 20 → 24";
       } else {
         if (noticeBox) noticeBox.style.display = "none";
+        if (layer > 0) {
+          if (hintBox) {
+            hintBox.style.display = "block";
+            if (hintTitle) hintTitle.textContent = `💡 레이어 ${layer} (${layerNames[layer]}) 노브 설정 안내`;
+            if (hintDesc) hintDesc.innerHTML = `현재 설정하는 액션은 키보드에서 <strong>${layerKeys[layer]}</strong>를 누르고 있는 동안 노브를 돌릴 때만 실행됩니다.<br>평상시 키를 누르지 않은 기본 상태에서 노브를 돌려 바로 작동하게 하려면 <strong>[0: Base] 레이어</strong>를 선택하여 설정하세요!`;
+          }
+        } else {
+          if (hintBox) hintBox.style.display = "none";
+        }
         if (cwSelect) {
           cwSelect.disabled = false;
           cwSelect.value = findKnobActionId(k.cwBeh, k.cwParam, "vol_up");
@@ -4431,7 +4471,7 @@
         if (state.connected) return;
         state.demoMode = !state.demoMode;
         if (state.demoMode) {
-          state.firmwareVersion = "2.0.4";
+          state.firmwareVersion = "2.0.5";
           state.keymaps = generateDefaultKeymap();
           renderAllKeycaps();
           const banner = document.getElementById("keymapSyncStatus");
@@ -4524,6 +4564,13 @@
       const btnJumpPw = document.getElementById("btnJumpToPwGen");
       if (btnJumpPw) {
         btnJumpPw.addEventListener("click", () => switchTab("tab-password"));
+      }
+      const btnSwitchBase = document.getElementById("btnSwitchToBaseLayer");
+      if (btnSwitchBase) {
+        btnSwitchBase.addEventListener("click", () => {
+          const baseBtn = document.querySelector(".knob-layer-btn[data-layer='0']");
+          if (baseBtn) baseBtn.click();
+        });
       }
 
       // Layer selector buttons for Keymap
@@ -5246,7 +5293,7 @@
 
       // Installed version
       if (state.connected || state.demoMode) {
-        const instVer = state.firmwareVersion || "2.0.4";
+        const instVer = state.firmwareVersion || "2.0.5";
         if (fwInstalledVer) fwInstalledVer.textContent = `v${instVer}`;
         if (fwInstalledSub) fwInstalledSub.textContent = state.demoMode ? "Preonic (Demo Mode)" : `${state.deviceName} (Connected)`;
       } else {
@@ -5256,7 +5303,7 @@
 
       // Latest GitHub version
       const latestTag = state.githubLatestRelease ? state.githubLatestRelease.tag_name : null;
-      if (fwLatestVer) fwLatestVer.textContent = latestTag || (state.githubStatus === "checking" ? "Checking..." : "v2.0.4");
+      if (fwLatestVer) fwLatestVer.textContent = latestTag || (state.githubStatus === "checking" ? "Checking..." : "v2.0.5");
       if (fwLatestDate) {
         if (state.githubLatestRelease && state.githubLatestRelease.published_at) {
           const d = new Date(state.githubLatestRelease.published_at);
@@ -5272,7 +5319,7 @@
       let isUpdateAvail = false;
       let isUpToDate = false;
       if (latestTag && (state.connected || state.demoMode)) {
-        const cmp = compareSemVer(state.firmwareVersion || "2.0.4", latestTag);
+        const cmp = compareSemVer(state.firmwareVersion || "2.0.5", latestTag);
         if (cmp < 0) {
           isUpdateAvail = true;
         } else {
@@ -5289,11 +5336,11 @@
           badgeText.textContent = `Update: ${latestTag} ⚡`;
         } else if (isUpToDate) {
           badge.classList.add("badge-up-to-date");
-          badgeText.textContent = `GitHub: ${latestTag || "v2.0.4"} ✓`;
+          badgeText.textContent = `GitHub: ${latestTag || "v2.0.5"} ✓`;
         } else if (latestTag) {
           badgeText.textContent = `GitHub: ${latestTag}`;
         } else {
-          badgeText.textContent = "GitHub: v2.0.4";
+          badgeText.textContent = "GitHub: v2.0.5";
         }
       }
 
@@ -5317,7 +5364,7 @@
           fwStatusText.innerHTML = `⚡ <strong>New Firmware Available (${latestTag})</strong> — Download the UF2 file below and flash in bootloader mode!`;
         } else if (isUpToDate) {
           fwStatusBanner.classList.add("up-to-date");
-          fwStatusText.innerHTML = `✅ <strong>Up to Date</strong> — Your Preonic keyboard is running the latest firmware (${latestTag || "v2.0.4"}).`;
+          fwStatusText.innerHTML = `✅ <strong>Up to Date</strong> — Your Preonic keyboard is running the latest firmware (${latestTag || "v2.0.5"}).`;
         } else if (state.githubStatus === "checking") {
           fwStatusBanner.classList.add("checking");
           fwStatusText.innerHTML = `⏳ Checking GitHub repository (${repo}) for latest releases and commits...`;
@@ -5331,8 +5378,8 @@
       }
 
       // Update download links
-      let mainUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.4"}/keyboardio_preonic__zmk.uf2`;
-      let resetUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.4"}/settings_reset-keyboardio_preonic__zmk.uf2`;
+      let mainUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.5"}/keyboardio_preonic__zmk.uf2`;
+      let resetUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.5"}/settings_reset-keyboardio_preonic__zmk.uf2`;
 
       if (state.githubLatestRelease && Array.isArray(state.githubLatestRelease.assets)) {
         const fwAsset = state.githubLatestRelease.assets.find(a => a.name.includes("preonic") && a.name.endsWith(".uf2") && !a.name.includes("reset"));

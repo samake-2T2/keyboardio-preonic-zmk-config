@@ -1,7 +1,7 @@
 # Keyboardio Preonic - ZMK Firmware Configuration
 
 <p align="center">
-  <a href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/tag/v2.0.4"><img src="https://img.shields.io/badge/Release-v2.0.4-blue.svg?style=for-the-badge" alt="Latest Release v2.0.4"></a>
+  <a href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/tag/v2.0.5"><img src="https://img.shields.io/badge/Release-v2.0.5-blue.svg?style=for-the-badge" alt="Latest Release v2.0.5"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License"></a>
 </p>
 
@@ -17,9 +17,9 @@
 Custom ZMK firmware configuration specifically developed for the **Keyboardio Preonic**, manufactured by [Keyboardio](https://keyboard.io).
 
 > [!TIP]
-> **Latest Release v2.0.4**: **Dynamic Rotary Encoder Action Binding & Real-Time Studio Auto-Save**:
-> - **Firmware Sensor Event Dispatcher**: Direct integration of `zmk_sensor_event` listener with `knob_configs[layer]` in `preonic_studio.c`. Dynamically executes configured behaviors (mouse scroll, page up/down, arrow keys, etc.) on layers 0..7 without defaulting to volume control.
-> - **Studio Real-Time Auto-Save**: Selecting actions or adjusting sensitivity in Tab 3 automatically transmits and commits (`CMD_SET_KNOB`) to the keyboard in real time.
+> **Latest Release v2.0.5**: **Fixed Rotary Encoder Mouse Scroll (`&msc`) & Layer Guidance in Studio**:
+> - **Direct Input Reporting for Encoder Scrolling**: Fixed the 0ms delayed work cancellation bug in ZMK's `behavior_input_two_axis`. Rotating the encoder now directly issues discrete relative wheel events (`INPUT_REL_WHEEL` / `INPUT_REL_HWHEEL`) via Zephyr's input subsystem for instantaneous, reliable mouse scrolling.
+> - **Studio Action Parameter & UI Layer Helper**: Corrected mouse scroll parameters (`0x0000000A`, `0x0000FFF6`, `0x000A0000`, `0xFFF60000`) and added an interactive layer callout clarifying that Layer 1/2 knob bindings require holding the respective layer key (`Raise`/`Lower`), with a 1-click switch to configure on `0: Base`.
 > - **Hardware Intercept Safeguard**: Retains dedicated TRNG password length cycling (`12 ➡️ 16 ➡️ 20 ➡️ 24`) on Layer 3 (Func) and Layer 4 (Tri).
 
 > [!IMPORTANT]
@@ -152,9 +152,9 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 [Keyboardio(키보디오)](https://keyboard.io) 사에서 개발 및 제조한 **Keyboardio Preonic** 기계식 키보드 전용 ZMK 펌웨어 설정 저장소입니다.
 
 > [!TIP]
-> **최신 릴리즈 v2.0.4**: **로터리 인코더 동적 바인딩 & 스튜디오 실시간 자동 저장**:
-> - **펌웨어 센서 이벤트 디스패처 연동**: 펌웨어 `preonic_studio.c`에 `zmk_sensor_event` 리스너를 직접 연동하여, 스튜디오에서 설정한 레이어별 노브 값(`knob_configs[layer]`)이 실제 물리 키보드 회전 시 즉시 실행됩니다 (마우스 스크롤, Page Up/Down, 방향키 등 지원).
-> - **스튜디오 실시간 자동 저장(Auto-save)**: 로터리 인코더 탭(Tab 3)에서 액션이나 감도를 변경하는 즉시 키보드로 자동 전송 및 저장(`CMD_SET_KNOB`)됩니다.
+> **최신 릴리즈 v2.0.5**: **로터리 인코더 마우스 스크롤(`&msc`) 동작 버그 해결 & 스튜디오 레이어 안내 추가**:
+> - **인코더 마우스 스크롤 직접 보고 지원**: ZMK의 `behavior_input_two_axis`에서 순간 클릭(0ms 누름+뗌) 시 지연 타이머가 즉시 취소되어 스크롤 이벤트가 0건 전송되던 근본 원인을 해결했습니다. 이제 노브 회전 시 Zephyr 입력 서브시스템(`input_report_rel`)을 통해 휠 스크롤(`INPUT_REL_WHEEL` / `INPUT_REL_HWHEEL`)을 즉시 호스트로 전송합니다.
+> - **스튜디오 파라미터 정밀 보정 & 레이어 안내 배너**: 마우스 스크롤 파라미터를 ZMK 표준 사양(`0x0000000A`, `0x0000FFF6`, `0x000A0000`, `0xFFF60000`)으로 정밀 수정하고, 스튜디오 상단에 레이어별 노브 안내 배너를 추가하여 Layer 2(Raise) 설정 시 `Raise` 키를 누른 상태에서 노브를 돌려야 함을 명확히 안내하며 기본 상태 사용을 위한 `0: Base` 전환 버튼을 제공합니다.
 > - **하드웨어 인터셉트 안전 유지**: Layer 3(Func) 및 Layer 4(Tri)의 하드웨어 비밀번호 생성기 길이 조절(`12 ➡️ 16 ➡️ 20 ➡️ 24`) 기능은 안전하게 유지됩니다.
 
 > [!IMPORTANT]

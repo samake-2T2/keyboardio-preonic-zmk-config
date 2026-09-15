@@ -177,7 +177,7 @@ def update_or_create_keymap_page():
         callout_block([
             rt("본 문서는 ", bold=True),
             rt("Keyboardio Preonic (nRF52840)", bold=True, color="blue"),
-            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드 (v2.0.4)입니다.\n\n"),
+            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드 (v2.0.5)입니다.\n\n"),
             rt("특징 요약:\n", bold=True),
             rt("• 레이아웃: ", bold=True),
             rt("5x12 직교(Ortholinear) 배열 + "),
@@ -186,7 +186,7 @@ def update_or_create_keymap_page():
             rt("• 상단 보조 키: ", bold=True),
             rt("PrtSc 화면 캡처, 독립 Fn 키, "),
             rt("로터리 인코더(음량 조절 / 클릭 시 음소거 / 동적 액션)", bold=True, color="green"),
-            rt("\n• Preonic Studio v2.0.4 웹 스튜디오: ", bold=True, color="purple"),
+            rt("\n• Preonic Studio v2.0.5 웹 스튜디오: ", bold=True, color="purple"),
             rt("Chrome/Edge Web Serial 기반 100% 무설치 단일 파일 GUI (preonic-studio.html), ZSA(Oryx/Keymapp)급 듀얼 액션(Tap-Hold) 비주얼 빌더(&mt, &lt), 8대 동적 레이어 풀, 전체 VIA/VIAL 키코드(F1~F24, 텐키패드, 한/영, Caps Word, 원샷 키), 실시간 스위치 매트릭스 & 채터링(<15ms) 테스터, 라이브 레이어 HUD, 원클릭 통합 프로필 백업/복원(.preonic.json)\n"),
             rt("• 하드웨어 TRNG 패스워드 생성기: ", bold=True),
             rt("Nordic nRF52840 진성 하드웨어 난수 기반, DB/환경설정/URI 안전 Zero-Escape 특수문자(_,-), Fn+노브 회전으로 자리수 선택(12/16/20/24자, 2클릭 1스텝 감도 조절, 나비 골드 게이지 & 도/미/솔/도 음계 피드백, NVS 영구 저장), 하이브리드 제어(Fn+노브 1회 클릭 또는 Fn+D: DB Safe, Fn+노브 더블 클릭 또는 Fn+W: Web Extended, Fn+노브 0.4초 롱 클릭 또는 Fn+A: Alphanumeric), 12ms 비동기 자동 타이핑 및 모디파이어 자동 마스킹\n"),
@@ -811,6 +811,20 @@ def update_or_create_keymap_page():
         bullet_block([
             rt("Layer 3(Func) / 4(Tri) 하드웨어 비밀번호 생성기 안전 격리: ", bold=True),
             rt("비밀번호 길이 조절(12 ➔ 16 ➔ 20 ➔ 24자) 및 암호 생성 하드웨어 인터셉트 기능은 그대로 유지되어 충돌 없이 안전하게 동작합니다.")
+        ]),
+        h3_block("7.6 Preonic Studio v2.0.5 로터리 인코더 마우스 스크롤(&msc) 동작 버그 해결 & 레이어 가이드 배너"),
+        bullet_block([
+            rt("인코더 마우스 스크롤/이동 이벤트 직접 보고 (Zephyr input_report_rel): ", bold=True),
+            rt("ZMK의 behavior_input_two_axis(&msc, &mmv)는 키를 계속 누르고 있는 상태를 전제로 동작하여, 노브 회전 시 발생하는 0ms 즉시 누름/뗌(press+release) 호출 시 16ms 지연 작업(tick_work)이 스케줄되자마자 즉시 취소(cancel)되어 호스트에 단 1개의 스크롤 이벤트도 전송되지 않던 치명적 타이머 버그를 규명 및 해결했습니다. "),
+            rt("이제 &msc 및 &mmv 동작 시 Zephyr 입력 서브시스템(input_report_rel)을 통해 마우스 휠(INPUT_REL_WHEEL / INPUT_REL_HWHEEL)을 직접 호스트에 즉각 발송합니다.")
+        ]),
+        bullet_block([
+            rt("마우스 스크롤 파라미터 표준화 및 32비트 부호 확장 호환: ", bold=True),
+            rt("ZMK pointing 사양(0x0000000A, 0x0000FFF6, 0x000A0000, 0xFFF60000)에 맞추어 스튜디오 파라미터를 보정하였으며, 기존 32비트 부호 확장 값(0xFFFFFFF6)도 펌웨어에서 완벽하게 디코딩하도록 하위 호환성을 유지했습니다.")
+        ]),
+        bullet_block([
+            rt("스튜디오 노브 탭 레이어 안내 배너 & 0번 Base 레이어 빠른 전환 버튼: ", bold=True),
+            rt("Layer 1(Lower), Layer 2(Raise) 등 모디파이어 레이어의 노브를 설정할 때, 해당 키(Raise/Lower)를 누르고 있는 동안에만 작동한다는 시각적 안내 배너를 추가하고, 평상시 기본 타이핑 상태에서 노브를 사용하고자 하는 사용자를 위해 [0: Base 레이어로 전환] 원클릭 버튼을 제공합니다.")
         ])
     ]
 
