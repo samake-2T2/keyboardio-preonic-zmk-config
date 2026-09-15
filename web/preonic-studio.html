@@ -597,6 +597,76 @@
       box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
     }
 
+    .keycap.key-macro-rec {
+      background: linear-gradient(180deg, #701a75, #4a044e);
+      border-color: #ec4899;
+      box-shadow: 0 0 10px rgba(236, 72, 153, 0.45);
+    }
+    .keycap.key-macro-rec .primary-label {
+      color: #f472b6;
+      font-size: 11px;
+    }
+
+    .keycap.key-macro-play {
+      background: linear-gradient(180deg, #064e3b, #022c22);
+      border-color: #10b981;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.45);
+    }
+    .keycap.key-macro-play .primary-label {
+      color: #34d399;
+      font-size: 11px;
+    }
+
+    .keycap.key-pw {
+      background: linear-gradient(180deg, #78350f, #451a03);
+      border-color: #f59e0b;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
+    }
+    .keycap.key-pw .primary-label {
+      color: #fbbf24;
+      font-size: 11px;
+    }
+
+    .keycap.keycap-knob {
+      border-radius: 50% !important;
+      background: radial-gradient(circle at 35% 35%, #374151 0%, #1f2937 60%, #0f172a 100%);
+      border: 2px solid #60a5fa;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.18), 0 0 12px rgba(96, 165, 250, 0.4);
+      position: relative;
+    }
+    .keycap.keycap-knob::before {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px; right: 3px; bottom: 3px;
+      border-radius: 50%;
+      border: 1px dashed rgba(255, 255, 255, 0.25);
+      pointer-events: none;
+    }
+    .keycap.keycap-knob.knob-pw {
+      border-color: #f59e0b;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.18), 0 0 12px rgba(245, 158, 11, 0.5);
+    }
+    .keycap.keycap-knob .knob-rotation-badge {
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 8px;
+      font-weight: 700;
+      color: #93c5fd;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 1px 5px;
+      border-radius: 4px;
+      border: 1px solid rgba(96, 165, 250, 0.4);
+      pointer-events: none;
+      z-index: 5;
+    }
+    .keycap.keycap-knob.knob-pw .knob-rotation-badge {
+      color: #fde68a;
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
     .keycap .primary-label {
       font-size: 13px;
       font-weight: 700;
@@ -1378,7 +1448,7 @@
         </svg>
       </div>
       <div class="brand-titles">
-        <h1>Preonic Studio <span class="badge-ver">v2.0.1</span></h1>
+        <h1>Preonic Studio <span class="badge-ver">v2.0.2</span></h1>
       </div>
     </div>
 
@@ -1514,10 +1584,11 @@
               <span class="primary-label" id="key-pri-1"></span>
               <span class="sub-label" id="key-sub-1"></span>
             </div>
-            <div id="key-2" class="keycap key-empty" data-idx="2">
+            <div id="key-2" class="keycap key-empty keycap-knob" data-idx="2" title="EC11 Rotary Encoder (Push & Rotate)">
               <span class="key-pos-badge">2</span>
               <span class="primary-label" id="key-pri-2"></span>
               <span class="sub-label" id="key-sub-2"></span>
+              <span class="knob-rotation-badge" id="knob-rot-badge-2">↺ Vol- ↻ Vol+</span>
             </div>
           </div>
 
@@ -1528,14 +1599,25 @@
         </div>
 
         <!-- Selected Key Info Box -->
-        <div id="selectedKeyCard" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-card); border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+        <div id="selectedKeyCard" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-card); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-wrap: wrap; gap: 8px;">
           <div>
             <span style="font-weight: 700; color: #fff;" id="inspectKeyName">Click any keycap above to edit its binding</span>
             <div style="font-size: 12px; color: var(--text-muted);" id="inspectKeyDetails">Layer: 0 | Position: -- | Behavior: --</div>
           </div>
-          <button id="btnOpenPicker" class="btn btn-primary" style="display: none;">
-            ✏️ Change Keycode
-          </button>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <button id="btnOpenPicker" class="btn btn-primary" style="display: none;">
+              ✏️ Change Keycode
+            </button>
+            <button id="btnOpenKnobTab" class="btn btn-secondary" style="display: none; background: #1e3a8a; border-color: #3b82f6;">
+              🎛️ Configure Knob
+            </button>
+            <button id="btnOpenMacroTab" class="btn btn-secondary" style="display: none; background: #581c87; border-color: #a855f7;">
+              📜 Open Macro Manager
+            </button>
+            <button id="btnOpenPwTab" class="btn btn-secondary" style="display: none; background: #78350f; border-color: #f59e0b;">
+              🔑 Open Password Tab
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -2106,7 +2188,7 @@
               </div>
             </div>
             <div style="margin-top: 14px;">
-              <a id="btnDlFirmware" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.1/keyboardio_preonic__zmk.uf2" download="keyboardio_preonic__zmk.uf2" class="fw-dl-btn fw-dl-primary">
+              <a id="btnDlFirmware" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.2/keyboardio_preonic__zmk.uf2" download="keyboardio_preonic__zmk.uf2" class="fw-dl-btn fw-dl-primary">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <span style="font-size: 20px;">📦</span>
                   <div style="text-align: left;">
@@ -2117,7 +2199,7 @@
                 <span class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;">Download 📥</span>
               </a>
 
-              <a id="btnDlReset" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.1/settings_reset-keyboardio_preonic__zmk.uf2" download="settings_reset-keyboardio_preonic__zmk.uf2" class="fw-dl-btn">
+              <a id="btnDlReset" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.2/settings_reset-keyboardio_preonic__zmk.uf2" download="settings_reset-keyboardio_preonic__zmk.uf2" class="fw-dl-btn">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <span style="font-size: 20px;">🧹</span>
                   <div style="text-align: left;">
@@ -3272,7 +3354,7 @@
           <div class="kb-top-spacer"></div>
           <div id="tester-key-0" class="keycap tester-keycap" data-idx="0"><span class="key-pos-badge">0</span><span class="primary-label">PrtSc</span></div>
           <div id="tester-key-1" class="keycap tester-keycap" data-idx="1"><span class="key-pos-badge">1</span><span class="primary-label">Fn</span></div>
-          <div id="tester-key-2" class="keycap tester-keycap" data-idx="2"><span class="key-pos-badge">2</span><span class="primary-label">Mute</span></div>
+          <div id="tester-key-2" class="keycap tester-keycap keycap-knob" data-idx="2"><span class="key-pos-badge">2</span><span class="primary-label">Mute</span></div>
         </div>
         <div id="testerGrid" class="kb-grid"></div>
       `;
@@ -3308,7 +3390,7 @@
               break;
             case CMD_HANDSHAKE: {
               const resp = new Uint8Array(23);
-              resp[0] = 2; resp[1] = 0; resp[2] = 1; // v2.0.1
+              resp[0] = 2; resp[1] = 0; resp[2] = 2; // v2.0.2
               resp[3] = state.locked ? 1 : 0;
               resp[4] = 8; resp[5] = 5; resp[6] = 12;
               const name = new TextEncoder().encode("Preonic");
@@ -3614,7 +3696,87 @@
       let priElem = document.getElementById(`key-pri-${idx}`) || keycap.querySelector(".primary-label");
       let subElem = document.getElementById(`key-sub-${idx}`) || keycap.querySelector(".sub-label");
 
-      keycap.classList.remove("key-mod", "key-layer", "key-trans", "key-unlock", "key-dual", "key-toggle", "key-mouse", "key-empty");
+      keycap.classList.remove(
+        "key-mod", "key-layer", "key-trans", "key-unlock", "key-dual",
+        "key-toggle", "key-mouse", "key-empty", "key-macro-rec",
+        "key-macro-play", "key-pw", "keycap-knob", "knob-pw"
+      );
+
+      // Handle Rotary Knob (Key 2) specifically on all layers
+      if (idx === 2) {
+        keycap.classList.add("keycap-knob");
+        let rotBadge = document.getElementById("knob-rot-badge-2");
+        if (!rotBadge) {
+          rotBadge = document.createElement("span");
+          rotBadge.id = "knob-rot-badge-2";
+          rotBadge.className = "knob-rotation-badge";
+          keycap.appendChild(rotBadge);
+        }
+
+        if (layer === 3 || layer === 4) {
+          // Fn / Tri Layer: Password Generator Knob Actions
+          keycap.classList.add("knob-pw");
+          if (priElem) priElem.innerText = "🔑 PW KNOB";
+          if (subElem) subElem.innerText = "1x:DB 2x:W";
+          rotBadge.innerText = "↺/↻ Len (12..24)";
+        } else {
+          // Standard Layer: Rotary Knob volume / custom CW & CCW
+          const defaultPri = binding ? formatBindingLabel(binding.beh, binding.p1, binding.p2).primary : "MUTE";
+          if (priElem) priElem.innerText = defaultPri || "MUTE";
+          if (subElem) subElem.innerText = "PUSH (KNOB)";
+          const kc = (state.knobConfigs && state.knobConfigs[layer]) ? state.knobConfigs[layer] : null;
+          const cwName = kc ? (findKeycode(kc.cwParam)?.name || "Vol+") : "Vol+";
+          const ccwName = kc ? (findKeycode(kc.ccwParam)?.name || "Vol-") : "Vol-";
+          rotBadge.innerText = `↺ ${ccwName} ↻ ${cwName}`;
+        }
+        if (state.selectedKeyIndex === idx) {
+          keycap.classList.add("selected");
+        } else {
+          keycap.classList.remove("selected");
+        }
+        return;
+      }
+
+      // Handle Hardware Intercepted Features on Layer 3 (Fn) and Layer 4 (Tri)
+      if (layer === 3 || layer === 4) {
+        // Dynamic Macro 1..3 Record & Play (Indices 8..13)
+        if (idx >= 8 && idx <= 13) {
+          const slotNum = Math.floor((idx - 8) / 2) + 1;
+          const isRec = (idx % 2 === 0);
+          if (priElem) priElem.innerText = isRec ? `🔴 REC ${slotNum}` : `▶ PLAY ${slotNum}`;
+          if (subElem) subElem.innerText = `Macro ${slotNum}`;
+          keycap.classList.add(isRec ? "key-macro-rec" : "key-macro-play");
+          if (state.selectedKeyIndex === idx) {
+            keycap.classList.add("selected");
+          } else {
+            keycap.classList.remove("selected");
+          }
+          return;
+        }
+
+        // Hardware Password Generator (Indices 17, 28, 30)
+        if (idx === 17) {
+          if (priElem) priElem.innerText = "🔑 PW WEB";
+          if (subElem) subElem.innerText = "Special";
+          keycap.classList.add("key-pw");
+          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
+          return;
+        }
+        if (idx === 28) {
+          if (priElem) priElem.innerText = "🔑 PW ALPHA";
+          if (subElem) subElem.innerText = "A-Z, 0-9";
+          keycap.classList.add("key-pw");
+          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
+          return;
+        }
+        if (idx === 30) {
+          if (priElem) priElem.innerText = "🔑 PW DB";
+          if (subElem) subElem.innerText = "DB Safe";
+          keycap.classList.add("key-pw");
+          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
+          return;
+        }
+      }
 
       if (!binding) {
         if (priElem) priElem.innerText = "";
@@ -3673,9 +3835,55 @@
         : { beh: BEH_NONE, p1: 0, p2: 0 };
       const { primary, sub } = formatBindingLabel(b.beh, b.p1, b.p2);
 
+      const btnPicker = document.getElementById("btnOpenPicker");
+      const btnKnob = document.getElementById("btnOpenKnobTab");
+      const btnMacro = document.getElementById("btnOpenMacroTab");
+      const btnPw = document.getElementById("btnOpenPwTab");
+
+      if (btnPicker) btnPicker.style.display = "none";
+      if (btnKnob) btnKnob.style.display = "none";
+      if (btnMacro) btnMacro.style.display = "none";
+      if (btnPw) btnPw.style.display = "none";
+
+      if (idx === 2) {
+        // Rotary Knob Push & Rotate
+        document.getElementById("inspectKeyName").innerText = `Key #2: 🎛️ EC11 Rotary Encoder (Layer ${layer})`;
+        if (layer === 3 || layer === 4) {
+          document.getElementById("inspectKeyDetails").innerText = `⚡ Firmware Intercept: 1-Click: DB Safe PW | 2-Click: Web Extended PW | Hold(0.4s): Alphanumeric PW | Rotate: PW Length (12/16/20/24)`;
+          if (btnPw) btnPw.style.display = "inline-flex";
+        } else {
+          const kc = (state.knobConfigs && state.knobConfigs[layer]) ? state.knobConfigs[layer] : null;
+          const cwName = kc ? (findKeycode(kc.cwParam)?.name || "Vol+") : "Vol+";
+          const ccwName = kc ? (findKeycode(kc.ccwParam)?.name || "Vol-") : "Vol-";
+          const ppd = kc ? kc.ppd : 2;
+          document.getElementById("inspectKeyDetails").innerText = `Push: ${primary} | Rotate CW: ${cwName} | Rotate CCW: ${ccwName} | Sensitivity: ${ppd} pulses/click`;
+          if (btnPicker) btnPicker.style.display = "inline-flex";
+          if (btnKnob) btnKnob.style.display = "inline-flex";
+        }
+        return;
+      }
+
+      if ((layer === 3 || layer === 4) && (idx >= 8 && idx <= 13)) {
+        const slotNum = Math.floor((idx - 8) / 2) + 1;
+        const isRec = (idx % 2 === 0);
+        document.getElementById("inspectKeyName").innerText = `Key #${idx} (Fn + ${slotNum * 2 - (isRec ? 1 : 0) + 4}): Dynamic Macro ${slotNum} (${isRec ? "Record" : "Play"})`;
+        document.getElementById("inspectKeyDetails").innerText = `⚡ Firmware Intercept: Hardware matrix listener ${isRec ? "starts/stops recording to" : "plays back keystrokes from"} Slot ${slotNum} in flash NVS.`;
+        if (btnMacro) btnMacro.style.display = "inline-flex";
+        return;
+      }
+
+      if ((layer === 3 || layer === 4) && (idx === 17 || idx === 28 || idx === 30)) {
+        const modeName = (idx === 30) ? "DB Safe" : (idx === 17) ? "Web Extended" : "Alphanumeric";
+        const keyChar = (idx === 30) ? "D" : (idx === 17) ? "W" : "A";
+        document.getElementById("inspectKeyName").innerText = `Key #${idx} (Fn + ${keyChar}): Hardware Password Generator (${modeName})`;
+        document.getElementById("inspectKeyDetails").innerText = `⚡ Firmware Intercept: Uses Nordic nRF52840 hardware TRNG to generate and auto-type secure passwords.`;
+        if (btnPw) btnPw.style.display = "inline-flex";
+        return;
+      }
+
       document.getElementById("inspectKeyName").innerText = `Key #${idx} on Layer ${layer}: ${primary}`;
       document.getElementById("inspectKeyDetails").innerText = `Behavior: ${sub} | Param1: ${b.p1} (0x${b.p1.toString(16)}) | Param2: ${b.p2}`;
-      document.getElementById("btnOpenPicker").style.display = "inline-flex";
+      if (btnPicker) btnPicker.style.display = "inline-flex";
 
       openKeycodePicker(idx);
     }
@@ -4169,7 +4377,7 @@
         if (state.connected) return;
         state.demoMode = !state.demoMode;
         if (state.demoMode) {
-          state.firmwareVersion = "2.0.1";
+          state.firmwareVersion = "2.0.2";
           state.keymaps = generateDefaultKeymap();
           renderAllKeycaps();
           const banner = document.getElementById("keymapSyncStatus");
@@ -4231,17 +4439,34 @@
       });
 
       // Tabs switching
+      window.switchTab = function(target) {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+        const btn = document.querySelector(`.tab-btn[data-tab="${target}"]`);
+        if (btn) btn.classList.add("active");
+        const panel = document.getElementById(target);
+        if (panel) panel.classList.add("active");
+      };
+
       document.querySelectorAll(".tab-btn").forEach(btn => {
         btn.addEventListener("click", () => {
-          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-          document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
-
-          btn.classList.add("active");
-          const target = btn.dataset.tab;
-          const panel = document.getElementById(target);
-          if (panel) panel.classList.add("active");
+          switchTab(btn.dataset.tab);
         });
       });
+
+      // Quick-jump buttons from Keymap Inspector
+      const btnKnob = document.getElementById("btnOpenKnobTab");
+      if (btnKnob) {
+        btnKnob.addEventListener("click", () => switchTab("tab-knob"));
+      }
+      const btnMacro = document.getElementById("btnOpenMacroTab");
+      if (btnMacro) {
+        btnMacro.addEventListener("click", () => switchTab("tab-macros"));
+      }
+      const btnPw = document.getElementById("btnOpenPwTab");
+      if (btnPw) {
+        btnPw.addEventListener("click", () => switchTab("tab-password"));
+      }
 
       // Layer selector buttons for Keymap
       document.querySelectorAll(".layer-btn:not(.knob-layer-btn)").forEach(btn => {
@@ -4945,7 +5170,7 @@
 
       // Installed version
       if (state.connected || state.demoMode) {
-        const instVer = state.firmwareVersion || "2.0.1";
+        const instVer = state.firmwareVersion || "2.0.2";
         if (fwInstalledVer) fwInstalledVer.textContent = `v${instVer}`;
         if (fwInstalledSub) fwInstalledSub.textContent = state.demoMode ? "Preonic (Demo Mode)" : `${state.deviceName} (Connected)`;
       } else {
@@ -4955,7 +5180,7 @@
 
       // Latest GitHub version
       const latestTag = state.githubLatestRelease ? state.githubLatestRelease.tag_name : null;
-      if (fwLatestVer) fwLatestVer.textContent = latestTag || (state.githubStatus === "checking" ? "Checking..." : "v2.0.1");
+      if (fwLatestVer) fwLatestVer.textContent = latestTag || (state.githubStatus === "checking" ? "Checking..." : "v2.0.2");
       if (fwLatestDate) {
         if (state.githubLatestRelease && state.githubLatestRelease.published_at) {
           const d = new Date(state.githubLatestRelease.published_at);
@@ -4971,7 +5196,7 @@
       let isUpdateAvail = false;
       let isUpToDate = false;
       if (latestTag && (state.connected || state.demoMode)) {
-        const cmp = compareSemVer(state.firmwareVersion || "2.0.1", latestTag);
+        const cmp = compareSemVer(state.firmwareVersion || "2.0.2", latestTag);
         if (cmp < 0) {
           isUpdateAvail = true;
         } else {
@@ -4988,11 +5213,11 @@
           badgeText.textContent = `Update: ${latestTag} ⚡`;
         } else if (isUpToDate) {
           badge.classList.add("badge-up-to-date");
-          badgeText.textContent = `GitHub: ${latestTag || "v2.0.1"} ✓`;
+          badgeText.textContent = `GitHub: ${latestTag || "v2.0.2"} ✓`;
         } else if (latestTag) {
           badgeText.textContent = `GitHub: ${latestTag}`;
         } else {
-          badgeText.textContent = "GitHub: v2.0.1";
+          badgeText.textContent = "GitHub: v2.0.2";
         }
       }
 
@@ -5016,7 +5241,7 @@
           fwStatusText.innerHTML = `⚡ <strong>New Firmware Available (${latestTag})</strong> — Download the UF2 file below and flash in bootloader mode!`;
         } else if (isUpToDate) {
           fwStatusBanner.classList.add("up-to-date");
-          fwStatusText.innerHTML = `✅ <strong>Up to Date</strong> — Your Preonic keyboard is running the latest firmware (${latestTag || "v2.0.1"}).`;
+          fwStatusText.innerHTML = `✅ <strong>Up to Date</strong> — Your Preonic keyboard is running the latest firmware (${latestTag || "v2.0.2"}).`;
         } else if (state.githubStatus === "checking") {
           fwStatusBanner.classList.add("checking");
           fwStatusText.innerHTML = `⏳ Checking GitHub repository (${repo}) for latest releases and commits...`;
@@ -5030,8 +5255,8 @@
       }
 
       // Update download links
-      let mainUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.1"}/keyboardio_preonic__zmk.uf2`;
-      let resetUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.1"}/settings_reset-keyboardio_preonic__zmk.uf2`;
+      let mainUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.2"}/keyboardio_preonic__zmk.uf2`;
+      let resetUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.2"}/settings_reset-keyboardio_preonic__zmk.uf2`;
 
       if (state.githubLatestRelease && Array.isArray(state.githubLatestRelease.assets)) {
         const fwAsset = state.githubLatestRelease.assets.find(a => a.name.includes("preonic") && a.name.endsWith(".uf2") && !a.name.includes("reset"));

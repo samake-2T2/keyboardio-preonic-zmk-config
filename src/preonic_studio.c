@@ -49,7 +49,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define NUM_COLS 12
 #define FW_VERSION_MAJOR 2
 #define FW_VERSION_MINOR 0
-#define FW_VERSION_PATCH 1
+#define FW_VERSION_PATCH 2
 #define DEVICE_NAME "Preonic"
 
 #if DT_HAS_CHOSEN(zmk_studio_rpc_uart)

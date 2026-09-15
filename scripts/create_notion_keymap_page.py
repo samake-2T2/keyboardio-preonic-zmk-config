@@ -760,7 +760,34 @@ def update_or_create_keymap_page():
                 "5x12 물리 스위치 실시간 입력 검증, 15ms 미만 접점 불량/바운스 채터 감지, 타건 횟수 카운터",
                 "하드웨어 무손상 RAM 카운팅"
             ])
-        ], table_width=3, has_column_header=True)
+        ], table_width=3, has_column_header=True),
+        h3_block("7.4 Preonic Studio v2.0.2 비주얼 슈퍼파워 (Visual Superpowers)"),
+        bullet_block([
+            rt("하드웨어 가로채기(Hardware Intercept) 특수 기능 뱃지: ", bold=True),
+            rt("펌웨어 C 코드 이벤트 리스너가 직접 처리하는 다이나믹 매크로(Fn + 5~0) 및 하드웨어 TRNG 패스워드 생성기(Fn + D/W/A)가 키맵 에디터에서 빈 키(&none)로 오인되지 않도록, Layer 3(Fn) / Layer 4(Tri) 진입 시 "),
+            rt("🔴 REC 1~3", code=True),
+            rt(" / "),
+            rt("▶ PLAY 1~3", code=True),
+            rt(" (매크로 보라/청록 뱃지), "),
+            rt("🔑 PW DB / WEB / ALPHA", code=True),
+            rt(" (패스워드 골드 뱃지)로 키맵 상에 선명하게 오버레이 렌더링합니다.")
+        ]),
+        bullet_block([
+            rt("EC11 로터리 인코더 인터랙티브 원형 다이얼 위젯: ", bold=True),
+            rt("상단 우측 Key 2를 사각 키캡이 아닌 원형 메탈릭 다이얼 형태로 렌더링하고, 상단 키맵 화면에서 실시간 회전 방향 "),
+            rt("(↺ CCW, ↻ CW)", code=True),
+            rt(" 및 푸시 클릭 "),
+            rt("(🔘 Push: Mute / PW Gen)", code=True),
+            rt("의 3중 바인딩을 한눈에 확인할 수 있습니다.")
+        ]),
+        bullet_block([
+            rt("키맵 인스펙터 원클릭 탭 바로가기: ", bold=True),
+            rt("노브 또는 특수 기능 키캡 클릭 시 하단 인스펙터 카드에 상세 안내와 함께 [🎛️ Configure Knob], [📜 Open Macro Manager], [🔑 Open Password Tab] 원클릭 이동 버튼을 제공합니다.")
+        ]),
+        bullet_block([
+            rt("32비트 네이티브 ZMK 키코드 디코더 표준화: ", bold=True),
+            rt("ZMK의 32비트 HID Usage Page 인코딩 규격을 완벽 지원하여 키맵 로드 시 0x70035 등 원시 16진수가 노출되던 버그를 완벽히 해결하였습니다.")
+        ])
     ]
 
     print("Appending Section 7...")

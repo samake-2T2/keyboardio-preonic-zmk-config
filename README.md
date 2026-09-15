@@ -1,7 +1,7 @@
 # Keyboardio Preonic - ZMK Firmware Configuration
 
 <p align="center">
-  <a href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/tag/v1.8.0"><img src="https://img.shields.io/badge/Release-v1.8.0-blue.svg?style=for-the-badge" alt="Latest Release v1.8.0"></a>
+  <a href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/tag/v2.0.2"><img src="https://img.shields.io/badge/Release-v2.0.2-blue.svg?style=for-the-badge" alt="Latest Release v2.0.2"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License"></a>
 </p>
 
@@ -17,7 +17,12 @@
 Custom ZMK firmware configuration specifically developed for the **Keyboardio Preonic**, manufactured by [Keyboardio](https://keyboard.io).
 
 > [!TIP]
-> **Latest Release v1.8.0**: **Hardware TRNG Random Password Generator & Butterfly Gauge** (Nordic nRF52840 hardware entropy, DB/Config Safe zero-escape special characters, `Fn + Turn Knob` 12/16/20/24 length gauge with pitch tones, `Fn + Knob Click` DB Safe, `Fn + Shift/Ctrl + Knob Click` Web Extended / Alphanumeric, NVS Flash persistence), **Smart Hybrid USB/BLE Output Auto-Switching**, and **3-Slot Dynamic Macro System**.
+> **Latest Release v2.0.2**: **Preonic Studio Visual Superpowers**:
+> - **Hardware Intercept Feature Badges**: Fn/Tri layer dynamic overlays for **Dynamic Macro 1~3** (`🔴 REC` / `▶ PLAY`) and **Hardware TRNG Password Generator** (`🔑 PW DB`, `🔑 PW WEB`, `🔑 PW ALPHA`).
+> - **Interactive EC11 Rotary Encoder Dial Widget**: Visual dial knob rendering showing real-time 3-way bindings (`↺ CCW`, `↻ CW`, `🔘 Push`) on the keymap.
+> - **Quick-Jump Inspector Shortcuts**: Direct one-click navigation from keycap inspector to Macro, Password, and Knob tabs.
+> - **32-Bit ZMK HID Usage Decoder**: Standardized native 32-bit usage page encoding, eliminating raw hex codes.
+> - **Hardware TRNG Password Generator & 3-Slot Dynamic Macro System**.
 
 > [!IMPORTANT]
 > **Hardware Compatibility Note**:
@@ -149,7 +154,11 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 [Keyboardio(키보디오)](https://keyboard.io) 사에서 개발 및 제조한 **Keyboardio Preonic** 기계식 키보드 전용 ZMK 펌웨어 설정 저장소입니다.
 
 > [!TIP]
-> **최신 릴리즈 v1.8.0**: **하드웨어 TRNG 랜덤 패스워드 생성기 & 나비 게이지** (노르딕 nRF52840 하드웨어 난수 기반, DB/환경설정/URI 완벽 호환 Zero-Escape 안전 특수문자, `Fn + 노브 회전`으로 12/16/20/24 자리수 조절 및 나비 골드 게이지/피치 피드백, `Fn + 노브 클릭` DB 안전 생성, `Fn + Shift/Ctrl + 노브 클릭` 웹/알파뉴메릭 생성, NVS 플래시 영구 기억) 및 **스마트 하이브리드 USB/BLE 자동 전환**, **3슬롯 다이나믹 매크로 시스템** 탑재.
+> **최신 릴리즈 v2.0.2**: **Preonic Studio 비주얼 슈퍼파워**:
+> - **하드웨어 인터셉트 특수 기능 뱃지**: Fn/Tri 레이어 상에서 펌웨어 하드웨어 가로채기로 동작하는 **다이나믹 매크로 1~3** (`🔴 REC` / `▶ PLAY`) 및 **하드웨어 TRNG 패스워드 생성기** (`🔑 PW DB`, `🔑 PW WEB`, `🔑 PW ALPHA`)를 키맵 상에 선명한 전용 뱃지로 오버레이 렌더링.
+> - **인터랙티브 EC11 로터리 인코더 다이얼 위젯**: Key 2를 원형 메탈릭 다이얼로 렌더링하여 **회전(`↻ CW`, `↺ CCW`) 및 푸시(`🔘 Push`)** 3중 바인딩을 키맵 상에서 실시간 시각화.
+> - **키맵 인스펙터 원클릭 바로가기**: 특수 키 및 노브 클릭 시 매크로 매니저, 패스워드 생성기, 로터리 노브 탭으로 즉시 전환하는 점프 버튼 제공.
+> - **32비트 네이티브 ZMK HID 키코드 디코더 표준화**: 키맵 로드 시 `0x70035` 등 원시 16진수 노출 현상 완벽 해결.
 
 > [!IMPORTANT]
 > **하드웨어 호환성 안내**:
