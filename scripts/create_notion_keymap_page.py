@@ -177,7 +177,7 @@ def update_or_create_keymap_page():
         callout_block([
             rt("본 문서는 ", bold=True),
             rt("Keyboardio Preonic (nRF52840)", bold=True, color="blue"),
-            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드 (v2.0.0)입니다.\n\n"),
+            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드 (v2.0.4)입니다.\n\n"),
             rt("특징 요약:\n", bold=True),
             rt("• 레이아웃: ", bold=True),
             rt("5x12 직교(Ortholinear) 배열 + "),
@@ -185,8 +185,8 @@ def update_or_create_keymap_page():
             rt(" (MIT 레이아웃, 총 62키)\n"),
             rt("• 상단 보조 키: ", bold=True),
             rt("PrtSc 화면 캡처, 독립 Fn 키, "),
-            rt("로터리 인코더(음량 조절 / 클릭 시 음소거)", bold=True, color="green"),
-            rt("\n• Preonic Studio v2.0 웹 스튜디오: ", bold=True, color="purple"),
+            rt("로터리 인코더(음량 조절 / 클릭 시 음소거 / 동적 액션)", bold=True, color="green"),
+            rt("\n• Preonic Studio v2.0.4 웹 스튜디오: ", bold=True, color="purple"),
             rt("Chrome/Edge Web Serial 기반 100% 무설치 단일 파일 GUI (preonic-studio.html), ZSA(Oryx/Keymapp)급 듀얼 액션(Tap-Hold) 비주얼 빌더(&mt, &lt), 8대 동적 레이어 풀, 전체 VIA/VIAL 키코드(F1~F24, 텐키패드, 한/영, Caps Word, 원샷 키), 실시간 스위치 매트릭스 & 채터링(<15ms) 테스터, 라이브 레이어 HUD, 원클릭 통합 프로필 백업/복원(.preonic.json)\n"),
             rt("• 하드웨어 TRNG 패스워드 생성기: ", bold=True),
             rt("Nordic nRF52840 진성 하드웨어 난수 기반, DB/환경설정/URI 안전 Zero-Escape 특수문자(_,-), Fn+노브 회전으로 자리수 선택(12/16/20/24자, 2클릭 1스텝 감도 조절, 나비 골드 게이지 & 도/미/솔/도 음계 피드백, NVS 영구 저장), 하이브리드 제어(Fn+노브 1회 클릭 또는 Fn+D: DB Safe, Fn+노브 더블 클릭 또는 Fn+W: Web Extended, Fn+노브 0.4초 롱 클릭 또는 Fn+A: Alphanumeric), 12ms 비동기 자동 타이핑 및 모디파이어 자동 마스킹\n"),
@@ -793,6 +793,24 @@ def update_or_create_keymap_page():
         bullet_block([
             rt("펌웨어 핸드셰이크 버전 동기화: ", bold=True),
             rt("MCU 펌웨어 응답을 v2.0.3으로 일치시켜 웹 스튜디오 접속 시 펌웨어 최신 상태가 정확하게 연동되도록 보장합니다.")
+        ]),
+        h3_block("7.5 Preonic Studio v2.0.4 로터리 인코더 동적 바인딩 & 실시간 자동 저장(Auto-Save)"),
+        bullet_block([
+            rt("펌웨어 하드웨어 센서 이벤트 리스너 연동 (preonic_studio.c): ", bold=True),
+            rt("ZMK의 실제 물리 노브 회전 이벤트(zmk_sensor_event)를 수신하여 웹 스튜디오에서 설정한 레이어별 액션(knob_configs[layer])을 실시간으로 디스패치(zmk_behavior_invoke_binding)합니다. "),
+            rt("기존에 저장 후에도 기본 볼륨 조절만 동작하던 문제를 완벽히 해결하여, 마우스 스크롤(상/하/좌/우), Page Up/Down, 방향키, 미디어, 줌 등 모든 커스텀 동작이 즉시 물리 키보드에 반응합니다.")
+        ]),
+        bullet_block([
+            rt("방향 인식 펄스 누적기 & 디텐트 감도 제어: ", bold=True),
+            rt("하드웨어 EC11 인코더의 틱 분주비(pulses_per_detent 2~16)를 실시간 반영하며, 고속 회전 시에도 틱 손실 없이 정확하게 1:1 매핑되어 회전합니다.")
+        ]),
+        bullet_block([
+            rt("스튜디오 웹앱 실시간 자동 저장 (Auto-Save): ", bold=True),
+            rt("로터리 인코더 탭(Tab 3)에서 CW/CCW 액션 선택 또는 감도 슬라이더 조절 시 [Apply] 버튼을 누르지 않아도 키보드로 즉시 자동 전송 및 NVS 플래시에 영구 저장됩니다.")
+        ]),
+        bullet_block([
+            rt("Layer 3(Func) / 4(Tri) 하드웨어 비밀번호 생성기 안전 격리: ", bold=True),
+            rt("비밀번호 길이 조절(12 ➔ 16 ➔ 20 ➔ 24자) 및 암호 생성 하드웨어 인터셉트 기능은 그대로 유지되어 충돌 없이 안전하게 동작합니다.")
         ])
     ]
 
