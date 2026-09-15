@@ -29,6 +29,8 @@
 #include <zmk/events/position_state_changed.h>
 #include <zmk/events/activity_state_changed.h>
 #include <zmk/events/layer_state_changed.h>
+#include <zmk/events/sensor_event.h>
+#include <zmk/virtual_key_position.h>
 
 #include "preonic_studio.h"
 #include "preonic_sound.h"
@@ -49,7 +51,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define NUM_COLS 12
 #define FW_VERSION_MAJOR 2
 #define FW_VERSION_MINOR 0
-#define FW_VERSION_PATCH 3
+#define FW_VERSION_PATCH 4
 #define DEVICE_NAME "Preonic"
 
 #if DT_HAS_CHOSEN(zmk_studio_rpc_uart)
@@ -403,6 +405,36 @@ static const char *behavior_type_to_dev(uint8_t beh_type) {
     default:
         return NULL;
     }
+}
+
+#ifndef ZMK_VIRTUAL_KEY_POSITION_SENSOR
+#define ZMK_VIRTUAL_KEY_POSITION_SENSOR(sensor_index) (0x80000000 | (sensor_index))
+#endif
+
+static void dispatch_knob_action(uint8_t layer, bool is_cw) {
+    if (layer >= NUM_LAYERS) layer = 0;
+    uint8_t beh = is_cw ? knob_configs[layer].cw_beh : knob_configs[layer].ccw_beh;
+    uint32_t param = is_cw ? knob_configs[layer].cw_param : knob_configs[layer].ccw_param;
+
+    const char *dev_name = behavior_type_to_dev(beh);
+    if (!dev_name) {
+        LOG_WRN("Unknown behavior type %u for knob", beh);
+        return;
+    }
+
+    struct zmk_behavior_binding binding = {
+        .behavior_dev = dev_name,
+        .param1 = param,
+        .param2 = 0,
+    };
+    struct zmk_behavior_binding_event event = {
+        .layer = layer,
+        .position = ZMK_VIRTUAL_KEY_POSITION_SENSOR(0),
+        .timestamp = k_uptime_get(),
+    };
+
+    zmk_behavior_invoke_binding(&binding, event, true);
+    zmk_behavior_invoke_binding(&binding, event, false);
 }
 
 #if IS_ENABLED(CONFIG_SETTINGS)
@@ -1089,6 +1121,55 @@ static int preonic_studio_event_listener(const zmk_event_t *eh) {
                 send_packet(EVT_LOCKED, 0, &reason, 1);
             }
         }
+        return 0;
+    }
+
+    const struct zmk_sensor_event *sev = as_zmk_sensor_event(eh);
+    if (sev != NULL) {
+        // Let password generator handle hardware intercept on Fn (3) and Tri (4) layers
+        if (zmk_keymap_layer_active(FN_LAYER_INDEX) || zmk_keymap_layer_active(TRI_LAYER_INDEX)) {
+            return 0;
+        }
+
+        if (sev->channel_data_size > 0) {
+            int val = sev->channel_data[0].value.val1;
+            if (val == 0) {
+                return 0;
+            }
+
+            static int pulse_accumulator = 0;
+            static int64_t last_pulse_time = 0;
+            int64_t now = k_uptime_get();
+
+            // Reset accumulator if idle for > 300ms
+            if (now - last_pulse_time > 300) {
+                pulse_accumulator = 0;
+            }
+            last_pulse_time = now;
+
+            // Reset on direction change for instant reverse response
+            if ((pulse_accumulator > 0 && val < 0) || (pulse_accumulator < 0 && val > 0)) {
+                pulse_accumulator = 0;
+            }
+
+            pulse_accumulator += val;
+
+            uint8_t layer = (uint8_t)zmk_keymap_highest_layer_active();
+            if (layer >= NUM_LAYERS) layer = 0;
+
+            uint8_t ppd = knob_configs[layer].pulses_per_detent;
+            if (ppd < 1) ppd = 2;
+
+            while (pulse_accumulator >= ppd) {
+                pulse_accumulator -= ppd;
+                dispatch_knob_action(layer, true);
+            }
+            while (pulse_accumulator <= -ppd) {
+                pulse_accumulator += ppd;
+                dispatch_knob_action(layer, false);
+            }
+            return ZMK_EV_EVENT_HANDLED;
+        }
     }
 
     return 0;
@@ -1098,6 +1179,7 @@ ZMK_LISTENER(preonic_studio, preonic_studio_event_listener);
 ZMK_SUBSCRIPTION(preonic_studio, zmk_position_state_changed);
 ZMK_SUBSCRIPTION(preonic_studio, zmk_activity_state_changed);
 ZMK_SUBSCRIPTION(preonic_studio, zmk_layer_state_changed);
+ZMK_SUBSCRIPTION(preonic_studio, zmk_sensor_event);
 
 #if IS_ENABLED(CONFIG_SETTINGS)
 static int studio_settings_set(const char *name, size_t len, settings_read_cb read_cb, void *cb_arg) {

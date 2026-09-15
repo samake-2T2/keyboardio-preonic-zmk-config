@@ -1448,7 +1448,7 @@
         </svg>
       </div>
       <div class="brand-titles">
-        <h1>Preonic Studio <span class="badge-ver">v2.0.3</span></h1>
+        <h1>Preonic Studio <span class="badge-ver">v2.0.4</span></h1>
       </div>
     </div>
 
@@ -2215,7 +2215,7 @@
               </div>
             </div>
             <div style="margin-top: 14px;">
-              <a id="btnDlFirmware" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.3/keyboardio_preonic__zmk.uf2" download="keyboardio_preonic__zmk.uf2" class="fw-dl-btn fw-dl-primary">
+              <a id="btnDlFirmware" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.4/keyboardio_preonic__zmk.uf2" download="keyboardio_preonic__zmk.uf2" class="fw-dl-btn fw-dl-primary">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <span style="font-size: 20px;">📦</span>
                   <div style="text-align: left;">
@@ -2226,7 +2226,7 @@
                 <span class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;">Download 📥</span>
               </a>
 
-              <a id="btnDlReset" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.3/settings_reset-keyboardio_preonic__zmk.uf2" download="settings_reset-keyboardio_preonic__zmk.uf2" class="fw-dl-btn">
+              <a id="btnDlReset" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.4/settings_reset-keyboardio_preonic__zmk.uf2" download="settings_reset-keyboardio_preonic__zmk.uf2" class="fw-dl-btn">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <span style="font-size: 20px;">🧹</span>
                   <div style="text-align: left;">
@@ -3417,7 +3417,7 @@
               break;
             case CMD_HANDSHAKE: {
               const resp = new Uint8Array(23);
-              resp[0] = 2; resp[1] = 0; resp[2] = 3; // v2.0.3
+              resp[0] = 2; resp[1] = 0; resp[2] = 3; // v2.0.4
               resp[3] = state.locked ? 1 : 0;
               resp[4] = 8; resp[5] = 5; resp[6] = 12;
               const name = new TextEncoder().encode("Preonic");
@@ -4431,7 +4431,7 @@
         if (state.connected) return;
         state.demoMode = !state.demoMode;
         if (state.demoMode) {
-          state.firmwareVersion = "2.0.3";
+          state.firmwareVersion = "2.0.4";
           state.keymaps = generateDefaultKeymap();
           renderAllKeycaps();
           const banner = document.getElementById("keymapSyncStatus");
@@ -4791,7 +4791,11 @@
       });
 
       // Apply / Save Knob Settings
-      document.getElementById("btnApplyKnob").addEventListener("click", async () => {
+      async function applyKnobSettings(silent = false) {
+        if (!state.connected && !state.demoMode) {
+          if (!silent) showToast("Please connect your Preonic keyboard via USB first.", "warning");
+          return;
+        }
         const activeLayerBtn = document.querySelector(".knob-layer-btn.active");
         const layer = activeLayerBtn ? parseInt(activeLayerBtn.dataset.layer, 10) : 0;
         const ppd = parseInt(document.getElementById("knobPpdSlider").value, 10);
@@ -4823,11 +4827,25 @@
             ccwParam: ccwAct.param,
             ppd: ppd
           };
+          renderKeycap(2);
           showToast(`Saved knob settings for Layer ${layer}!`, "success");
         } catch (err) {
           showToast(err.message, "error");
           if (err.message.includes("LOCKED")) document.getElementById("unlockModal").classList.add("open");
         }
+      }
+
+      document.getElementById("btnApplyKnob").addEventListener("click", () => applyKnobSettings(false));
+
+      // Real-time auto-saving on change
+      document.getElementById("knobCwSelect").addEventListener("change", () => {
+        if (state.connected || state.demoMode) applyKnobSettings(true);
+      });
+      document.getElementById("knobCcwSelect").addEventListener("change", () => {
+        if (state.connected || state.demoMode) applyKnobSettings(true);
+      });
+      document.getElementById("knobPpdSlider").addEventListener("change", () => {
+        if (state.connected || state.demoMode) applyKnobSettings(true);
       });
 
       // Read Knob Settings from keyboard
@@ -5228,7 +5246,7 @@
 
       // Installed version
       if (state.connected || state.demoMode) {
-        const instVer = state.firmwareVersion || "2.0.3";
+        const instVer = state.firmwareVersion || "2.0.4";
         if (fwInstalledVer) fwInstalledVer.textContent = `v${instVer}`;
         if (fwInstalledSub) fwInstalledSub.textContent = state.demoMode ? "Preonic (Demo Mode)" : `${state.deviceName} (Connected)`;
       } else {
@@ -5238,7 +5256,7 @@
 
       // Latest GitHub version
       const latestTag = state.githubLatestRelease ? state.githubLatestRelease.tag_name : null;
-      if (fwLatestVer) fwLatestVer.textContent = latestTag || (state.githubStatus === "checking" ? "Checking..." : "v2.0.3");
+      if (fwLatestVer) fwLatestVer.textContent = latestTag || (state.githubStatus === "checking" ? "Checking..." : "v2.0.4");
       if (fwLatestDate) {
         if (state.githubLatestRelease && state.githubLatestRelease.published_at) {
           const d = new Date(state.githubLatestRelease.published_at);
@@ -5254,7 +5272,7 @@
       let isUpdateAvail = false;
       let isUpToDate = false;
       if (latestTag && (state.connected || state.demoMode)) {
-        const cmp = compareSemVer(state.firmwareVersion || "2.0.3", latestTag);
+        const cmp = compareSemVer(state.firmwareVersion || "2.0.4", latestTag);
         if (cmp < 0) {
           isUpdateAvail = true;
         } else {
@@ -5271,11 +5289,11 @@
           badgeText.textContent = `Update: ${latestTag} ⚡`;
         } else if (isUpToDate) {
           badge.classList.add("badge-up-to-date");
-          badgeText.textContent = `GitHub: ${latestTag || "v2.0.3"} ✓`;
+          badgeText.textContent = `GitHub: ${latestTag || "v2.0.4"} ✓`;
         } else if (latestTag) {
           badgeText.textContent = `GitHub: ${latestTag}`;
         } else {
-          badgeText.textContent = "GitHub: v2.0.3";
+          badgeText.textContent = "GitHub: v2.0.4";
         }
       }
 
@@ -5299,7 +5317,7 @@
           fwStatusText.innerHTML = `⚡ <strong>New Firmware Available (${latestTag})</strong> — Download the UF2 file below and flash in bootloader mode!`;
         } else if (isUpToDate) {
           fwStatusBanner.classList.add("up-to-date");
-          fwStatusText.innerHTML = `✅ <strong>Up to Date</strong> — Your Preonic keyboard is running the latest firmware (${latestTag || "v2.0.3"}).`;
+          fwStatusText.innerHTML = `✅ <strong>Up to Date</strong> — Your Preonic keyboard is running the latest firmware (${latestTag || "v2.0.4"}).`;
         } else if (state.githubStatus === "checking") {
           fwStatusBanner.classList.add("checking");
           fwStatusText.innerHTML = `⏳ Checking GitHub repository (${repo}) for latest releases and commits...`;
@@ -5313,8 +5331,8 @@
       }
 
       // Update download links
-      let mainUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.3"}/keyboardio_preonic__zmk.uf2`;
-      let resetUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.3"}/settings_reset-keyboardio_preonic__zmk.uf2`;
+      let mainUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.4"}/keyboardio_preonic__zmk.uf2`;
+      let resetUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.4"}/settings_reset-keyboardio_preonic__zmk.uf2`;
 
       if (state.githubLatestRelease && Array.isArray(state.githubLatestRelease.assets)) {
         const fwAsset = state.githubLatestRelease.assets.find(a => a.name.includes("preonic") && a.name.endsWith(".uf2") && !a.name.includes("reset"));
