@@ -9,7 +9,7 @@ TARGET_PAGE_ID = os.environ.get("NOTION_PAGE_ID", "3db96981-2b85-817b-adc0-c8a46
 PARENT_PAGE_ID = os.environ.get("NOTION_PARENT_PAGE_ID", "3d696981-2b85-802f-931b-cddb91fe1cea")
 NOTION_VERSION = "2025-09-03"
 
-GITHUB_IMG_BASE = "https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v1.9.0/docs/images"
+GITHUB_IMG_BASE = "https://raw.githubusercontent.com/samake-2T2/keyboardio-preonic-zmk-config/v2.0.0/docs/images"
 
 def notion_request(url, method="GET", data=None, retries=5):
     headers = {
@@ -177,7 +177,7 @@ def update_or_create_keymap_page():
         callout_block([
             rt("본 문서는 ", bold=True),
             rt("Keyboardio Preonic (nRF52840)", bold=True, color="blue"),
-            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드 (v1.9.0)입니다.\n\n"),
+            rt(" 무선 기계식 키보드의 공식 ZMK 커스텀 키맵 가이드 (v2.0.0)입니다.\n\n"),
             rt("특징 요약:\n", bold=True),
             rt("• 레이아웃: ", bold=True),
             rt("5x12 직교(Ortholinear) 배열 + "),
@@ -186,7 +186,9 @@ def update_or_create_keymap_page():
             rt("• 상단 보조 키: ", bold=True),
             rt("PrtSc 화면 캡처, 독립 Fn 키, "),
             rt("로터리 인코더(음량 조절 / 클릭 시 음소거)", bold=True, color="green"),
-            rt("\n• 하드웨어 TRNG 패스워드 생성기: ", bold=True),
+            rt("\n• Preonic Studio v2.0 웹 스튜디오: ", bold=True, color="purple"),
+            rt("Chrome/Edge Web Serial 기반 100% 무설치 단일 파일 GUI (preonic-studio.html), ZSA(Oryx/Keymapp)급 듀얼 액션(Tap-Hold) 비주얼 빌더(&mt, &lt), 8대 동적 레이어 풀, 전체 VIA/VIAL 키코드(F1~F24, 텐키패드, 한/영, Caps Word, 원샷 키), 실시간 스위치 매트릭스 & 채터링(<15ms) 테스터, 라이브 레이어 HUD, 원클릭 통합 프로필 백업/복원(.preonic.json)\n"),
+            rt("• 하드웨어 TRNG 패스워드 생성기: ", bold=True),
             rt("Nordic nRF52840 진성 하드웨어 난수 기반, DB/환경설정/URI 안전 Zero-Escape 특수문자(_,-), Fn+노브 회전으로 자리수 선택(12/16/20/24자, 2클릭 1스텝 감도 조절, 나비 골드 게이지 & 도/미/솔/도 음계 피드백, NVS 영구 저장), 하이브리드 제어(Fn+노브 1회 클릭 또는 Fn+D: DB Safe, Fn+노브 더블 클릭 또는 Fn+W: Web Extended, Fn+노브 0.4초 롱 클릭 또는 Fn+A: Alphanumeric), 12ms 비동기 자동 타이핑 및 모디파이어 자동 마스킹\n"),
             rt("• 스마트 하이브리드 USB/BLE 자동 전환: ", bold=True),
             rt("USB 케이블 분리 또는 배터리 전원 인가 시 마지막 활성 BLE 프로필(0~3번)로 자동 복귀, NVS 플래시 안전 보존, PC 유선 연결 시 USB 자동 전환(순백색 점등), 충전기 연결 시 무선 BLE 유지\n"),
@@ -197,7 +199,7 @@ def update_or_create_keymap_page():
             rt("• 배터리 모니터링: ", bold=True),
             rt("4단계 나비 날개 LED & 오디오 비프음 게이지(Fn + B 누르고 있는 동안 Hold), 스마트 저배터리 자동 경고(15% 이하 시 1회 더블 비프음), 텍스트 백분율 자동 타이퍼(Fn + P로 'XX%' 자동 입력)\n"),
             rt("• 무선 연결 및 시스템 제어: ", bold=True),
-            rt("4-Device 블루투스 멀티페어링(Fn + 1/2/3/4, 나비 날개 1:1 매핑), USB/BLE 출력 모드 토글(Fn + ~), 좌손 마우스 에뮬레이션, 다이렉트 부트로더 진입(Fn + LCtrl), ZMK Studio 잠금 해제(Fn + Z)\n\n"),
+            rt("4-Device 블루투스 멀티페어링(Fn + 1/2/3/4, 나비 날개 1:1 매핑), USB/BLE 출력 모드 토글(Fn + ~), 좌손 마우스 에뮬레이션, 다이렉트 부트로더 진입(Fn + LCtrl), Preonic Studio 물리적 보안 잠금 해제(Fn + Z)\n\n"),
             rt("🔗 GitHub 펌웨어 저장소 바로가기", bold=True, link="https://github.com/samake-2T2/keyboardio-preonic-zmk-config")
         ], emoji="⌨️", color="blue_background"),
         callout_block([
@@ -237,10 +239,10 @@ def update_or_create_keymap_page():
         h2_block("레이어 구조 개요 (Layer Hierarchy)"),
         p_block([
             rt("Keyboardio Preonic은 콤팩트한 5x12 직교 배열이지만, 강력한 "),
-            rt("4단계 레이어 시스템", bold=True),
+            rt("8단계 레이어 풀 시스템", bold=True),
             rt("과 "),
             rt("Tri-Layer", bold=True, color="orange"),
-            rt(" 기능을 결합하여 풀사이즈 108키 키보드 이상의 모든 기능과 마우스 제어까지 지원합니다.")
+            rt(" 기능을 결합하여 풀사이즈 108키 키보드 이상의 모든 기능과 마우스 제어, 그리고 동적 커스텀 확장까지 완벽 지원합니다.")
         ]),
         table_block([
             table_row_block([
@@ -264,9 +266,19 @@ def update_or_create_keymap_page():
                 "오른손 코딩 특수문자 및 기호류 완비, 좌측 정밀 마우스 커서/클릭/휠 제어, 상단 F1~F12"
             ]),
             table_row_block([
-                [rt("Layer 3: Function & Tri", bold=True, color="purple")],
-                "상단 Fn 키 누름 OR Lower + Raise 동시 입력",
-                "하드웨어 TRNG 패스워드 생성기(Fn+노브 회전 12/16/20/24자, 노브 1회/더블/롱클릭 및 Fn+D/W/A 직관키), 다이나믹 매크로(Fn+5~0 녹화/재생), BLE 프로필(1~4), 마스터 사운드 토글(기본 OFF), 클릭 사운드 토글, 배터리 게이지/타이퍼, 부트로더 진입, ZMK Studio 잠금 해제"
+                [rt("Layer 3: Function", bold=True, color="purple")],
+                "상단 Fn 키 누름 (Hold)",
+                "하드웨어 TRNG 패스워드 생성기(Fn+노브 회전 12/16/20/24자, 노브 1회/더블/롱클릭 및 Fn+D/W/A 직관키), 다이나믹 매크로(Fn+5~0 녹화/재생), BLE 프로필(1~4), 마스터 사운드 토글(기본 OFF), 클릭 사운드 토글, 배터리 게이지/타이퍼, 부트로더 진입, Preonic Studio 잠금 해제(Fn+Z)"
+            ]),
+            table_row_block([
+                [rt("Layer 4: Tri-Layer", bold=True, color="orange")],
+                "Lower + Raise 동시 입력 (Hold)",
+                "Layer 3(Function) 동일 시스템 기능 호출 및 빠른 설정 제어"
+            ]),
+            table_row_block([
+                [rt("Layer 5~7: Extra 1, 2, 3", bold=True, color="pink")],
+                "Preonic Studio 웹에서 자유롭게 전환 키(&mo, &lt, &tog) 매핑 가능",
+                "사용자 정의 확장 레이어 풀. 게임용 매크로, 개발(IDE)/터미널 단축키 세트, 디자인/영상편집 단축키 등 Flash(NVS) 영구 보존"
             ])
         ], table_width=3, has_column_header=True),
         divider_block()
@@ -644,11 +656,11 @@ def update_or_create_keymap_page():
     notion_request(f"https://api.notion.com/v1/blocks/{page_id}/children", method="PATCH", data={"children": sec6_blocks})
 
     sec7_blocks = [
-        h2_block("7. Preonic Studio (실시간 웹 GUI & 물리적 보안 락)"),
+        h2_block("7. Preonic Studio v2.0 (실시간 웹 GUI & ZSA 고급 기능)"),
         callout_block([
-            rt("Preonic Studio", bold=True, color="blue"),
-            rt("는 Keyboardio Preonic 전용으로 개발된 100% 독립형(Clean-Room MIT) 실시간 웹 설정 도구입니다.\n"),
-            rt("VIA/VIAL과 유사하지만 GPL 라이선스 오염이 전혀 없으며, Chrome/Edge 브라우저에서 "),
+            rt("Preonic Studio v2.0", bold=True, color="blue"),
+            rt("은 Keyboardio Preonic 전용으로 개발된 100% 독립형(Clean-Room MIT) 실시간 웹 설정 도구입니다.\n"),
+            rt("ZSA(Oryx/Keymapp) 및 VIA/VIAL의 핵심 고급 기능을 완벽 벤치마킹하면서도 GPL 라이선스 오염이 전혀 없으며, Chrome/Edge 브라우저에서 "),
             rt("preonic-studio.html", code=True),
             rt(" 파일을 더블 클릭하는 것만으로 Web Serial을 통해 즉시 동작합니다.")
         ], emoji="🎛️"),
@@ -661,44 +673,92 @@ def update_or_create_keymap_page():
             rt("잠금 해제 (Unlock): ", bold=True),
             rt("키보드에서 직접 "),
             rt("Fn + Z", code=True, bold=True),
-            rt(" 키를 누르면 물리적 소유자 인증이 완료되며 상승 2음 차임 재생과 함께 나비 LED가 호박색으로 더블 점멸하고 웹 GUI가 즉시 활성화됩니다.")
+            rt(" 키를 누르면 물리적 소유자 인증이 완료되며 상승 2음 차임 재생과 함께 나비 LED가 호박색으로 더블 점멸하고 웹 GUI가 즉시 활성화됩니다. (마스터 사운드가 꺼져있을 경우 오디오 알림은 무음 처리되며 LED만 점멸합니다)")
         ]),
         bullet_block([
             rt("즉시 재잠금: ", bold=True),
             rt("웹 GUI의 [Lock] 버튼을 누르거나 케이블 분리 시 즉시 재잠금됩니다.")
         ]),
-        h3_block("7.2 6대 동적 제어 기능"),
+        h3_block("7.2 ZSA (Oryx/Keymapp) 벤치마크 신규 기능"),
+        bullet_block([
+            rt("8-Layer Pool Architecture: ", bold=True),
+            rt("기존 5개 레이어에서 총 8개 레이어(Base, Lower, Raise, Func, Tri, Extra 1, Extra 2, Extra 3)로 대폭 확장되어 NVS 플래시에 영구 보존되며, 웹 GUI에서 각 레이어를 자유롭게 리매핑할 수 있습니다.")
+        ]),
+        bullet_block([
+            rt("ZSA 스타일 듀얼 액션(Tap-Hold) 비주얼 빌더: ", bold=True),
+            rt("단시간 탭(Tap) 시에는 일반 키 또는 레이어가 입력되고, 길게 누르고 있을 때(Hold)는 모디파이어 또는 지정 레이어로 동작하는 Mod-Tap "),
+            rt("(&mt)", code=True),
+            rt(" 및 Layer-Tap "),
+            rt("(&lt)", code=True),
+            rt(" 설정을 웹 UI 모달에서 직관적으로 구성하고 즉시 키보드에 반영합니다.")
+        ]),
+        bullet_block([
+            rt("전체 VIA/VIAL 키코드 풀 완비: ", bold=True),
+            rt("F1~F24 전체 펑션키, 풀 텐키패드(Numpad), 멀티미디어 & 브라우저 실행키, 대문자 단어 연속 입력 Caps Word "),
+            rt("(&caps_word)", code=True),
+            rt(", 레이어 토글 "),
+            rt("(&tog)", code=True),
+            rt(", 마우스 버튼 "),
+            rt("(&mkp)", code=True),
+            rt(", 원샷 모디파이어/레이어 "),
+            rt("(&sk, &sl)", code=True),
+            rt(", 한국어 "),
+            rt("한/영(LANG1)", code=True),
+            rt(" 및 "),
+            rt("한자(LANG2)", code=True),
+            rt("까지 모두 지원합니다.")
+        ]),
+        bullet_block([
+            rt("스위치 매트릭스 & 채터(바운스) 실시간 테스터: ", bold=True),
+            rt("Web Serial 실시간 이벤트 스트리밍(EVT_KEY_TEST)을 통해 5x12 물리 스위치 입력을 시각화하고, 15ms 미만의 기계식 접점 불량 및 채터링(바운스)을 자동 감지하여 경고합니다. (플래시 마모 없는 세션 기반 메모리 카운팅)")
+        ]),
+        bullet_block([
+            rt("실시간 레이어 동기화 HUD: ", bold=True),
+            rt("키보드 물리 키(Lower, Raise, Fn 등)를 누르거나 해제할 때마다 키보드 펌웨어에서 웹 GUI로 실시간 레이어 상태(EVT_LAYER_CHANGED)를 푸시하여 현재 활성 레이어를 상단 배너에 즉시 표시합니다.")
+        ]),
+        bullet_block([
+            rt("통합 프로필 원클릭 백업 및 복원: ", bold=True),
+            rt("8대 레이어 전체 키맵, 3개 매크로 슬롯, 로터리 노브, 패스워드 생성기, 마우스 가속도, 오디오 설정을 단 하나의 "),
+            rt(".preonic.json", code=True),
+            rt(" 파일로 PC 로컬에 백업하고 언제든 원클릭으로 완벽하게 복원합니다.")
+        ]),
+        h3_block("7.3 7대 동적 제어 기능 탭 구성"),
         table_block([
             table_row_block(["탭 이름", "설정 가능 항목", "비고"]),
             table_row_block([
-                [rt("⌨️ Keymap", bold=True)],
-                "5x12 MIT 레이아웃 실시간 키 리매핑, 레이어 0~4 전환, 키코드 피커",
+                [rt("⌨️ Keymap (Tab 1)", bold=True)],
+                "5x12 MIT 레이아웃 실시간 키 리매핑, 8대 레이어(0~7) 전환, Tap-Hold(Mod-Tap/Layer-Tap) 빌더, 전체 VIA/VIAL 키코드 피커",
                 "Flash(NVS) 영구 저장"
             ]),
             table_row_block([
-                [rt("📜 Macros", bold=True)],
+                [rt("📜 Macros (Tab 2)", bold=True)],
                 "슬롯 1~3 텍스트 직접 입력/주입, 실시간 재생, PC JSON 백업/복원",
                 "12ms 비동기 안전 재생"
             ]),
             table_row_block([
-                [rt("🎛️ Rotary Knob", bold=True)],
+                [rt("🎛️ Rotary Knob (Tab 3)", bold=True)],
                 "레이어별 CW/CCW 액션 커스터마이징, 펄스 감도(디텐트 분주비 2~16) 조절",
                 "즉시 적용"
             ]),
             table_row_block([
-                [rt("🔑 Password", bold=True)],
+                [rt("🔑 Password (Tab 4)", bold=True)],
                 "기본 길이(12/16/20/24), 커스텀 특수문자 풀, 타이핑 딜레이 조절 및 엔트로피 테스트",
                 "하드웨어 TRNG 연동"
             ]),
             table_row_block([
-                [rt("🖱️ Mouse/Scroll", bold=True)],
+                [rt("🖱️ Mouse/Scroll (Tab 5)", bold=True)],
                 "마우스 이동 및 스크롤 선형/지수 가속 곡선, 도달 시간, 부드러운 스크롤 샌드박스",
                 "실시간 스크롤 체감 테스트"
             ]),
             table_row_block([
-                [rt("🔊 Audio/Battery", bold=True)],
+                [rt("🔊 Audio/Battery (Tab 6)", bold=True)],
                 "마스터 사운드, 클릭키 주파수 슬라이더, Test Tone 즉시 비프 테스트, 배터리 mV/SoC% 모니터링",
                 "피에조 부저 즉각 반응"
+            ]),
+            table_row_block([
+                [rt("🔬 Switch Tester (Tab 7)", bold=True)],
+                "5x12 물리 스위치 실시간 입력 검증, 15ms 미만 접점 불량/바운스 채터 감지, 타건 횟수 카운터",
+                "하드웨어 무손상 RAM 카운팅"
             ])
         ], table_width=3, has_column_header=True)
     ]
