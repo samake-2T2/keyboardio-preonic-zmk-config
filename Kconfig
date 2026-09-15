@@ -112,3 +112,14 @@ config PREONIC_SOUND_CLICK_DURATION_MS
 	  Duration of the click pulse in milliseconds.
 
 endif # KEYBOARDIO_PREONIC_SOUND
+
+menuconfig KEYBOARDIO_PREONIC_STUDIO
+	bool "Keyboardio Preonic Studio Web & Serial RPC"
+	default y
+	select SERIAL
+	select UART_INTERRUPT_DRIVEN
+	select RING_BUFFER
+	help
+	  Enables Preonic Studio Web GUI serial protocol interface over USB CDC ACM UART,
+	  allowing dynamic keymap configuration, macro management, rotary knob tuning,
+	  and physical presence security locking.

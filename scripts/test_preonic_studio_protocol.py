@@ -340,6 +340,364 @@ class TestPreonicStudioProtocol(unittest.TestCase):
         self.assertEqual(decoded["data"][2], 11)
         self.assertEqual(decoded["data"][3:14], b"!@#$%*?_-.@")
 
+class PreonicStudioDispatcher:
+    def __init__(self):
+        self.locked = True
+        self.keymap = {}
+        self.knobs = {i: {"cw_beh": 1, "cw_param": 0xE9, "ccw_beh": 1, "ccw_param": 0xEA, "ppd": 2} for i in range(5)}
+        self.macros = {1: "", 2: "", 3: ""}
+        self.pw_config = {"len": 16, "interval": 12, "specials": "!@#$%*?_-.@"}
+        self.mouse_cfg = {"mmv_time": 500, "mmv_exp": 1, "msc_time": 300, "msc_exp": 1, "msc_step": 10}
+        self.audio_cfg = {"master": 0, "clicky": 1, "freq": 3000, "dur": 5}
+        self.auto_lock_remaining = 300
+        self.outbox = []
+
+        self.state = "WAIT_SOF"
+        self.cmd = 0
+        self.seq = 0
+        self.length = 0
+        self.data = bytearray()
+        self.chksum = 0
+
+    def is_locked(self):
+        return self.locked
+
+    def unlock(self):
+        self.locked = False
+        self.auto_lock_remaining = 300
+
+    def lock(self):
+        self.locked = True
+        self.auto_lock_remaining = 0
+
+    def physical_unlock(self):
+        self.unlock()
+        self.send_packet(EVT_UNLOCKED, 0, bytes([0x01]))
+
+    def auto_lock_timeout(self):
+        if not self.locked:
+            self.lock()
+            self.send_packet(EVT_LOCKED, 0, bytes([0x01]))
+
+    def disconnect(self):
+        if not self.locked:
+            self.lock()
+            self.send_packet(EVT_LOCKED, 0, bytes([0x02]))
+
+    def send_packet(self, cmd, seq, data=b""):
+        pkt = encode_packet(cmd, seq, data)
+        self.outbox.append(pkt)
+
+    def process_byte(self, byte):
+        if self.state == "WAIT_SOF":
+            if byte == SOF:
+                self.state = "CMD"
+        elif self.state == "CMD":
+            self.cmd = byte
+            self.state = "SEQ"
+        elif self.state == "SEQ":
+            self.seq = byte
+            self.state = "LEN"
+        elif self.state == "LEN":
+            self.length = byte
+            self.data = bytearray()
+            if self.length > 64:
+                self.state = "WAIT_SOF"
+            elif self.length == 0:
+                self.state = "CHKSUM"
+            else:
+                self.state = "DATA"
+        elif self.state == "DATA":
+            self.data.append(byte)
+            if len(self.data) >= self.length:
+                self.state = "CHKSUM"
+        elif self.state == "CHKSUM":
+            self.chksum = byte
+            self.state = "EOF"
+        elif self.state == "EOF":
+            if byte == EOF:
+                calc_chk = calc_checksum(self.cmd, self.seq, self.length, self.data)
+                if calc_chk == self.chksum:
+                    self.dispatch_command(self.cmd, self.seq, bytes(self.data))
+            self.state = "WAIT_SOF"
+
+    def process_bytes(self, stream):
+        for b in stream:
+            self.process_byte(b)
+
+    def dispatch_command(self, cmd, seq, data):
+        if not self.locked:
+            self.auto_lock_remaining = 300
+
+        mutating_or_private = (
+            cmd in [CMD_SET_KEY, CMD_SAVE_KEYMAP, CMD_DISCARD_KEYMAP,
+                    CMD_SET_KNOB, CMD_GET_MACRO, CMD_SET_MACRO, CMD_PLAY_MACRO,
+                    CMD_SET_PW_CONFIG, CMD_SET_MOUSE_CFG, CMD_SET_AUDIO_CFG, CMD_TEST_PIEZO]
+        )
+        if self.locked and mutating_or_private:
+            self.send_packet(cmd, seq, bytes([ERR_LOCKED]))
+            return
+
+        if cmd == CMD_PING:
+            self.send_packet(CMD_PING, seq, bytes([ERR_OK]))
+        elif cmd == CMD_HANDSHAKE:
+            name_bytes = b"Preonic".ljust(16, b"\x00")
+            resp = bytes([1, 9, 0, 1 if self.locked else 0, 5, 5, 12]) + name_bytes
+            self.send_packet(CMD_HANDSHAKE, seq, resp)
+        elif cmd == CMD_GET_LOCK_STATUS:
+            rem = self.auto_lock_remaining if not self.locked else 0
+            resp = bytes([1 if self.locked else 0, rem & 0xFF, (rem >> 8) & 0xFF])
+            self.send_packet(CMD_GET_LOCK_STATUS, seq, resp)
+        elif cmd == CMD_LOCK:
+            self.lock()
+            self.send_packet(CMD_LOCK, seq, bytes([ERR_OK]))
+        elif cmd == CMD_GET_STATUS:
+            mv = 3300 + 82 * 9
+            resp = bytes([mv & 0xFF, (mv >> 8) & 0xFF, 82, 0, 1, self.audio_cfg["master"], self.audio_cfg["clicky"]])
+            self.send_packet(CMD_GET_STATUS, seq, resp)
+        elif cmd == CMD_GET_KEY:
+            if len(data) < 2:
+                self.send_packet(cmd, seq, bytes([ERR_INVALID]))
+                return
+            layer, key_idx = data[0], data[1]
+            entry = self.keymap.get((layer, key_idx), (0x01, 0, 0))
+            beh_type, p1, p2 = entry
+            resp = bytes([layer, key_idx, beh_type,
+                          p1 & 0xFF, (p1 >> 8) & 0xFF, (p1 >> 16) & 0xFF, (p1 >> 24) & 0xFF,
+                          p2 & 0xFF, (p2 >> 8) & 0xFF, (p2 >> 16) & 0xFF, (p2 >> 24) & 0xFF])
+            self.send_packet(CMD_GET_KEY, seq, resp)
+        elif cmd == CMD_SET_KEY:
+            if len(data) < 11:
+                self.send_packet(cmd, seq, bytes([ERR_INVALID]))
+                return
+            layer, key_idx, beh = data[0], data[1], data[2]
+            p1 = int.from_bytes(data[3:7], "little")
+            p2 = int.from_bytes(data[7:11], "little")
+            self.keymap[(layer, key_idx)] = (beh, p1, p2)
+            self.send_packet(CMD_SET_KEY, seq, bytes([ERR_OK]))
+        elif cmd == CMD_SAVE_KEYMAP or cmd == CMD_DISCARD_KEYMAP:
+            self.send_packet(cmd, seq, bytes([ERR_OK]))
+        elif cmd == CMD_GET_KNOB:
+            if len(data) < 1:
+                self.send_packet(cmd, seq, bytes([ERR_INVALID]))
+                return
+            layer = data[0]
+            k = self.knobs.get(layer, {"cw_beh": 1, "cw_param": 0xE9, "ccw_beh": 1, "ccw_param": 0xEA, "ppd": 2})
+            resp = bytes([layer, k["cw_beh"]]) + k["cw_param"].to_bytes(4, "little") + bytes([k["ccw_beh"]]) + k["ccw_param"].to_bytes(4, "little") + bytes([k["ppd"]])
+            self.send_packet(CMD_GET_KNOB, seq, resp)
+        elif cmd == CMD_SET_KNOB:
+            if len(data) < 12:
+                self.send_packet(cmd, seq, bytes([ERR_INVALID]))
+                return
+            layer = data[0]
+            cw_beh = data[1]
+            cw_param = int.from_bytes(data[2:6], "little")
+            ccw_beh = data[6]
+            ccw_param = int.from_bytes(data[7:11], "little")
+            ppd = data[11]
+            self.knobs[layer] = {"cw_beh": cw_beh, "cw_param": cw_param, "ccw_beh": ccw_beh, "ccw_param": ccw_param, "ppd": ppd}
+            self.send_packet(CMD_SET_KNOB, seq, bytes([ERR_OK]))
+        elif cmd == CMD_GET_MACRO:
+            if len(data) < 1:
+                self.send_packet(cmd, seq, bytes([ERR_INVALID]))
+                return
+            slot = data[0]
+            text = self.macros.get(slot, "")
+            text_bytes = text.encode("ascii")
+            resp = bytes([slot, len(text_bytes) * 2, 0, len(text_bytes)]) + text_bytes
+            self.send_packet(CMD_GET_MACRO, seq, resp)
+        elif cmd == CMD_SET_MACRO:
+            if len(data) < 2:
+                self.send_packet(cmd, seq, bytes([ERR_INVALID]))
+                return
+            slot = data[0]
+            text_len = data[1]
+            text = data[2:2+text_len].decode("ascii", errors="ignore")
+            self.macros[slot] = text
+            self.send_packet(CMD_SET_MACRO, seq, bytes([ERR_OK]))
+        elif cmd == CMD_PLAY_MACRO:
+            self.send_packet(CMD_PLAY_MACRO, seq, bytes([ERR_OK]))
+        elif cmd == CMD_GET_PW_CONFIG:
+            specials = self.pw_config["specials"].encode("ascii")
+            resp = bytes([self.pw_config["len"], self.pw_config["interval"], len(specials)]) + specials.ljust(32, b"\x00")
+            self.send_packet(CMD_GET_PW_CONFIG, seq, resp)
+        elif cmd == CMD_SET_PW_CONFIG:
+            if len(data) < 3:
+                self.send_packet(cmd, seq, bytes([ERR_INVALID]))
+                return
+            self.pw_config["len"] = data[0]
+            self.pw_config["interval"] = data[1]
+            spec_len = data[2]
+            self.pw_config["specials"] = data[3:3+spec_len].decode("ascii", errors="ignore")
+            self.send_packet(CMD_SET_PW_CONFIG, seq, bytes([ERR_OK]))
+        elif cmd == CMD_GET_MOUSE_CFG:
+            resp = (self.mouse_cfg["mmv_time"].to_bytes(2, "little") +
+                    bytes([self.mouse_cfg["mmv_exp"]]) +
+                    self.mouse_cfg["msc_time"].to_bytes(2, "little") +
+                    bytes([self.mouse_cfg["msc_exp"], self.mouse_cfg["msc_step"]]))
+            self.send_packet(CMD_GET_MOUSE_CFG, seq, resp)
+        elif cmd == CMD_SET_MOUSE_CFG:
+            if len(data) < 7:
+                self.send_packet(cmd, seq, bytes([ERR_INVALID]))
+                return
+            self.mouse_cfg["mmv_time"] = int.from_bytes(data[0:2], "little")
+            self.mouse_cfg["mmv_exp"] = data[2]
+            self.mouse_cfg["msc_time"] = int.from_bytes(data[3:5], "little")
+            self.mouse_cfg["msc_exp"] = data[5]
+            self.mouse_cfg["msc_step"] = data[6]
+            self.send_packet(CMD_SET_MOUSE_CFG, seq, bytes([ERR_OK]))
+        elif cmd == CMD_GET_AUDIO_CFG:
+            resp = bytes([self.audio_cfg["master"], self.audio_cfg["clicky"]]) + self.audio_cfg["freq"].to_bytes(2, "little") + bytes([self.audio_cfg["dur"]])
+            self.send_packet(CMD_GET_AUDIO_CFG, seq, resp)
+        elif cmd == CMD_SET_AUDIO_CFG:
+            if len(data) < 5:
+                self.send_packet(cmd, seq, bytes([ERR_INVALID]))
+                return
+            self.audio_cfg["master"] = data[0]
+            self.audio_cfg["clicky"] = data[1]
+            self.audio_cfg["freq"] = int.from_bytes(data[2:4], "little")
+            self.audio_cfg["dur"] = data[4]
+            self.send_packet(CMD_SET_AUDIO_CFG, seq, bytes([ERR_OK]))
+        elif cmd == CMD_TEST_PIEZO:
+            self.send_packet(CMD_TEST_PIEZO, seq, bytes([ERR_OK]))
+        else:
+            self.send_packet(cmd, seq, bytes([ERR_INVALID]))
+
+class TestPreonicStudioDispatcher(unittest.TestCase):
+    def setUp(self):
+        self.disp = PreonicStudioDispatcher()
+
+    def test_handshake(self):
+        pkt = encode_packet(CMD_HANDSHAKE, 1, bytes([1, 0]))
+        self.disp.process_bytes(pkt)
+        self.assertEqual(len(self.disp.outbox), 1)
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertIsNotNone(resp)
+        self.assertEqual(resp["cmd"], CMD_HANDSHAKE)
+        self.assertEqual(resp["seq"], 1)
+        data = resp["data"]
+        self.assertEqual(data[0], 1) # major
+        self.assertEqual(data[1], 9) # minor
+        self.assertEqual(data[2], 0) # patch
+        self.assertEqual(data[3], 1) # locked by default
+        self.assertEqual(data[4], 5) # layers
+        self.assertEqual(data[5], 5) # rows
+        self.assertEqual(data[6], 12) # cols
+        self.assertTrue(data[7:].startswith(b"Preonic"))
+
+    def test_lock_status(self):
+        pkt = encode_packet(CMD_GET_LOCK_STATUS, 2)
+        self.disp.process_bytes(pkt)
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(resp["cmd"], CMD_GET_LOCK_STATUS)
+        self.assertEqual(resp["data"][0], 1) # locked
+
+    def test_lock_rejection_for_mutating_and_private_commands(self):
+        mutating_commands = [
+            (CMD_SET_KEY, bytes([0, 0, 1, 4, 0, 0, 0, 0, 0, 0, 0])),
+            (CMD_SAVE_KEYMAP, b""),
+            (CMD_DISCARD_KEYMAP, b""),
+            (CMD_SET_KNOB, bytes([0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2])),
+            (CMD_GET_MACRO, bytes([1])),
+            (CMD_SET_MACRO, bytes([1, 5]) + b"hello"),
+            (CMD_PLAY_MACRO, bytes([1])),
+            (CMD_SET_PW_CONFIG, bytes([16, 12, 0]) + b"\x00" * 32),
+            (CMD_SET_MOUSE_CFG, bytes([0, 0, 1, 0, 0, 1, 10])),
+            (CMD_SET_AUDIO_CFG, bytes([1, 1, 0, 0, 5])),
+            (CMD_TEST_PIEZO, bytes([0, 0, 0, 0])),
+        ]
+        seq = 10
+        for cmd, payload in mutating_commands:
+            pkt = encode_packet(cmd, seq, payload)
+            self.disp.process_bytes(pkt)
+            resp = decode_packet(self.disp.outbox[-1])
+            self.assertEqual(resp["cmd"], cmd)
+            self.assertEqual(resp["data"], bytes([ERR_LOCKED]), f"Command 0x{cmd:02X} should be rejected when locked")
+            seq += 1
+
+    def test_physical_unlock_and_unlocked_operations(self):
+        self.assertTrue(self.disp.is_locked())
+        self.disp.physical_unlock()
+        self.assertFalse(self.disp.is_locked())
+
+        # Check outbox has EVT_UNLOCKED
+        evt = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(evt["cmd"], EVT_UNLOCKED)
+        self.assertEqual(evt["data"], bytes([0x01]))
+
+        # Now SET_KEY should succeed
+        payload_key = bytes([0, 10, 1, 4, 0, 0, 0, 0, 0, 0, 0])
+        self.disp.process_bytes(encode_packet(CMD_SET_KEY, 20, payload_key))
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(resp["cmd"], CMD_SET_KEY)
+        self.assertEqual(resp["data"], bytes([ERR_OK]))
+
+        # GET_KEY should return the set key
+        self.disp.process_bytes(encode_packet(CMD_GET_KEY, 21, bytes([0, 10])))
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(resp["cmd"], CMD_GET_KEY)
+        self.assertEqual(resp["data"][0], 0) # layer
+        self.assertEqual(resp["data"][1], 10) # idx
+        self.assertEqual(resp["data"][2], 1) # beh_type &kp
+        self.assertEqual(resp["data"][3], 4) # param1 HID_KEY_A
+
+        # SET_MACRO should succeed
+        macro_text = b"Secret123"
+        payload_macro = bytes([1, len(macro_text)]) + macro_text
+        self.disp.process_bytes(encode_packet(CMD_SET_MACRO, 22, payload_macro))
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(resp["cmd"], CMD_SET_MACRO)
+        self.assertEqual(resp["data"], bytes([ERR_OK]))
+
+        # GET_MACRO should return the text
+        self.disp.process_bytes(encode_packet(CMD_GET_MACRO, 23, bytes([1])))
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(resp["cmd"], CMD_GET_MACRO)
+        self.assertEqual(resp["data"][0], 1) # slot 1
+        self.assertEqual(resp["data"][3], len(macro_text))
+        self.assertEqual(resp["data"][4:4+len(macro_text)], macro_text)
+
+    def test_manual_lock(self):
+        self.disp.unlock()
+        self.assertFalse(self.disp.is_locked())
+
+        self.disp.process_bytes(encode_packet(CMD_LOCK, 30))
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(resp["cmd"], CMD_LOCK)
+        self.assertEqual(resp["data"], bytes([ERR_OK]))
+        self.assertTrue(self.disp.is_locked())
+
+    def test_inactivity_auto_lock(self):
+        self.disp.unlock()
+        self.assertFalse(self.disp.is_locked())
+
+        self.disp.auto_lock_timeout()
+        self.assertTrue(self.disp.is_locked())
+        evt = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(evt["cmd"], EVT_LOCKED)
+        self.assertEqual(evt["data"], bytes([0x01])) # 1 = timeout
+
+    def test_disconnect_auto_lock(self):
+        self.disp.unlock()
+        self.assertFalse(self.disp.is_locked())
+
+        self.disp.disconnect()
+        self.assertTrue(self.disp.is_locked())
+        evt = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(evt["cmd"], EVT_LOCKED)
+        self.assertEqual(evt["data"], bytes([0x02])) # 2 = disconnect
+
+    def test_stream_fragmented_byte_simulation(self):
+        self.disp.unlock()
+        pkt = encode_packet(CMD_PING, 99)
+        # Feed one byte at a time
+        for b in pkt:
+            self.disp.process_byte(b)
+        resp = decode_packet(self.disp.outbox[-1])
+        self.assertEqual(resp["cmd"], CMD_PING)
+        self.assertEqual(resp["seq"], 99)
+        self.assertEqual(resp["data"], bytes([ERR_OK]))
+
 if __name__ == "__main__":
     unittest.main()
 

@@ -57,6 +57,9 @@ void preonic_studio_unlock(void);
 void preonic_studio_lock(void);
 void preonic_studio_process_byte(uint8_t byte);
 
+typedef void (*preonic_studio_tx_fn)(uint8_t cmd, uint8_t seq, const uint8_t *data, uint8_t len);
+void preonic_studio_set_tx_hook(preonic_studio_tx_fn hook);
+
 #ifdef __cplusplus
 }
 #endif
