@@ -1448,7 +1448,7 @@
         </svg>
       </div>
       <div class="brand-titles">
-        <h1>Preonic Studio <span class="badge-ver">v2.0.2</span></h1>
+        <h1>Preonic Studio <span class="badge-ver">v2.0.3</span></h1>
       </div>
     </div>
 
@@ -1705,8 +1705,8 @@
           <button class="layer-btn knob-layer-btn active" data-layer="0">0: Base</button>
           <button class="layer-btn knob-layer-btn" data-layer="1">1: Lower</button>
           <button class="layer-btn knob-layer-btn" data-layer="2">2: Raise</button>
-          <button class="layer-btn knob-layer-btn" data-layer="3">3: Func</button>
-          <button class="layer-btn knob-layer-btn" data-layer="4">4: Tri</button>
+          <button class="layer-btn knob-layer-btn" data-layer="3" title="Hardware Intercept: TRNG Password Generator">3: Func 🔑</button>
+          <button class="layer-btn knob-layer-btn" data-layer="4" title="Hardware Intercept: TRNG Password Generator">4: Tri 🔑</button>
           <button class="layer-btn knob-layer-btn" data-layer="5">5: Extra 1</button>
           <button class="layer-btn knob-layer-btn" data-layer="6">6: Extra 2</button>
           <button class="layer-btn knob-layer-btn" data-layer="7">7: Extra 3</button>
@@ -1718,15 +1718,41 @@
             <div id="knobDial" class="knob-dial">
               <div class="knob-indicator"></div>
             </div>
-            <div style="font-weight: 700; margin-top: 14px; color: #fff;">Preonic Top-Left Knob</div>
-            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Click & drag to simulate detents</div>
+            <div id="knobVisualTitle" style="font-weight: 700; margin-top: 14px; color: #fff;">Preonic Top-Right Knob</div>
+            <div id="knobVisualSub" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Click & drag to simulate detents</div>
           </div>
 
           <!-- Configuration Form -->
           <div>
+            <!-- Hardware Intercept Banner for Layer 3 (Func) & 4 (Tri) -->
+            <div id="knobHwNoticeBox" style="display: none; background: rgba(120, 53, 15, 0.35); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+              <div style="font-weight: 700; color: #fbbf24; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                <span>🔑 Hardware TRNG Password Generator Intercept Active</span>
+                <span class="pill-badge" style="background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 10px;">HW Intercept</span>
+              </div>
+              <div style="font-size: 12px; color: #fef3c7; margin-top: 6px; line-height: 1.45;">
+                This layer is hardcoded in the firmware event listener (<code>password_generator.c</code>) to control the Hardware TRNG Password Generator:
+                <div style="margin-top: 4px; display: grid; grid-template-columns: 1fr; gap: 4px;">
+                  <div>• <strong>Rotate (CW / CCW)</strong>: Cycle Length (12 ➡️ 16 ➡️ 20 ➡️ 24 chars)</div>
+                  <div>• <strong>Click (Single)</strong>: Generate DB Safe Password</div>
+                  <div>• <strong>Click (Double)</strong>: Generate Web Extended Password</div>
+                  <div>• <strong>Click (Hold 0.4s)</strong>: Generate Alphanumeric Password</div>
+                </div>
+                <div style="margin-top: 6px; font-size: 11px; color: #cbd5e1;">
+                  <em>* Standard software keycode bindings configured below are overridden by the hardware listener while on this layer.</em>
+                </div>
+              </div>
+              <div style="margin-top: 10px;">
+                <button id="btnJumpToPwGen" class="btn btn-secondary" style="font-size: 11px; padding: 4px 12px; background: #78350f; border-color: #f59e0b;">
+                  🔑 Open Password Generator Tab
+                </button>
+              </div>
+            </div>
+
             <div class="form-group">
               <label class="form-label">Clockwise (CW) Rotation Action</label>
               <select id="knobCwSelect" class="form-control">
+                <option value="pw_length" style="color: #fbbf24; font-weight: bold;">🔑 Hardware TRNG: Cycle Password Length (12/16/20/24)</option>
                 <option value="vol_up">Volume Up (C_VOLUME_UP)</option>
                 <option value="vol_dn">Volume Down (C_VOLUME_DOWN)</option>
                 <option value="scrl_up">Mouse Scroll Up (↑)</option>
@@ -1755,6 +1781,7 @@
             <div class="form-group">
               <label class="form-label">Counter-Clockwise (CCW) Rotation Action</label>
               <select id="knobCcwSelect" class="form-control">
+                <option value="pw_length" style="color: #fbbf24; font-weight: bold;">🔑 Hardware TRNG: Cycle Password Length (12/16/20/24)</option>
                 <option value="vol_dn">Volume Down (C_VOLUME_DOWN)</option>
                 <option value="vol_up">Volume Up (C_VOLUME_UP)</option>
                 <option value="scrl_dn">Mouse Scroll Down (↓)</option>
@@ -2188,7 +2215,7 @@
               </div>
             </div>
             <div style="margin-top: 14px;">
-              <a id="btnDlFirmware" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.2/keyboardio_preonic__zmk.uf2" download="keyboardio_preonic__zmk.uf2" class="fw-dl-btn fw-dl-primary">
+              <a id="btnDlFirmware" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.3/keyboardio_preonic__zmk.uf2" download="keyboardio_preonic__zmk.uf2" class="fw-dl-btn fw-dl-primary">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <span style="font-size: 20px;">📦</span>
                   <div style="text-align: left;">
@@ -2199,7 +2226,7 @@
                 <span class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;">Download 📥</span>
               </a>
 
-              <a id="btnDlReset" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.2/settings_reset-keyboardio_preonic__zmk.uf2" download="settings_reset-keyboardio_preonic__zmk.uf2" class="fw-dl-btn">
+              <a id="btnDlReset" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.3/settings_reset-keyboardio_preonic__zmk.uf2" download="settings_reset-keyboardio_preonic__zmk.uf2" class="fw-dl-btn">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <span style="font-size: 20px;">🧹</span>
                   <div style="text-align: left;">
@@ -3390,7 +3417,7 @@
               break;
             case CMD_HANDSHAKE: {
               const resp = new Uint8Array(23);
-              resp[0] = 2; resp[1] = 0; resp[2] = 2; // v2.0.2
+              resp[0] = 2; resp[1] = 0; resp[2] = 3; // v2.0.3
               resp[3] = state.locked ? 1 : 0;
               resp[4] = 8; resp[5] = 5; resp[6] = 12;
               const name = new TextEncoder().encode("Preonic");
@@ -4188,9 +4215,36 @@
       const ccwSelect = document.getElementById("knobCcwSelect");
       const ppdSlider = document.getElementById("knobPpdSlider");
       const ppdValue = document.getElementById("knobPpdValue");
+      const noticeBox = document.getElementById("knobHwNoticeBox");
+      const visualTitle = document.getElementById("knobVisualTitle");
+      const visualSub = document.getElementById("knobVisualSub");
 
-      if (cwSelect) cwSelect.value = findKnobActionId(k.cwBeh, k.cwParam, "vol_up");
-      if (ccwSelect) ccwSelect.value = findKnobActionId(k.ccwBeh, k.ccwParam, "vol_dn");
+      if (layer === 3 || layer === 4) {
+        if (noticeBox) noticeBox.style.display = "block";
+        if (cwSelect) {
+          cwSelect.value = "pw_length";
+          cwSelect.disabled = true;
+        }
+        if (ccwSelect) {
+          ccwSelect.value = "pw_length";
+          ccwSelect.disabled = true;
+        }
+        if (visualTitle) visualTitle.innerText = "Preonic Knob (🔑 Password Length)";
+        if (visualSub) visualSub.innerText = "Rotate to cycle: 12 → 16 → 20 → 24";
+      } else {
+        if (noticeBox) noticeBox.style.display = "none";
+        if (cwSelect) {
+          cwSelect.disabled = false;
+          cwSelect.value = findKnobActionId(k.cwBeh, k.cwParam, "vol_up");
+        }
+        if (ccwSelect) {
+          ccwSelect.disabled = false;
+          ccwSelect.value = findKnobActionId(k.ccwBeh, k.ccwParam, "vol_dn");
+        }
+        if (visualTitle) visualTitle.innerText = "Preonic Top-Right Knob";
+        if (visualSub) visualSub.innerText = "Click & drag to simulate detents";
+      }
+
       if (ppdSlider) ppdSlider.value = k.ppd || 2;
       if (ppdValue) ppdValue.innerText = `${k.ppd || 2} pulses`;
     }
@@ -4377,7 +4431,7 @@
         if (state.connected) return;
         state.demoMode = !state.demoMode;
         if (state.demoMode) {
-          state.firmwareVersion = "2.0.2";
+          state.firmwareVersion = "2.0.3";
           state.keymaps = generateDefaultKeymap();
           renderAllKeycaps();
           const banner = document.getElementById("keymapSyncStatus");
@@ -4466,6 +4520,10 @@
       const btnPw = document.getElementById("btnOpenPwTab");
       if (btnPw) {
         btnPw.addEventListener("click", () => switchTab("tab-password"));
+      }
+      const btnJumpPw = document.getElementById("btnJumpToPwGen");
+      if (btnJumpPw) {
+        btnJumpPw.addEventListener("click", () => switchTab("tab-password"));
       }
 
       // Layer selector buttons for Keymap
@@ -5170,7 +5228,7 @@
 
       // Installed version
       if (state.connected || state.demoMode) {
-        const instVer = state.firmwareVersion || "2.0.2";
+        const instVer = state.firmwareVersion || "2.0.3";
         if (fwInstalledVer) fwInstalledVer.textContent = `v${instVer}`;
         if (fwInstalledSub) fwInstalledSub.textContent = state.demoMode ? "Preonic (Demo Mode)" : `${state.deviceName} (Connected)`;
       } else {
@@ -5180,7 +5238,7 @@
 
       // Latest GitHub version
       const latestTag = state.githubLatestRelease ? state.githubLatestRelease.tag_name : null;
-      if (fwLatestVer) fwLatestVer.textContent = latestTag || (state.githubStatus === "checking" ? "Checking..." : "v2.0.2");
+      if (fwLatestVer) fwLatestVer.textContent = latestTag || (state.githubStatus === "checking" ? "Checking..." : "v2.0.3");
       if (fwLatestDate) {
         if (state.githubLatestRelease && state.githubLatestRelease.published_at) {
           const d = new Date(state.githubLatestRelease.published_at);
@@ -5196,7 +5254,7 @@
       let isUpdateAvail = false;
       let isUpToDate = false;
       if (latestTag && (state.connected || state.demoMode)) {
-        const cmp = compareSemVer(state.firmwareVersion || "2.0.2", latestTag);
+        const cmp = compareSemVer(state.firmwareVersion || "2.0.3", latestTag);
         if (cmp < 0) {
           isUpdateAvail = true;
         } else {
@@ -5213,11 +5271,11 @@
           badgeText.textContent = `Update: ${latestTag} ⚡`;
         } else if (isUpToDate) {
           badge.classList.add("badge-up-to-date");
-          badgeText.textContent = `GitHub: ${latestTag || "v2.0.2"} ✓`;
+          badgeText.textContent = `GitHub: ${latestTag || "v2.0.3"} ✓`;
         } else if (latestTag) {
           badgeText.textContent = `GitHub: ${latestTag}`;
         } else {
-          badgeText.textContent = "GitHub: v2.0.2";
+          badgeText.textContent = "GitHub: v2.0.3";
         }
       }
 
@@ -5241,7 +5299,7 @@
           fwStatusText.innerHTML = `⚡ <strong>New Firmware Available (${latestTag})</strong> — Download the UF2 file below and flash in bootloader mode!`;
         } else if (isUpToDate) {
           fwStatusBanner.classList.add("up-to-date");
-          fwStatusText.innerHTML = `✅ <strong>Up to Date</strong> — Your Preonic keyboard is running the latest firmware (${latestTag || "v2.0.2"}).`;
+          fwStatusText.innerHTML = `✅ <strong>Up to Date</strong> — Your Preonic keyboard is running the latest firmware (${latestTag || "v2.0.3"}).`;
         } else if (state.githubStatus === "checking") {
           fwStatusBanner.classList.add("checking");
           fwStatusText.innerHTML = `⏳ Checking GitHub repository (${repo}) for latest releases and commits...`;
@@ -5255,8 +5313,8 @@
       }
 
       // Update download links
-      let mainUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.2"}/keyboardio_preonic__zmk.uf2`;
-      let resetUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.2"}/settings_reset-keyboardio_preonic__zmk.uf2`;
+      let mainUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.3"}/keyboardio_preonic__zmk.uf2`;
+      let resetUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.3"}/settings_reset-keyboardio_preonic__zmk.uf2`;
 
       if (state.githubLatestRelease && Array.isArray(state.githubLatestRelease.assets)) {
         const fwAsset = state.githubLatestRelease.assets.find(a => a.name.includes("preonic") && a.name.endsWith(".uf2") && !a.name.includes("reset"));

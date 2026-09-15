@@ -761,9 +761,15 @@ def update_or_create_keymap_page():
                 "하드웨어 무손상 RAM 카운팅"
             ])
         ], table_width=3, has_column_header=True),
-        h3_block("7.4 Preonic Studio v2.0.2 비주얼 슈퍼파워 (Visual Superpowers)"),
+        h3_block("7.4 Preonic Studio v2.0.3 비주얼 슈퍼파워 & 로터리 노브 하드웨어 인터셉트"),
         bullet_block([
-            rt("하드웨어 가로채기(Hardware Intercept) 특수 기능 뱃지: ", bold=True),
+            rt("로터리 노브 하드웨어 인터셉트(Hardware Intercept) 아키텍처: ", bold=True),
+            rt("Layer 3 (Fn) 및 Layer 4 (Tri)에서 로터리 노브는 일반 키코드/센서 매핑이 아닌, 펌웨어 이벤트 리스너(password_generator.c)가 하드웨어 이벤트를 직접 가로챕니다. "),
+            rt("노브 회전은 패스워드 자리수 순환(12/16/20/24), 푸시 클릭은 DB Safe / Web Extended / Alphanumeric 암호 생성으로 동작"),
+            rt("하며, Preonic Studio의 'Rotary Knob' 탭에서도 Layer 3/4 진입 시 하드웨어 가로채기 안내 배너와 전용 옵션이 동적으로 표시됩니다.")
+        ]),
+        bullet_block([
+            rt("하드웨어 가로채기 특수 기능 뱃지: ", bold=True),
             rt("펌웨어 C 코드 이벤트 리스너가 직접 처리하는 다이나믹 매크로(Fn + 5~0) 및 하드웨어 TRNG 패스워드 생성기(Fn + D/W/A)가 키맵 에디터에서 빈 키(&none)로 오인되지 않도록, Layer 3(Fn) / Layer 4(Tri) 진입 시 "),
             rt("🔴 REC 1~3", code=True),
             rt(" / "),
@@ -785,8 +791,8 @@ def update_or_create_keymap_page():
             rt("노브 또는 특수 기능 키캡 클릭 시 하단 인스펙터 카드에 상세 안내와 함께 [🎛️ Configure Knob], [📜 Open Macro Manager], [🔑 Open Password Tab] 원클릭 이동 버튼을 제공합니다.")
         ]),
         bullet_block([
-            rt("32비트 네이티브 ZMK 키코드 디코더 표준화: ", bold=True),
-            rt("ZMK의 32비트 HID Usage Page 인코딩 규격을 완벽 지원하여 키맵 로드 시 0x70035 등 원시 16진수가 노출되던 버그를 완벽히 해결하였습니다.")
+            rt("펌웨어 핸드셰이크 버전 동기화: ", bold=True),
+            rt("MCU 펌웨어 응답을 v2.0.3으로 일치시켜 웹 스튜디오 접속 시 펌웨어 최신 상태가 정확하게 연동되도록 보장합니다.")
         ])
     ]
 
