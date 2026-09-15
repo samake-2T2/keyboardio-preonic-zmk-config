@@ -15,6 +15,7 @@
 #include <errno.h>
 
 #include <zmk/keymap.h>
+#include <zmk/behavior.h>
 #include <zmk/battery.h>
 #include <zmk/ble.h>
 #include <zmk/endpoints.h>
