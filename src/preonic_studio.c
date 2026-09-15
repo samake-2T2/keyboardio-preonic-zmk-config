@@ -19,6 +19,7 @@
 #include <zmk/ble.h>
 #include <zmk/endpoints.h>
 #include <zmk/usb.h>
+#include <zmk/usb_hid.h>
 #include <zmk/event_manager.h>
 #include <zmk/events/position_state_changed.h>
 #include <zmk/events/activity_state_changed.h>
@@ -428,8 +429,8 @@ static void preonic_studio_dispatch_command(uint8_t cmd, uint8_t seq, const uint
 #endif
         bool is_usb = false;
 #if IS_ENABLED(CONFIG_ZMK_USB)
-        struct zmk_endpoint_instance ep = zmk_endpoints_selected();
-        if (zmk_endpoints_preferred_transport() != ZMK_TRANSPORT_BLE &&
+        struct zmk_endpoint_instance ep = zmk_endpoint_get_selected();
+        if (zmk_endpoint_get_preferred_transport() != ZMK_TRANSPORT_BLE &&
             (ep.transport == ZMK_TRANSPORT_USB || zmk_usb_is_hid_ready())) {
             is_usb = true;
         }

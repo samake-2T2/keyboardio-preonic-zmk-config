@@ -86,7 +86,6 @@ static const char UPPER_SET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 static const char LOWER_SET[] = "abcdefghijklmnopqrstuvwxyz";
 static const char DIGIT_SET[] = "0123456789";
 static const char DB_SAFE_SPECIALS[] = "_-";
-static const char WEB_SPECIALS[] = "_-@.!#$%*?";
 
 static const uint32_t letter_keys[26] = {
     A, B, C, D, E, F, G, H, I, J, K, L, M,
