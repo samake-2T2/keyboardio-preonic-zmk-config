@@ -42,6 +42,28 @@ void password_generator_trigger(enum password_mode mode);
  */
 bool password_generator_is_typing(void);
 
+/**
+ * @brief Get current dynamic password generator configuration.
+ *
+ * @param default_len Pointer to store default password length (optional, can be NULL)
+ * @param interval_ms Pointer to store typing step interval in ms (optional, can be NULL)
+ * @param specials Pointer to buffer for custom special characters (optional, can be NULL)
+ * @param specials_len Pointer to store length of custom special characters (optional, can be NULL)
+ */
+void password_generator_get_config(uint8_t *default_len, uint8_t *interval_ms, char *specials, uint8_t *specials_len);
+
+/**
+ * @brief Update dynamic password generator configuration and save to NVS flash.
+ *
+ * @param default_len Default password length (e.g. 12, 16, 20, 24)
+ * @param interval_ms Typing delay interval per step in ms (5..50 ms)
+ * @param specials Custom special characters pool string
+ * @param specials_len Number of characters in specials (max 32)
+ * @return 0 on success, negative error code on invalid parameter
+ */
+int password_generator_set_config(uint8_t default_len, uint8_t interval_ms, const char *specials, uint8_t specials_len);
+
 #ifdef __cplusplus
 }
 #endif
+

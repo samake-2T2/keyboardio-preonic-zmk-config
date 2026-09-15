@@ -7,7 +7,10 @@
 #include <zephyr/init.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/settings/settings.h>
+#include <string.h>
+#include <errno.h>
 #include <dt-bindings/zmk/keys.h>
+
 #include <dt-bindings/zmk/modifiers.h>
 #include <zmk/activity.h>
 #include <zmk/event_manager.h>
@@ -119,6 +122,156 @@ static void dynamic_macro_save_slot(uint8_t slot_num) {
 #else
 static inline void dynamic_macro_save_slot(uint8_t slot_num) { ARG_UNUSED(slot_num); }
 #endif
+
+static const uint32_t macro_letter_keys[26] = {
+    A, B, C, D, E, F, G, H, I, J, K, L, M,
+    N, O, P, Q, R, S, T, U, V, W, X, Y, Z
+};
+
+static const uint32_t macro_digit_keys[10] = {
+    N0, N1, N2, N3, N4, N5, N6, N7, N8, N9
+};
+
+static bool ascii_to_hid(char c, uint32_t *keycode, bool *shifted) {
+    if (c >= 'a' && c <= 'z') {
+        *keycode = macro_letter_keys[c - 'a'];
+        *shifted = false;
+        return true;
+    }
+    if (c >= 'A' && c <= 'Z') {
+        *keycode = macro_letter_keys[c - 'A'];
+        *shifted = true;
+        return true;
+    }
+    if (c >= '0' && c <= '9') {
+        *keycode = macro_digit_keys[c - '0'];
+        *shifted = false;
+        return true;
+    }
+    switch (c) {
+        case ' ':  *keycode = SPACE; *shifted = false; return true;
+        case '\n': *keycode = ENTER; *shifted = false; return true;
+        case '\r': *keycode = ENTER; *shifted = false; return true;
+        case '\t': *keycode = TAB; *shifted = false; return true;
+        case '-':  *keycode = MINUS; *shifted = false; return true;
+        case '=':  *keycode = EQUAL; *shifted = false; return true;
+        case '[':  *keycode = LBKT; *shifted = false; return true;
+        case ']':  *keycode = RBKT; *shifted = false; return true;
+        case '\\': *keycode = BACKSLASH; *shifted = false; return true;
+        case ';':  *keycode = SEMI; *shifted = false; return true;
+        case '\'': *keycode = SQT; *shifted = false; return true;
+        case ',':  *keycode = COMMA; *shifted = false; return true;
+        case '.':  *keycode = PERIOD; *shifted = false; return true;
+        case '/':  *keycode = SLASH; *shifted = false; return true;
+        case '`':  *keycode = GRAVE; *shifted = false; return true;
+
+        // Shifted symbols
+        case '!': *keycode = N1; *shifted = true; return true;
+        case '@': *keycode = N2; *shifted = true; return true;
+        case '#': *keycode = N3; *shifted = true; return true;
+        case '$': *keycode = N4; *shifted = true; return true;
+        case '%': *keycode = N5; *shifted = true; return true;
+        case '^': *keycode = N6; *shifted = true; return true;
+        case '&': *keycode = N7; *shifted = true; return true;
+        case '*': *keycode = N8; *shifted = true; return true;
+        case '(': *keycode = N9; *shifted = true; return true;
+        case ')': *keycode = N0; *shifted = true; return true;
+        case '_': *keycode = MINUS; *shifted = true; return true;
+        case '+': *keycode = EQUAL; *shifted = true; return true;
+        case '{': *keycode = LBKT; *shifted = true; return true;
+        case '}': *keycode = RBKT; *shifted = true; return true;
+        case '|': *keycode = BACKSLASH; *shifted = true; return true;
+        case ':': *keycode = SEMI; *shifted = true; return true;
+        case '"': *keycode = SQT; *shifted = true; return true;
+        case '<': *keycode = COMMA; *shifted = true; return true;
+        case '>': *keycode = PERIOD; *shifted = true; return true;
+        case '?': *keycode = SLASH; *shifted = true; return true;
+        case '~': *keycode = GRAVE; *shifted = true; return true;
+
+        default:
+            return false;
+    }
+}
+
+int dynamic_macro_set_slot_text(uint8_t slot_num, const char *text, uint16_t len) {
+    if (slot_num < 1 || slot_num > 3 || text == NULL) {
+        return -EINVAL;
+    }
+
+    struct dyn_macro_slot *slot = get_slot_ptr(slot_num);
+    if (!slot) {
+        return -EINVAL;
+    }
+
+    // Pre-calculate step count to prevent partial overflow
+    uint16_t total_steps = 0;
+    for (uint16_t i = 0; i < len; i++) {
+        if (text[i] == '\r' && i + 1 < len && text[i + 1] == '\n') {
+            continue;
+        }
+        uint32_t kc = 0;
+        bool shifted = false;
+        if (!ascii_to_hid(text[i], &kc, &shifted)) {
+            continue;
+        }
+        total_steps += shifted ? 4 : 2;
+    }
+
+    if (total_steps > DYN_MACRO_MAX_STEPS) {
+        return -ENOSPC;
+    }
+
+    if (recording_slot == slot_num) {
+        recording_slot = 0;
+        butterfly_set_macro_mode(BUTTERFLY_MACRO_IDLE);
+    }
+
+    slot->count = 0;
+    for (uint16_t i = 0; i < len; i++) {
+        if (text[i] == '\r' && i + 1 < len && text[i + 1] == '\n') {
+            continue;
+        }
+        uint32_t kc = 0;
+        bool shifted = false;
+        if (!ascii_to_hid(text[i], &kc, &shifted)) {
+            continue;
+        }
+        if (shifted) {
+            slot->steps[slot->count++] = (struct dyn_macro_step){ .keycode = LSHFT, .pressed = 1 };
+            slot->steps[slot->count++] = (struct dyn_macro_step){ .keycode = kc, .pressed = 1 };
+            slot->steps[slot->count++] = (struct dyn_macro_step){ .keycode = kc, .pressed = 0 };
+            slot->steps[slot->count++] = (struct dyn_macro_step){ .keycode = LSHFT, .pressed = 0 };
+        } else {
+            slot->steps[slot->count++] = (struct dyn_macro_step){ .keycode = kc, .pressed = 1 };
+            slot->steps[slot->count++] = (struct dyn_macro_step){ .keycode = kc, .pressed = 0 };
+        }
+    }
+
+    dynamic_macro_save_slot(slot_num);
+    LOG_INF("Dynamic Macro %u injected from text: %u steps", slot_num, slot->count);
+    return 0;
+}
+
+uint16_t dynamic_macro_get_slot_steps(uint8_t slot_num, void *out_buf, uint16_t max_bytes) {
+    if (slot_num < 1 || slot_num > 3) {
+        return 0;
+    }
+
+    struct dyn_macro_slot *slot = get_slot_ptr(slot_num);
+    if (!slot) {
+        return 0;
+    }
+
+    uint16_t total_bytes = slot->count * sizeof(struct dyn_macro_step);
+    if (!out_buf || max_bytes == 0) {
+        return total_bytes;
+    }
+
+    uint16_t to_copy = (total_bytes < max_bytes) ? total_bytes : max_bytes;
+    memcpy(out_buf, slot->steps, to_copy);
+    return to_copy;
+}
+
 
 uint8_t dynamic_macro_get_recording_slot(void) {
     return recording_slot;

@@ -47,6 +47,30 @@ uint8_t dynamic_macro_get_recording_slot(void);
  */
 uint8_t dynamic_macro_get_playing_slot(void);
 
+/**
+ * @brief Inject ASCII text into a dynamic macro slot as keypress/release steps.
+ *
+ * Clears the slot, encodes characters as HID keycode steps (handling shift for
+ * uppercase letters and standard shifted symbols), and persists to NVS.
+ *
+ * @param slot_num Macro slot number (1, 2, or 3)
+ * @param text ASCII text to inject
+ * @param len Length of text in bytes
+ * @return 0 on success, negative error code on invalid slot or buffer overflow
+ */
+int dynamic_macro_set_slot_text(uint8_t slot_num, const char *text, uint16_t len);
+
+/**
+ * @brief Copy raw recorded macro steps from the specified slot.
+ *
+ * @param slot_num Macro slot number (1, 2, or 3)
+ * @param out_buf Output buffer to copy raw steps into
+ * @param max_bytes Maximum bytes to copy into out_buf
+ * @return Number of bytes copied into out_buf
+ */
+uint16_t dynamic_macro_get_slot_steps(uint8_t slot_num, void *out_buf, uint16_t max_bytes);
+
 #ifdef __cplusplus
 }
 #endif
+

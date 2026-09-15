@@ -8,10 +8,12 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/random/random.h>
 #include <string.h>
+#include <errno.h>
 
 #if IS_ENABLED(CONFIG_SETTINGS)
 #include <zephyr/settings/settings.h>
 #endif
+
 
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/modifiers.h>
@@ -38,7 +40,12 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define FN_LAYER_INDEX 3
 #define TRI_LAYER_INDEX 4
 
-#define TYPING_STEP_INTERVAL_MS 12
+#define PW_MAX_SPECIALS 32
+
+static uint8_t default_length = 16;
+static uint8_t typing_interval_ms = 12;
+static char custom_specials[PW_MAX_SPECIALS + 1] = "!@#$%*?_-.@";
+static uint8_t custom_specials_len = 11;
 
 #define KNOB_LONG_PRESS_MS 400
 #define KNOB_DOUBLE_CLICK_MS 250
@@ -66,8 +73,9 @@ struct pw_step {
     bool pressed;
 };
 
-#define MAX_PW_STEPS 64
+#define MAX_PW_STEPS 128
 static struct pw_step steps[MAX_PW_STEPS];
+
 static size_t num_steps = 0;
 static size_t current_step = 0;
 static bool typing_in_progress = false;
@@ -89,16 +97,50 @@ static const uint32_t digit_keys[10] = {
     N0, N1, N2, N3, N4, N5, N6, N7, N8, N9
 };
 
+struct __packed pw_gen_config_persisted {
+    uint8_t default_len;
+    uint8_t interval_ms;
+    uint8_t specials_len;
+    char specials[PW_MAX_SPECIALS];
+};
+
 #if IS_ENABLED(CONFIG_SETTINGS)
 static int pw_settings_set(const char *name, size_t len, settings_read_cb read_cb, void *cb_arg) {
     const char *next;
+    if (settings_name_steq(name, "config", &next) && !next) {
+        struct pw_gen_config_persisted cfg;
+        if (len <= sizeof(cfg)) {
+            read_cb(cb_arg, &cfg, len);
+            if (cfg.default_len >= 8 && cfg.default_len <= 32) {
+                default_length = cfg.default_len;
+                for (uint8_t i = 0; i < ARRAY_SIZE(ALLOWED_LENGTHS); i++) {
+                    if (ALLOWED_LENGTHS[i] == default_length) {
+                        current_length_idx = i;
+                        break;
+                    }
+                }
+            }
+            if (cfg.interval_ms >= 5 && cfg.interval_ms <= 50) {
+                typing_interval_ms = cfg.interval_ms;
+            }
+            if (cfg.specials_len <= PW_MAX_SPECIALS) {
+                custom_specials_len = cfg.specials_len;
+                memcpy(custom_specials, cfg.specials, custom_specials_len);
+                custom_specials[custom_specials_len] = '\0';
+            }
+            LOG_INF("Loaded password config from flash: len=%u, interval=%ums, specials=%.*s",
+                    default_length, typing_interval_ms, custom_specials_len, custom_specials);
+        }
+        return 0;
+    }
     if (settings_name_steq(name, "len_idx", &next) && !next) {
         uint8_t val = 0;
         if (len <= sizeof(val)) {
             read_cb(cb_arg, &val, len);
             if (val < ARRAY_SIZE(ALLOWED_LENGTHS)) {
                 current_length_idx = val;
-                LOG_INF("Loaded password length from flash: %u", ALLOWED_LENGTHS[current_length_idx]);
+                default_length = ALLOWED_LENGTHS[current_length_idx];
+                LOG_INF("Loaded password length from flash: %u", default_length);
             }
         }
         return 0;
@@ -119,8 +161,12 @@ static void get_random_bytes(uint8_t *buf, size_t len) {
 }
 
 static void generate_password_string(char *out, uint8_t length, enum password_mode mode) {
-    const char *specials = (mode == PW_MODE_WEB_EXTENDED) ? WEB_SPECIALS : DB_SAFE_SPECIALS;
-    size_t specials_len = (mode == PW_MODE_WEB_EXTENDED) ? (sizeof(WEB_SPECIALS) - 1) : (sizeof(DB_SAFE_SPECIALS) - 1);
+    const char *specials = (mode == PW_MODE_WEB_EXTENDED) ?
+                           (custom_specials_len > 0 ? custom_specials : DB_SAFE_SPECIALS) :
+                           DB_SAFE_SPECIALS;
+    size_t specials_len = (mode == PW_MODE_WEB_EXTENDED) ?
+                          (custom_specials_len > 0 ? custom_specials_len : (sizeof(DB_SAFE_SPECIALS) - 1)) :
+                          (sizeof(DB_SAFE_SPECIALS) - 1);
 
     size_t idx = 0;
     uint8_t rand_byte;
@@ -179,36 +225,37 @@ static uint32_t char_to_keycode(char c) {
     if (c >= '0' && c <= '9') {
         return digit_keys[c - '0'];
     }
-    if (c == '-') {
-        return MINUS;
-    }
-    if (c == '_') {
-        return UNDER;
-    }
-    if (c == '.') {
-        return PERIOD;
-    }
-    if (c == '@') {
-        return AT;
-    }
-    if (c == '!') {
-        return LS(N1);
-    }
-    if (c == '#') {
-        return LS(N3);
-    }
-    if (c == '$') {
-        return LS(N4);
-    }
-    if (c == '%') {
-        return LS(N5);
-    }
-    if (c == '*') {
-        return LS(N8);
-    }
-    if (c == '?') {
-        return LS(SLASH);
-    }
+    if (c == '-') return MINUS;
+    if (c == '_') return UNDER;
+    if (c == '.') return PERIOD;
+    if (c == '@') return AT;
+    if (c == '!') return LS(N1);
+    if (c == '#') return LS(N3);
+    if (c == '$') return LS(N4);
+    if (c == '%') return LS(N5);
+    if (c == '^') return LS(N6);
+    if (c == '&') return LS(N7);
+    if (c == '*') return LS(N8);
+    if (c == '(') return LS(N9);
+    if (c == ')') return LS(N0);
+    if (c == '+') return LS(EQUAL);
+    if (c == '=') return EQUAL;
+    if (c == '{') return LS(LBKT);
+    if (c == '}') return LS(RBKT);
+    if (c == '[') return LBKT;
+    if (c == ']') return RBKT;
+    if (c == '|') return LS(BACKSLASH);
+    if (c == '\\') return BACKSLASH;
+    if (c == ':') return LS(SEMI);
+    if (c == ';') return SEMI;
+    if (c == '\'') return SQT;
+    if (c == '"') return LS(SQT);
+    if (c == '<') return LS(COMMA);
+    if (c == '>') return LS(PERIOD);
+    if (c == '?') return LS(SLASH);
+    if (c == '/') return SLASH;
+    if (c == '~') return LS(GRAVE);
+    if (c == '`') return GRAVE;
     return 0;
 }
 
@@ -222,7 +269,7 @@ static void pw_type_work_handler(struct k_work *work) {
     if (current_step < num_steps) {
         struct pw_step step = steps[current_step++];
         raise_zmk_keycode_state_changed_from_encoded(step.keycode, step.pressed, k_uptime_get());
-        k_work_reschedule(&pw_type_work, K_MSEC(TYPING_STEP_INTERVAL_MS));
+        k_work_reschedule(&pw_type_work, K_MSEC(typing_interval_ms));
     } else {
         typing_in_progress = false;
         zmk_hid_masked_modifiers_clear();
@@ -250,25 +297,101 @@ void password_generator_cycle_length(int direction) {
         return;
     }
 
-    uint8_t len = ALLOWED_LENGTHS[current_length_idx];
-    LOG_INF("Password length set to %u characters", len);
+    default_length = ALLOWED_LENGTHS[current_length_idx];
+    LOG_INF("Password length set to %u characters", default_length);
 
     static const uint32_t TONES[] = { 523, 659, 784, 1046 }; // C5, E5, G5, C6
     preonic_sound_play_tone(TONES[current_length_idx], 35);
 
-    butterfly_show_password_length(len);
+    butterfly_show_password_length(default_length);
 
 #if IS_ENABLED(CONFIG_SETTINGS)
+    struct pw_gen_config_persisted cfg = {
+        .default_len = default_length,
+        .interval_ms = typing_interval_ms,
+        .specials_len = custom_specials_len,
+    };
+    memset(cfg.specials, 0, sizeof(cfg.specials));
+    memcpy(cfg.specials, custom_specials, custom_specials_len);
+    settings_save_one("pw_gen/config", &cfg, sizeof(cfg));
     settings_save_one("pw_gen/len_idx", &current_length_idx, sizeof(current_length_idx));
 #endif
 }
 
 uint8_t password_generator_get_length(void) {
-    return ALLOWED_LENGTHS[current_length_idx];
+    return default_length;
 }
 
 bool password_generator_is_typing(void) {
     return typing_in_progress;
+}
+
+void password_generator_get_config(uint8_t *default_len, uint8_t *interval_ms, char *specials, uint8_t *specials_len) {
+    if (default_len) {
+        *default_len = default_length;
+    }
+    if (interval_ms) {
+        *interval_ms = typing_interval_ms;
+    }
+    if (specials_len) {
+        *specials_len = custom_specials_len;
+    }
+    if (specials) {
+        memcpy(specials, custom_specials, custom_specials_len);
+        if (custom_specials_len < PW_MAX_SPECIALS) {
+            memset(specials + custom_specials_len, 0, PW_MAX_SPECIALS - custom_specials_len);
+        }
+    }
+}
+
+int password_generator_set_config(uint8_t default_len, uint8_t interval_ms, const char *specials, uint8_t specials_len) {
+    if (default_len < 8 || default_len > 32) {
+        return -EINVAL;
+    }
+    if (interval_ms < 5 || interval_ms > 50) {
+        return -EINVAL;
+    }
+    if (specials_len > PW_MAX_SPECIALS) {
+        return -EINVAL;
+    }
+    if (specials_len > 0 && specials == NULL) {
+        return -EINVAL;
+    }
+
+    default_length = default_len;
+    typing_interval_ms = interval_ms;
+
+    for (uint8_t i = 0; i < ARRAY_SIZE(ALLOWED_LENGTHS); i++) {
+        if (ALLOWED_LENGTHS[i] == default_length) {
+            current_length_idx = i;
+            break;
+        }
+    }
+
+    if (specials && specials_len > 0) {
+        memcpy(custom_specials, specials, specials_len);
+        custom_specials[specials_len] = '\0';
+        custom_specials_len = specials_len;
+    } else {
+        custom_specials_len = 0;
+        custom_specials[0] = '\0';
+    }
+
+#if IS_ENABLED(CONFIG_SETTINGS)
+    struct pw_gen_config_persisted cfg = {
+        .default_len = default_length,
+        .interval_ms = typing_interval_ms,
+        .specials_len = custom_specials_len,
+    };
+    memset(cfg.specials, 0, sizeof(cfg.specials));
+    memcpy(cfg.specials, custom_specials, custom_specials_len);
+    settings_save_one("pw_gen/config", &cfg, sizeof(cfg));
+    settings_save_one("pw_gen/len_idx", &current_length_idx, sizeof(current_length_idx));
+    LOG_INF("Saved password config to flash: len=%u, interval=%ums, specials=%.*s",
+            default_length, typing_interval_ms, custom_specials_len, custom_specials);
+#endif
+
+    return 0;
 }
 
 void password_generator_trigger(enum password_mode mode) {
@@ -276,8 +399,11 @@ void password_generator_trigger(enum password_mode mode) {
         return;
     }
 
-    uint8_t len = ALLOWED_LENGTHS[current_length_idx];
-    char pw_str[32];
+    uint8_t len = default_length;
+    char pw_str[64];
+    if (len > sizeof(pw_str) - 1) {
+        len = sizeof(pw_str) - 1;
+    }
     generate_password_string(pw_str, len, mode);
     LOG_INF("Generating password (len=%u, mode=%d)", len, mode);
 
@@ -296,6 +422,7 @@ void password_generator_trigger(enum password_mode mode) {
     zmk_hid_masked_modifiers_set(zmk_hid_get_explicit_mods());
     k_work_reschedule(&pw_type_work, K_MSEC(40));
 }
+
 
 static void knob_long_press_work_handler(struct k_work *work) {
     ARG_UNUSED(work);
