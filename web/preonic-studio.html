@@ -1623,8 +1623,11 @@
           <button class="layer-btn knob-layer-btn active" data-layer="0">0: Base</button>
           <button class="layer-btn knob-layer-btn" data-layer="1">1: Lower</button>
           <button class="layer-btn knob-layer-btn" data-layer="2">2: Raise</button>
-          <button class="layer-btn knob-layer-btn" data-layer="3">3: Function</button>
-          <button class="layer-btn knob-layer-btn" data-layer="4">4: TriFunction</button>
+          <button class="layer-btn knob-layer-btn" data-layer="3">3: Func</button>
+          <button class="layer-btn knob-layer-btn" data-layer="4">4: Tri</button>
+          <button class="layer-btn knob-layer-btn" data-layer="5">5: Extra 1</button>
+          <button class="layer-btn knob-layer-btn" data-layer="6">6: Extra 2</button>
+          <button class="layer-btn knob-layer-btn" data-layer="7">7: Extra 3</button>
         </div>
 
         <div class="knob-config-grid">
@@ -1644,12 +1647,26 @@
               <select id="knobCwSelect" class="form-control">
                 <option value="vol_up">Volume Up (C_VOLUME_UP)</option>
                 <option value="vol_dn">Volume Down (C_VOLUME_DOWN)</option>
-                <option value="scrl_up">Mouse Scroll Up</option>
-                <option value="scrl_dn">Mouse Scroll Down</option>
+                <option value="scrl_up">Mouse Scroll Up (↑)</option>
+                <option value="scrl_dn">Mouse Scroll Down (↓)</option>
+                <option value="scrl_right">Mouse Scroll Right (→)</option>
+                <option value="scrl_left">Mouse Scroll Left (←)</option>
                 <option value="pg_up">Page Up</option>
                 <option value="pg_dn">Page Down</option>
+                <option value="arrow_up">Arrow Up (↑)</option>
+                <option value="arrow_down">Arrow Down (↓)</option>
+                <option value="arrow_left">Arrow Left (←)</option>
+                <option value="arrow_right">Arrow Right (→)</option>
                 <option value="next_track">Next Track (C_NEXT)</option>
                 <option value="prev_track">Previous Track (C_PREV)</option>
+                <option value="play_pause">Play / Pause (C_PP)</option>
+                <option value="mute">Mute Audio (C_MUTE)</option>
+                <option value="zoom_in">Zoom In (Equal / Plus)</option>
+                <option value="zoom_out">Zoom Out (Minus)</option>
+                <option value="undo">Undo (Z)</option>
+                <option value="redo">Redo (Y)</option>
+                <option value="bright_up">Brightness Up</option>
+                <option value="bright_dn">Brightness Down</option>
               </select>
             </div>
 
@@ -1658,12 +1675,26 @@
               <select id="knobCcwSelect" class="form-control">
                 <option value="vol_dn">Volume Down (C_VOLUME_DOWN)</option>
                 <option value="vol_up">Volume Up (C_VOLUME_UP)</option>
-                <option value="scrl_dn">Mouse Scroll Down</option>
-                <option value="scrl_up">Mouse Scroll Up</option>
+                <option value="scrl_dn">Mouse Scroll Down (↓)</option>
+                <option value="scrl_up">Mouse Scroll Up (↑)</option>
+                <option value="scrl_left">Mouse Scroll Left (←)</option>
+                <option value="scrl_right">Mouse Scroll Right (→)</option>
                 <option value="pg_dn">Page Down</option>
                 <option value="pg_up">Page Up</option>
+                <option value="arrow_down">Arrow Down (↓)</option>
+                <option value="arrow_up">Arrow Up (↑)</option>
+                <option value="arrow_right">Arrow Right (→)</option>
+                <option value="arrow_left">Arrow Left (←)</option>
                 <option value="prev_track">Previous Track (C_PREV)</option>
                 <option value="next_track">Next Track (C_NEXT)</option>
+                <option value="play_pause">Play / Pause (C_PP)</option>
+                <option value="mute">Mute Audio (C_MUTE)</option>
+                <option value="zoom_out">Zoom Out (Minus)</option>
+                <option value="zoom_in">Zoom In (Equal / Plus)</option>
+                <option value="undo">Undo (Z)</option>
+                <option value="redo">Redo (Y)</option>
+                <option value="bright_dn">Brightness Down</option>
+                <option value="bright_up">Brightness Up</option>
               </select>
             </div>
 
@@ -3805,6 +3836,80 @@
       return steps;
     }
 
+    // Rotary Encoder Action Mappings & Synchronization
+    const KNOB_ACTIONS = [
+      { id: "vol_up", name: "Volume Up (C_VOLUME_UP)", beh: 0x01, param: 0x80 | 0xE9 },
+      { id: "vol_dn", name: "Volume Down (C_VOLUME_DOWN)", beh: 0x01, param: 0x80 | 0xEA },
+      { id: "scrl_up", name: "Mouse Scroll Up (↑)", beh: 0x12, param: 10 },
+      { id: "scrl_dn", name: "Mouse Scroll Down (↓)", beh: 0x12, param: 0xFFFFFFF6 },
+      { id: "scrl_right", name: "Mouse Scroll Right (→)", beh: 0x12, param: 10 },
+      { id: "scrl_left", name: "Mouse Scroll Left (←)", beh: 0x12, param: 0xFFFFFFF6 },
+      { id: "pg_up", name: "Page Up", beh: 0x01, param: 0x4B },
+      { id: "pg_dn", name: "Page Down", beh: 0x01, param: 0x4E },
+      { id: "arrow_up", name: "Arrow Up (↑)", beh: 0x01, param: 0x52 },
+      { id: "arrow_down", name: "Arrow Down (↓)", beh: 0x01, param: 0x51 },
+      { id: "arrow_left", name: "Arrow Left (←)", beh: 0x01, param: 0x50 },
+      { id: "arrow_right", name: "Arrow Right (→)", beh: 0x01, param: 0x4F },
+      { id: "next_track", name: "Next Track (C_NEXT)", beh: 0x01, param: 0x80 | 0xB5 },
+      { id: "prev_track", name: "Previous Track (C_PREV)", beh: 0x01, param: 0x80 | 0xB6 },
+      { id: "play_pause", name: "Play / Pause (C_PP)", beh: 0x01, param: 0x80 | 0xCD },
+      { id: "mute", name: "Mute Audio (C_MUTE)", beh: 0x01, param: 0x80 | 0xE2 },
+      { id: "zoom_in", name: "Zoom In (Equal / Plus)", beh: 0x01, param: 0x2E },
+      { id: "zoom_out", name: "Zoom Out (Minus)", beh: 0x01, param: 0x2D },
+      { id: "undo", name: "Undo (Z)", beh: 0x01, param: 0x1D },
+      { id: "redo", name: "Redo (Y)", beh: 0x01, param: 0x1C },
+      { id: "bright_up", name: "Brightness Up", beh: 0x01, param: 0x80 | 0x6F },
+      { id: "bright_dn", name: "Brightness Down", beh: 0x01, param: 0x80 | 0x70 }
+    ];
+
+    function findKnobActionId(beh, param, defaultId = "vol_up") {
+      const match = KNOB_ACTIONS.find(a => a.beh === beh && (a.param === param || (a.param & 0xFFFF) === (param & 0xFFFF)));
+      return match ? match.id : defaultId;
+    }
+
+    function getKnobAction(id, defaultId = "vol_up") {
+      return KNOB_ACTIONS.find(a => a.id === id) || KNOB_ACTIONS.find(a => a.id === defaultId);
+    }
+
+    function updateKnobUIForLayer(layer) {
+      if (!state.knobConfigs[layer]) {
+        state.knobConfigs[layer] = { cwBeh: 1, cwParam: 0x80 | 0xE9, ccwBeh: 1, ccwParam: 0x80 | 0xEA, ppd: 2 };
+      }
+      const k = state.knobConfigs[layer];
+      const cwSelect = document.getElementById("knobCwSelect");
+      const ccwSelect = document.getElementById("knobCcwSelect");
+      const ppdSlider = document.getElementById("knobPpdSlider");
+      const ppdValue = document.getElementById("knobPpdValue");
+
+      if (cwSelect) cwSelect.value = findKnobActionId(k.cwBeh, k.cwParam, "vol_up");
+      if (ccwSelect) ccwSelect.value = findKnobActionId(k.ccwBeh, k.ccwParam, "vol_dn");
+      if (ppdSlider) ppdSlider.value = k.ppd || 2;
+      if (ppdValue) ppdValue.innerText = `${k.ppd || 2} pulses`;
+    }
+
+    async function loadKnobConfigsFromDevice() {
+      if (!state.connected && !state.demoMode) return;
+      try {
+        for (let layer = 0; layer < NUM_LAYERS; layer++) {
+          const resp = await serialDriver.sendCommand(CMD_GET_KNOB, new Uint8Array([layer]));
+          if (resp && resp.data.length >= 12) {
+            const d = resp.data;
+            const cwBeh = d[1];
+            const cwParam = (d[2] | (d[3] << 8) | (d[4] << 16) | (d[5] << 24)) >>> 0;
+            const ccwBeh = d[6];
+            const ccwParam = (d[7] | (d[8] << 8) | (d[9] << 16) | (d[10] << 24)) >>> 0;
+            const ppd = d[11] || 2;
+            state.knobConfigs[layer] = { cwBeh, cwParam, ccwBeh, ccwParam, ppd };
+          }
+        }
+        const activeBtn = document.querySelector(".knob-layer-btn.active");
+        const activeLayer = activeBtn ? parseInt(activeBtn.dataset.layer, 10) : 0;
+        updateKnobUIForLayer(activeLayer);
+      } catch (err) {
+        console.warn("Failed to load knob configs from device:", err);
+      }
+    }
+
     // Connect & Initial Handshake
     async function doConnect() {
       try {
@@ -3834,6 +3939,9 @@
 
         // Automatically load configured keymap from keyboard
         await loadKeymapFromDevice();
+
+        // Automatically load configured rotary knob settings for all 8 layers
+        await loadKnobConfigsFromDevice();
       } catch (err) {
         console.warn("Connection error:", err);
         showToast(err.message || "Failed to connect to Preonic USB serial.", "error");
@@ -4282,9 +4390,7 @@
           document.querySelectorAll(".knob-layer-btn").forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
           const layer = parseInt(btn.dataset.layer, 10);
-          const k = state.knobConfigs[layer];
-          document.getElementById("knobPpdSlider").value = k.ppd;
-          document.getElementById("knobPpdValue").innerText = `${k.ppd} pulses`;
+          updateKnobUIForLayer(layer);
         });
       });
 
@@ -4301,28 +4407,58 @@
         knobDial.style.transform = `rotate(${dialAngle}deg)`;
       });
 
+      // Apply / Save Knob Settings
       document.getElementById("btnApplyKnob").addEventListener("click", async () => {
         const activeLayerBtn = document.querySelector(".knob-layer-btn.active");
         const layer = activeLayerBtn ? parseInt(activeLayerBtn.dataset.layer, 10) : 0;
         const ppd = parseInt(document.getElementById("knobPpdSlider").value, 10);
+        const cwId = document.getElementById("knobCwSelect").value;
+        const ccwId = document.getElementById("knobCcwSelect").value;
+        const cwAct = getKnobAction(cwId, "vol_up");
+        const ccwAct = getKnobAction(ccwId, "vol_dn");
 
         const payload = new Uint8Array(12);
         payload[0] = layer;
-        payload[1] = 0x01; // &kp
-        payload[2] = 0xE9; payload[3] = 0x00; payload[4] = 0x00; payload[5] = 0x00; // Vol Up
-        payload[6] = 0x01; // &kp
-        payload[7] = 0xEA; payload[8] = 0x00; payload[9] = 0x00; payload[10] = 0x00; // Vol Dn
+        payload[1] = cwAct.beh;
+        payload[2] = cwAct.param & 0xFF;
+        payload[3] = (cwAct.param >> 8) & 0xFF;
+        payload[4] = (cwAct.param >> 16) & 0xFF;
+        payload[5] = (cwAct.param >> 24) & 0xFF;
+        payload[6] = ccwAct.beh;
+        payload[7] = ccwAct.param & 0xFF;
+        payload[8] = (ccwAct.param >> 8) & 0xFF;
+        payload[9] = (ccwAct.param >> 16) & 0xFF;
+        payload[10] = (ccwAct.param >> 24) & 0xFF;
         payload[11] = ppd;
 
         try {
           await serialDriver.sendCommand(CMD_SET_KNOB, payload);
-          state.knobConfigs[layer].ppd = ppd;
-          showToast(`Applied knob settings for Layer ${layer}!`, "success");
+          state.knobConfigs[layer] = {
+            cwBeh: cwAct.beh,
+            cwParam: cwAct.param,
+            ccwBeh: ccwAct.beh,
+            ccwParam: ccwAct.param,
+            ppd: ppd
+          };
+          showToast(`Saved knob settings for Layer ${layer}!`, "success");
         } catch (err) {
           showToast(err.message, "error");
           if (err.message.includes("LOCKED")) document.getElementById("unlockModal").classList.add("open");
         }
       });
+
+      // Read Knob Settings from keyboard
+      const btnReadKnob = document.getElementById("btnReadKnob");
+      if (btnReadKnob) {
+        btnReadKnob.addEventListener("click", async () => {
+          if (!state.connected && !state.demoMode) {
+            showToast("Please connect your Preonic keyboard via USB first.", "warning");
+            return;
+          }
+          await loadKnobConfigsFromDevice();
+          showToast("Knob settings synced from keyboard for all 8 layers!", "success");
+        });
+      }
 
       // Password Generator Controls
       document.querySelectorAll(".pw-len-btn").forEach(btn => {
@@ -4892,6 +5028,7 @@
       initTesterGrid();
       setupEventHandlers();
       refreshPasswordPreview();
+      updateKnobUIForLayer(0);
       updateConnectionUI();
       updateSecurityUI();
       checkGitHubUpdates();
