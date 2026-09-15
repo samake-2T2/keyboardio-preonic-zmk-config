@@ -49,7 +49,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define NUM_COLS 12
 #define FW_VERSION_MAJOR 2
 #define FW_VERSION_MINOR 0
-#define FW_VERSION_PATCH 0
+#define FW_VERSION_PATCH 1
 #define DEVICE_NAME "Preonic"
 
 #if DT_HAS_CHOSEN(zmk_studio_rpc_uart)
@@ -101,9 +101,9 @@ struct studio_audio_config {
 static struct studio_knob_config knob_configs[NUM_LAYERS] = {
     [0 ... NUM_LAYERS - 1] = {
         .cw_beh = 0x01,
-        .cw_param = 0x80 | 0xE9,
+        .cw_param = 0x0C00E9,  /* C_VOLUME_UP */
         .ccw_beh = 0x01,
-        .ccw_param = 0x80 | 0xEA,
+        .ccw_param = 0x0C00EA, /* C_VOLUME_DOWN */
         .pulses_per_detent = 2
     }
 };
@@ -598,6 +598,17 @@ static void preonic_studio_dispatch_command(uint8_t cmd, uint8_t seq, const uint
         uint8_t beh_type = data[2];
         uint32_t p1 = data[3] | ((uint32_t)data[4] << 8) | ((uint32_t)data[5] << 16) | ((uint32_t)data[6] << 24);
         uint32_t p2 = data[7] | ((uint32_t)data[8] << 8) | ((uint32_t)data[9] << 16) | ((uint32_t)data[10] << 24);
+
+        if (beh_type == PREONIC_BEH_KP) {
+            /* Defensive check: if only 8/16-bit usage ID was provided without usage page, auto-assign HID_USAGE_KEY (0x07) */
+            if ((p1 & 0x00FF0000) == 0 && p1 > 0) {
+                p1 |= ((uint32_t)0x07 << 16);
+            }
+        } else if (beh_type == PREONIC_BEH_MT || beh_type == PREONIC_BEH_LT) {
+            if ((p2 & 0x00FF0000) == 0 && p2 > 0) {
+                p2 |= ((uint32_t)0x07 << 16);
+            }
+        }
 
         if (layer >= NUM_LAYERS) {
             uint8_t err = STATUS_ERR_INVALID;

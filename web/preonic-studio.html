@@ -1378,7 +1378,7 @@
         </svg>
       </div>
       <div class="brand-titles">
-        <h1>Preonic Studio <span class="badge-ver">v2.0.0</span></h1>
+        <h1>Preonic Studio <span class="badge-ver">v2.0.1</span></h1>
       </div>
     </div>
 
@@ -2106,7 +2106,7 @@
               </div>
             </div>
             <div style="margin-top: 14px;">
-              <a id="btnDlFirmware" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.0/keyboardio_preonic__zmk.uf2" download="keyboardio_preonic__zmk.uf2" class="fw-dl-btn fw-dl-primary">
+              <a id="btnDlFirmware" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.1/keyboardio_preonic__zmk.uf2" download="keyboardio_preonic__zmk.uf2" class="fw-dl-btn fw-dl-primary">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <span style="font-size: 20px;">📦</span>
                   <div style="text-align: left;">
@@ -2117,7 +2117,7 @@
                 <span class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;">Download 📥</span>
               </a>
 
-              <a id="btnDlReset" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.0/settings_reset-keyboardio_preonic__zmk.uf2" download="settings_reset-keyboardio_preonic__zmk.uf2" class="fw-dl-btn">
+              <a id="btnDlReset" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.1/settings_reset-keyboardio_preonic__zmk.uf2" download="settings_reset-keyboardio_preonic__zmk.uf2" class="fw-dl-btn">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <span style="font-size: 20px;">🧹</span>
                   <div style="text-align: left;">
@@ -2443,160 +2443,193 @@
 
     const soundChime = new AudioChime();
 
-    // Default Keycode Database
+    // HID Usage Pages (Standard ZMK 32-bit Keycode encoding: [mods (8b)][page (8b)][id (16b)])
+    const HID_USAGE_GD       = 0x01;
+    const HID_USAGE_KEY      = 0x07;
+    const HID_USAGE_LED      = 0x08;
+    const HID_USAGE_CONSUMER = 0x0C;
+
+    function zmkKey(page, id, mods = 0) {
+      return (((mods & 0xFF) << 24) | ((page & 0xFF) << 16) | (id & 0xFFFF)) >>> 0;
+    }
+
+    // Default Keycode Database (Native ZMK 32-bit Encoded Values)
     const KEYCODES = [
       // Letters (A-Z)
-      { code: 0x04, name: "A", cat: "alpha", desc: "Key A" },
-      { code: 0x05, name: "B", cat: "alpha", desc: "Key B" },
-      { code: 0x06, name: "C", cat: "alpha", desc: "Key C" },
-      { code: 0x07, name: "D", cat: "alpha", desc: "Key D" },
-      { code: 0x08, name: "E", cat: "alpha", desc: "Key E" },
-      { code: 0x09, name: "F", cat: "alpha", desc: "Key F" },
-      { code: 0x0A, name: "G", cat: "alpha", desc: "Key G" },
-      { code: 0x0B, name: "H", cat: "alpha", desc: "Key H" },
-      { code: 0x0C, name: "I", cat: "alpha", desc: "Key I" },
-      { code: 0x0D, name: "J", cat: "alpha", desc: "Key J" },
-      { code: 0x0E, name: "K", cat: "alpha", desc: "Key K" },
-      { code: 0x0F, name: "L", cat: "alpha", desc: "Key L" },
-      { code: 0x10, name: "M", cat: "alpha", desc: "Key M" },
-      { code: 0x11, name: "N", cat: "alpha", desc: "Key N" },
-      { code: 0x12, name: "O", cat: "alpha", desc: "Key O" },
-      { code: 0x13, name: "P", cat: "alpha", desc: "Key P" },
-      { code: 0x14, name: "Q", cat: "alpha", desc: "Key Q" },
-      { code: 0x15, name: "R", cat: "alpha", desc: "Key R" },
-      { code: 0x16, name: "S", cat: "alpha", desc: "Key S" },
-      { code: 0x17, name: "T", cat: "alpha", desc: "Key T" },
-      { code: 0x18, name: "U", cat: "alpha", desc: "Key U" },
-      { code: 0x19, name: "V", cat: "alpha", desc: "Key V" },
-      { code: 0x1A, name: "W", cat: "alpha", desc: "Key W" },
-      { code: 0x1B, name: "X", cat: "alpha", desc: "Key X" },
-      { code: 0x1C, name: "Y", cat: "alpha", desc: "Key Y" },
-      { code: 0x1D, name: "Z", cat: "alpha", desc: "Key Z" },
+      { code: zmkKey(HID_USAGE_KEY, 0x04), name: "A", cat: "alpha", desc: "Key A" },
+      { code: zmkKey(HID_USAGE_KEY, 0x05), name: "B", cat: "alpha", desc: "Key B" },
+      { code: zmkKey(HID_USAGE_KEY, 0x06), name: "C", cat: "alpha", desc: "Key C" },
+      { code: zmkKey(HID_USAGE_KEY, 0x07), name: "D", cat: "alpha", desc: "Key D" },
+      { code: zmkKey(HID_USAGE_KEY, 0x08), name: "E", cat: "alpha", desc: "Key E" },
+      { code: zmkKey(HID_USAGE_KEY, 0x09), name: "F", cat: "alpha", desc: "Key F" },
+      { code: zmkKey(HID_USAGE_KEY, 0x0A), name: "G", cat: "alpha", desc: "Key G" },
+      { code: zmkKey(HID_USAGE_KEY, 0x0B), name: "H", cat: "alpha", desc: "Key H" },
+      { code: zmkKey(HID_USAGE_KEY, 0x0C), name: "I", cat: "alpha", desc: "Key I" },
+      { code: zmkKey(HID_USAGE_KEY, 0x0D), name: "J", cat: "alpha", desc: "Key J" },
+      { code: zmkKey(HID_USAGE_KEY, 0x0E), name: "K", cat: "alpha", desc: "Key K" },
+      { code: zmkKey(HID_USAGE_KEY, 0x0F), name: "L", cat: "alpha", desc: "Key L" },
+      { code: zmkKey(HID_USAGE_KEY, 0x10), name: "M", cat: "alpha", desc: "Key M" },
+      { code: zmkKey(HID_USAGE_KEY, 0x11), name: "N", cat: "alpha", desc: "Key N" },
+      { code: zmkKey(HID_USAGE_KEY, 0x12), name: "O", cat: "alpha", desc: "Key O" },
+      { code: zmkKey(HID_USAGE_KEY, 0x13), name: "P", cat: "alpha", desc: "Key P" },
+      { code: zmkKey(HID_USAGE_KEY, 0x14), name: "Q", cat: "alpha", desc: "Key Q" },
+      { code: zmkKey(HID_USAGE_KEY, 0x15), name: "R", cat: "alpha", desc: "Key R" },
+      { code: zmkKey(HID_USAGE_KEY, 0x16), name: "S", cat: "alpha", desc: "Key S" },
+      { code: zmkKey(HID_USAGE_KEY, 0x17), name: "T", cat: "alpha", desc: "Key T" },
+      { code: zmkKey(HID_USAGE_KEY, 0x18), name: "U", cat: "alpha", desc: "Key U" },
+      { code: zmkKey(HID_USAGE_KEY, 0x19), name: "V", cat: "alpha", desc: "Key V" },
+      { code: zmkKey(HID_USAGE_KEY, 0x1A), name: "W", cat: "alpha", desc: "Key W" },
+      { code: zmkKey(HID_USAGE_KEY, 0x1B), name: "X", cat: "alpha", desc: "Key X" },
+      { code: zmkKey(HID_USAGE_KEY, 0x1C), name: "Y", cat: "alpha", desc: "Key Y" },
+      { code: zmkKey(HID_USAGE_KEY, 0x1D), name: "Z", cat: "alpha", desc: "Key Z" },
 
       // Numbers & Punctuation
-      { code: 0x1E, name: "1", cat: "numbers", desc: "1 and !" },
-      { code: 0x1F, name: "2", cat: "numbers", desc: "2 and @" },
-      { code: 0x20, name: "3", cat: "numbers", desc: "3 and #" },
-      { code: 0x21, name: "4", cat: "numbers", desc: "4 and $" },
-      { code: 0x22, name: "5", cat: "numbers", desc: "5 and %" },
-      { code: 0x23, name: "6", cat: "numbers", desc: "6 and ^" },
-      { code: 0x24, name: "7", cat: "numbers", desc: "7 and &" },
-      { code: 0x25, name: "8", cat: "numbers", desc: "8 and *" },
-      { code: 0x26, name: "9", cat: "numbers", desc: "9 and (" },
-      { code: 0x27, name: "0", cat: "numbers", desc: "0 and )" },
-      { code: 0x2D, name: "-", cat: "numbers", desc: "Minus / Underscore" },
-      { code: 0x2E, name: "=", cat: "numbers", desc: "Equal / Plus" },
-      { code: 0x2F, name: "[", cat: "numbers", desc: "Left Bracket" },
-      { code: 0x30, name: "]", cat: "numbers", desc: "Right Bracket" },
-      { code: 0x31, name: "\\\\", cat: "numbers", desc: "Backslash / Pipe" },
-      { code: 0x33, name: ";", cat: "numbers", desc: "Semicolon / Colon" },
-      { code: 0x34, name: "'", cat: "numbers", desc: "Apostrophe / Quote" },
-      { code: 0x35, name: "`", cat: "numbers", desc: "Grave / Tilde" },
-      { code: 0x36, name: ",", cat: "numbers", desc: "Comma / Less-Than" },
-      { code: 0x37, name: ".", cat: "numbers", desc: "Period / Greater-Than" },
-      { code: 0x38, name: "/", cat: "numbers", desc: "Slash / Question Mark" },
+      { code: zmkKey(HID_USAGE_KEY, 0x1E), name: "1", cat: "numbers", desc: "1 and !" },
+      { code: zmkKey(HID_USAGE_KEY, 0x1F), name: "2", cat: "numbers", desc: "2 and @" },
+      { code: zmkKey(HID_USAGE_KEY, 0x20), name: "3", cat: "numbers", desc: "3 and #" },
+      { code: zmkKey(HID_USAGE_KEY, 0x21), name: "4", cat: "numbers", desc: "4 and $" },
+      { code: zmkKey(HID_USAGE_KEY, 0x22), name: "5", cat: "numbers", desc: "5 and %" },
+      { code: zmkKey(HID_USAGE_KEY, 0x23), name: "6", cat: "numbers", desc: "6 and ^" },
+      { code: zmkKey(HID_USAGE_KEY, 0x24), name: "7", cat: "numbers", desc: "7 and &" },
+      { code: zmkKey(HID_USAGE_KEY, 0x25), name: "8", cat: "numbers", desc: "8 and *" },
+      { code: zmkKey(HID_USAGE_KEY, 0x26), name: "9", cat: "numbers", desc: "9 and (" },
+      { code: zmkKey(HID_USAGE_KEY, 0x27), name: "0", cat: "numbers", desc: "0 and )" },
+      { code: zmkKey(HID_USAGE_KEY, 0x2D), name: "-", cat: "numbers", desc: "Minus / Underscore" },
+      { code: zmkKey(HID_USAGE_KEY, 0x2E), name: "=", cat: "numbers", desc: "Equal / Plus" },
+      { code: zmkKey(HID_USAGE_KEY, 0x2F), name: "[", cat: "numbers", desc: "Left Bracket" },
+      { code: zmkKey(HID_USAGE_KEY, 0x30), name: "]", cat: "numbers", desc: "Right Bracket" },
+      { code: zmkKey(HID_USAGE_KEY, 0x31), name: "\\", cat: "numbers", desc: "Backslash / Pipe" },
+      { code: zmkKey(HID_USAGE_KEY, 0x33), name: ";", cat: "numbers", desc: "Semicolon / Colon" },
+      { code: zmkKey(HID_USAGE_KEY, 0x34), name: "'", cat: "numbers", desc: "Apostrophe / Quote" },
+      { code: zmkKey(HID_USAGE_KEY, 0x35), name: "`", cat: "numbers", desc: "Grave / Tilde" },
+      { code: zmkKey(HID_USAGE_KEY, 0x36), name: ",", cat: "numbers", desc: "Comma / Less-Than" },
+      { code: zmkKey(HID_USAGE_KEY, 0x37), name: ".", cat: "numbers", desc: "Period / Greater-Than" },
+      { code: zmkKey(HID_USAGE_KEY, 0x38), name: "/", cat: "numbers", desc: "Slash / Question Mark" },
+
+      // Shifted Symbols (ZMK LS(key))
+      { code: zmkKey(HID_USAGE_KEY, 0x35, 0x02), name: "~", cat: "numbers", desc: "Tilde (~)" },
+      { code: zmkKey(HID_USAGE_KEY, 0x1E, 0x02), name: "!", cat: "numbers", desc: "Exclamation (!)" },
+      { code: zmkKey(HID_USAGE_KEY, 0x1F, 0x02), name: "@", cat: "numbers", desc: "At sign (@)" },
+      { code: zmkKey(HID_USAGE_KEY, 0x20, 0x02), name: "#", cat: "numbers", desc: "Hash (#)" },
+      { code: zmkKey(HID_USAGE_KEY, 0x21, 0x02), name: "$", cat: "numbers", desc: "Dollar ($)" },
+      { code: zmkKey(HID_USAGE_KEY, 0x22, 0x02), name: "%", cat: "numbers", desc: "Percent (%)" },
+      { code: zmkKey(HID_USAGE_KEY, 0x23, 0x02), name: "^", cat: "numbers", desc: "Caret (^)" },
+      { code: zmkKey(HID_USAGE_KEY, 0x24, 0x02), name: "&", cat: "numbers", desc: "Ampersand (&)" },
+      { code: zmkKey(HID_USAGE_KEY, 0x25, 0x02), name: "*", cat: "numbers", desc: "Asterisk (*)" },
+      { code: zmkKey(HID_USAGE_KEY, 0x26, 0x02), name: "(", cat: "numbers", desc: "Left Parenthesis (() &kp LPAR" },
+      { code: zmkKey(HID_USAGE_KEY, 0x27, 0x02), name: ")", cat: "numbers", desc: "Right Parenthesis ()) &kp RPAR" },
+      { code: zmkKey(HID_USAGE_KEY, 0x2D, 0x02), name: "_", cat: "numbers", desc: "Underscore (_) &kp UNDER" },
+      { code: zmkKey(HID_USAGE_KEY, 0x2E, 0x02), name: "+", cat: "numbers", desc: "Plus (+) &kp PLUS" },
+      { code: zmkKey(HID_USAGE_KEY, 0x2F, 0x02), name: "{", cat: "numbers", desc: "Left Brace ({) &kp LBRC" },
+      { code: zmkKey(HID_USAGE_KEY, 0x30, 0x02), name: "}", cat: "numbers", desc: "Right Brace (}) &kp RBRC" },
+      { code: zmkKey(HID_USAGE_KEY, 0x31, 0x02), name: "|", cat: "numbers", desc: "Pipe (|) &kp PIPE" },
+      { code: zmkKey(HID_USAGE_KEY, 0x33, 0x02), name: ":", cat: "numbers", desc: "Colon (:) &kp COLON" },
+      { code: zmkKey(HID_USAGE_KEY, 0x34, 0x02), name: "\"", cat: "numbers", desc: "Double Quote (\") &kp DQT" },
+      { code: zmkKey(HID_USAGE_KEY, 0x36, 0x02), name: "<", cat: "numbers", desc: "Less-Than (<) &kp LT" },
+      { code: zmkKey(HID_USAGE_KEY, 0x37, 0x02), name: ">", cat: "numbers", desc: "Greater-Than (>) &kp GT" },
+      { code: zmkKey(HID_USAGE_KEY, 0x38, 0x02), name: "?", cat: "numbers", desc: "Question Mark (?) &kp QMARK" },
 
       // Numpad (Full Keypad Set)
-      { code: 0x53, name: "NumLock", cat: "numpad", desc: "Numpad Num Lock" },
-      { code: 0x54, name: "KP /", cat: "numpad", desc: "Keypad Divide" },
-      { code: 0x55, name: "KP *", cat: "numpad", desc: "Keypad Multiply" },
-      { code: 0x56, name: "KP -", cat: "numpad", desc: "Keypad Subtract" },
-      { code: 0x57, name: "KP +", cat: "numpad", desc: "Keypad Add" },
-      { code: 0x58, name: "KP Enter", cat: "numpad", desc: "Keypad Enter" },
-      { code: 0x59, name: "KP 1", cat: "numpad", desc: "Keypad 1 and End" },
-      { code: 0x5A, name: "KP 2", cat: "numpad", desc: "Keypad 2 and Down" },
-      { code: 0x5B, name: "KP 3", cat: "numpad", desc: "Keypad 3 and PgDn" },
-      { code: 0x5C, name: "KP 4", cat: "numpad", desc: "Keypad 4 and Left" },
-      { code: 0x5D, name: "KP 5", cat: "numpad", desc: "Keypad 5" },
-      { code: 0x5E, name: "KP 6", cat: "numpad", desc: "Keypad 6 and Right" },
-      { code: 0x5F, name: "KP 7", cat: "numpad", desc: "Keypad 7 and Home" },
-      { code: 0x60, name: "KP 8", cat: "numpad", desc: "Keypad 8 and Up" },
-      { code: 0x61, name: "KP 9", cat: "numpad", desc: "Keypad 9 and PgUp" },
-      { code: 0x62, name: "KP 0", cat: "numpad", desc: "Keypad 0 and Ins" },
-      { code: 0x63, name: "KP .", cat: "numpad", desc: "Keypad Decimal and Del" },
-      { code: 0x67, name: "KP =", cat: "numpad", desc: "Keypad Equal" },
+      { code: zmkKey(HID_USAGE_KEY, 0x53), name: "NumLock", cat: "numpad", desc: "Numpad Num Lock" },
+      { code: zmkKey(HID_USAGE_KEY, 0x54), name: "KP /", cat: "numpad", desc: "Keypad Divide" },
+      { code: zmkKey(HID_USAGE_KEY, 0x55), name: "KP *", cat: "numpad", desc: "Keypad Multiply" },
+      { code: zmkKey(HID_USAGE_KEY, 0x56), name: "KP -", cat: "numpad", desc: "Keypad Subtract" },
+      { code: zmkKey(HID_USAGE_KEY, 0x57), name: "KP +", cat: "numpad", desc: "Keypad Add" },
+      { code: zmkKey(HID_USAGE_KEY, 0x58), name: "KP Enter", cat: "numpad", desc: "Keypad Enter" },
+      { code: zmkKey(HID_USAGE_KEY, 0x59), name: "KP 1", cat: "numpad", desc: "Keypad 1 and End" },
+      { code: zmkKey(HID_USAGE_KEY, 0x5A), name: "KP 2", cat: "numpad", desc: "Keypad 2 and Down" },
+      { code: zmkKey(HID_USAGE_KEY, 0x5B), name: "KP 3", cat: "numpad", desc: "Keypad 3 and PgDn" },
+      { code: zmkKey(HID_USAGE_KEY, 0x5C), name: "KP 4", cat: "numpad", desc: "Keypad 4 and Left" },
+      { code: zmkKey(HID_USAGE_KEY, 0x5D), name: "KP 5", cat: "numpad", desc: "Keypad 5" },
+      { code: zmkKey(HID_USAGE_KEY, 0x5E), name: "KP 6", cat: "numpad", desc: "Keypad 6 and Right" },
+      { code: zmkKey(HID_USAGE_KEY, 0x5F), name: "KP 7", cat: "numpad", desc: "Keypad 7 and Home" },
+      { code: zmkKey(HID_USAGE_KEY, 0x60), name: "KP 8", cat: "numpad", desc: "Keypad 8 and Up" },
+      { code: zmkKey(HID_USAGE_KEY, 0x61), name: "KP 9", cat: "numpad", desc: "Keypad 9 and PgUp" },
+      { code: zmkKey(HID_USAGE_KEY, 0x62), name: "KP 0", cat: "numpad", desc: "Keypad 0 and Ins" },
+      { code: zmkKey(HID_USAGE_KEY, 0x63), name: "KP .", cat: "numpad", desc: "Keypad Decimal and Del" },
+      { code: zmkKey(HID_USAGE_KEY, 0x67), name: "KP =", cat: "numpad", desc: "Keypad Equal" },
 
       // Navigation & Edit
-      { code: 0x28, name: "Enter", cat: "nav", desc: "Return / Enter" },
-      { code: 0x29, name: "Esc", cat: "nav", desc: "Escape" },
-      { code: 0x2A, name: "Bspc", cat: "nav", desc: "Backspace" },
-      { code: 0x2B, name: "Tab", cat: "nav", desc: "Tab" },
-      { code: 0x2C, name: "Space", cat: "nav", desc: "Spacebar" },
-      { code: 0x49, name: "Ins", cat: "nav", desc: "Insert" },
-      { code: 0x4A, name: "Home", cat: "nav", desc: "Home" },
-      { code: 0x4B, name: "PgUp", cat: "nav", desc: "Page Up" },
-      { code: 0x4C, name: "Del", cat: "nav", desc: "Delete" },
-      { code: 0x4D, name: "End", cat: "nav", desc: "End" },
-      { code: 0x4E, name: "PgDn", cat: "nav", desc: "Page Down" },
-      { code: 0x4F, name: "Right", cat: "nav", desc: "Right Arrow" },
-      { code: 0x50, name: "Left", cat: "nav", desc: "Left Arrow" },
-      { code: 0x51, name: "Down", cat: "nav", desc: "Down Arrow" },
-      { code: 0x52, name: "Up", cat: "nav", desc: "Up Arrow" },
-      { code: 0x46, name: "PrtSc", cat: "nav", desc: "Print Screen" },
-      { code: 0x47, name: "ScrLk", cat: "nav", desc: "Scroll Lock" },
-      { code: 0x48, name: "Pause", cat: "nav", desc: "Pause / Break" },
-      { code: 0x65, name: "Menu", cat: "nav", desc: "Application / Context Menu" },
+      { code: zmkKey(HID_USAGE_KEY, 0x28), name: "Enter", cat: "nav", desc: "Return / Enter" },
+      { code: zmkKey(HID_USAGE_KEY, 0x29), name: "Esc", cat: "nav", desc: "Escape" },
+      { code: zmkKey(HID_USAGE_KEY, 0x2A), name: "Bspc", cat: "nav", desc: "Backspace" },
+      { code: zmkKey(HID_USAGE_KEY, 0x2B), name: "Tab", cat: "nav", desc: "Tab" },
+      { code: zmkKey(HID_USAGE_KEY, 0x2C), name: "Space", cat: "nav", desc: "Spacebar" },
+      { code: zmkKey(HID_USAGE_KEY, 0x49), name: "Ins", cat: "nav", desc: "Insert" },
+      { code: zmkKey(HID_USAGE_KEY, 0x4A), name: "Home", cat: "nav", desc: "Home" },
+      { code: zmkKey(HID_USAGE_KEY, 0x4B), name: "PgUp", cat: "nav", desc: "Page Up" },
+      { code: zmkKey(HID_USAGE_KEY, 0x4C), name: "Del", cat: "nav", desc: "Delete" },
+      { code: zmkKey(HID_USAGE_KEY, 0x4D), name: "End", cat: "nav", desc: "End" },
+      { code: zmkKey(HID_USAGE_KEY, 0x4E), name: "PgDn", cat: "nav", desc: "Page Down" },
+      { code: zmkKey(HID_USAGE_KEY, 0x4F), name: "Right", cat: "nav", desc: "Right Arrow" },
+      { code: zmkKey(HID_USAGE_KEY, 0x50), name: "Left", cat: "nav", desc: "Left Arrow" },
+      { code: zmkKey(HID_USAGE_KEY, 0x51), name: "Down", cat: "nav", desc: "Down Arrow" },
+      { code: zmkKey(HID_USAGE_KEY, 0x52), name: "Up", cat: "nav", desc: "Up Arrow" },
+      { code: zmkKey(HID_USAGE_KEY, 0x46), name: "PrtSc", cat: "nav", desc: "Print Screen" },
+      { code: zmkKey(HID_USAGE_KEY, 0x47), name: "ScrLk", cat: "nav", desc: "Scroll Lock" },
+      { code: zmkKey(HID_USAGE_KEY, 0x48), name: "Pause", cat: "nav", desc: "Pause / Break" },
+      { code: zmkKey(HID_USAGE_KEY, 0x65), name: "Menu", cat: "nav", desc: "Application / Context Menu" },
 
       // Modifiers & Caps
-      { code: 0xE0, name: "LCtrl", cat: "mods", desc: "Left Control" },
-      { code: 0xE1, name: "LShift", cat: "mods", desc: "Left Shift" },
-      { code: 0xE2, name: "LAlt", cat: "mods", desc: "Left Alt" },
-      { code: 0xE3, name: "LGUI", cat: "mods", desc: "Left GUI (Win/Cmd)" },
-      { code: 0xE4, name: "RCtrl", cat: "mods", desc: "Right Control" },
-      { code: 0xE5, name: "RShift", cat: "mods", desc: "Right Shift" },
-      { code: 0xE6, name: "RAlt", cat: "mods", desc: "Right Alt" },
-      { code: 0xE7, name: "RGUI", cat: "mods", desc: "Right GUI (Win/Cmd)" },
-      { code: 0x39, name: "Caps", cat: "mods", desc: "Caps Lock" },
+      { code: zmkKey(HID_USAGE_KEY, 0xE0), name: "LCtrl", cat: "mods", desc: "Left Control" },
+      { code: zmkKey(HID_USAGE_KEY, 0xE1), name: "LShift", cat: "mods", desc: "Left Shift" },
+      { code: zmkKey(HID_USAGE_KEY, 0xE2), name: "LAlt", cat: "mods", desc: "Left Alt" },
+      { code: zmkKey(HID_USAGE_KEY, 0xE3), name: "LGUI", cat: "mods", desc: "Left GUI (Win/Cmd)" },
+      { code: zmkKey(HID_USAGE_KEY, 0xE4), name: "RCtrl", cat: "mods", desc: "Right Control" },
+      { code: zmkKey(HID_USAGE_KEY, 0xE5), name: "RShift", cat: "mods", desc: "Right Shift" },
+      { code: zmkKey(HID_USAGE_KEY, 0xE6), name: "RAlt", cat: "mods", desc: "Right Alt" },
+      { code: zmkKey(HID_USAGE_KEY, 0xE7), name: "RGUI", cat: "mods", desc: "Right GUI (Win/Cmd)" },
+      { code: zmkKey(HID_USAGE_KEY, 0x39), name: "Caps", cat: "mods", desc: "Caps Lock" },
       { beh: BEH_CAPS_WORD, p1: 0, name: "Caps Word", cat: "mods", desc: "Capitalize next word only (&caps_word)" },
 
       // Function Keys (Full F1 - F24)
-      { code: 0x3A, name: "F1", cat: "fn", desc: "Function 1" },
-      { code: 0x3B, name: "F2", cat: "fn", desc: "Function 2" },
-      { code: 0x3C, name: "F3", cat: "fn", desc: "Function 3" },
-      { code: 0x3D, name: "F4", cat: "fn", desc: "Function 4" },
-      { code: 0x3E, name: "F5", cat: "fn", desc: "Function 5" },
-      { code: 0x3F, name: "F6", cat: "fn", desc: "Function 6" },
-      { code: 0x40, name: "F7", cat: "fn", desc: "Function 7" },
-      { code: 0x41, name: "F8", cat: "fn", desc: "Function 8" },
-      { code: 0x42, name: "F9", cat: "fn", desc: "Function 9" },
-      { code: 0x43, name: "F10", cat: "fn", desc: "Function 10" },
-      { code: 0x44, name: "F11", cat: "fn", desc: "Function 11" },
-      { code: 0x45, name: "F12", cat: "fn", desc: "Function 12" },
-      { code: 0x68, name: "F13", cat: "fn", desc: "Function 13" },
-      { code: 0x69, name: "F14", cat: "fn", desc: "Function 14" },
-      { code: 0x6A, name: "F15", cat: "fn", desc: "Function 15" },
-      { code: 0x6B, name: "F16", cat: "fn", desc: "Function 16" },
-      { code: 0x6C, name: "F17", cat: "fn", desc: "Function 17" },
-      { code: 0x6D, name: "F18", cat: "fn", desc: "Function 18" },
-      { code: 0x6E, name: "F19", cat: "fn", desc: "Function 19" },
-      { code: 0x6F, name: "F20", cat: "fn", desc: "Function 20" },
-      { code: 0x70, name: "F21", cat: "fn", desc: "Function 21" },
-      { code: 0x71, name: "F22", cat: "fn", desc: "Function 22" },
-      { code: 0x72, name: "F23", cat: "fn", desc: "Function 23" },
-      { code: 0x73, name: "F24", cat: "fn", desc: "Function 24" },
+      { code: zmkKey(HID_USAGE_KEY, 0x3A), name: "F1", cat: "fn", desc: "Function 1" },
+      { code: zmkKey(HID_USAGE_KEY, 0x3B), name: "F2", cat: "fn", desc: "Function 2" },
+      { code: zmkKey(HID_USAGE_KEY, 0x3C), name: "F3", cat: "fn", desc: "Function 3" },
+      { code: zmkKey(HID_USAGE_KEY, 0x3D), name: "F4", cat: "fn", desc: "Function 4" },
+      { code: zmkKey(HID_USAGE_KEY, 0x3E), name: "F5", cat: "fn", desc: "Function 5" },
+      { code: zmkKey(HID_USAGE_KEY, 0x3F), name: "F6", cat: "fn", desc: "Function 6" },
+      { code: zmkKey(HID_USAGE_KEY, 0x40), name: "F7", cat: "fn", desc: "Function 7" },
+      { code: zmkKey(HID_USAGE_KEY, 0x41), name: "F8", cat: "fn", desc: "Function 8" },
+      { code: zmkKey(HID_USAGE_KEY, 0x42), name: "F9", cat: "fn", desc: "Function 9" },
+      { code: zmkKey(HID_USAGE_KEY, 0x43), name: "F10", cat: "fn", desc: "Function 10" },
+      { code: zmkKey(HID_USAGE_KEY, 0x44), name: "F11", cat: "fn", desc: "Function 11" },
+      { code: zmkKey(HID_USAGE_KEY, 0x45), name: "F12", cat: "fn", desc: "Function 12" },
+      { code: zmkKey(HID_USAGE_KEY, 0x68), name: "F13", cat: "fn", desc: "Function 13" },
+      { code: zmkKey(HID_USAGE_KEY, 0x69), name: "F14", cat: "fn", desc: "Function 14" },
+      { code: zmkKey(HID_USAGE_KEY, 0x6A), name: "F15", cat: "fn", desc: "Function 15" },
+      { code: zmkKey(HID_USAGE_KEY, 0x6B), name: "F16", cat: "fn", desc: "Function 16" },
+      { code: zmkKey(HID_USAGE_KEY, 0x6C), name: "F17", cat: "fn", desc: "Function 17" },
+      { code: zmkKey(HID_USAGE_KEY, 0x6D), name: "F18", cat: "fn", desc: "Function 18" },
+      { code: zmkKey(HID_USAGE_KEY, 0x6E), name: "F19", cat: "fn", desc: "Function 19" },
+      { code: zmkKey(HID_USAGE_KEY, 0x6F), name: "F20", cat: "fn", desc: "Function 20" },
+      { code: zmkKey(HID_USAGE_KEY, 0x70), name: "F21", cat: "fn", desc: "Function 21" },
+      { code: zmkKey(HID_USAGE_KEY, 0x71), name: "F22", cat: "fn", desc: "Function 22" },
+      { code: zmkKey(HID_USAGE_KEY, 0x72), name: "F23", cat: "fn", desc: "Function 23" },
+      { code: zmkKey(HID_USAGE_KEY, 0x73), name: "F24", cat: "fn", desc: "Function 24" },
 
-      // Media & Sound
-      { code: 0x80 | 0xE2, name: "Mute", cat: "media", desc: "Mute Audio" },
-      { code: 0x80 | 0xE9, name: "Vol +", cat: "media", desc: "Volume Up" },
-      { code: 0x80 | 0xEA, name: "Vol -", cat: "media", desc: "Volume Down" },
-      { code: 0x80 | 0xCD, name: "Play/Pause", cat: "media", desc: "Play/Pause Media" },
-      { code: 0x80 | 0xB5, name: "Next", cat: "media", desc: "Next Track" },
-      { code: 0x80 | 0xB6, name: "Prev", cat: "media", desc: "Previous Track" },
-      { code: 0x80 | 0xB7, name: "Stop", cat: "media", desc: "Stop Playback" },
-      { code: 0x80 | 0x6F, name: "Bri +", cat: "media", desc: "Brightness Up" },
-      { code: 0x80 | 0x70, name: "Bri -", cat: "media", desc: "Brightness Down" },
+      // Media & Sound (Consumer Page 0x0C)
+      { code: zmkKey(HID_USAGE_CONSUMER, 0xE2), name: "Mute", cat: "media", desc: "Mute Audio (&kp C_MUTE)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0xE9), name: "Vol +", cat: "media", desc: "Volume Up (&kp C_VOLUME_UP)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0xEA), name: "Vol -", cat: "media", desc: "Volume Down (&kp C_VOLUME_DOWN)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0xCD), name: "Play/Pause", cat: "media", desc: "Play/Pause Media (&kp C_PLAY_PAUSE)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0xB5), name: "Next", cat: "media", desc: "Next Track (&kp C_NEXT)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0xB6), name: "Prev", cat: "media", desc: "Previous Track (&kp C_PREV)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0xB7), name: "Stop", cat: "media", desc: "Stop Playback (&kp C_STOP)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0x6F), name: "Bri +", cat: "media", desc: "Brightness Up (&kp C_BRI_UP)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0x70), name: "Bri -", cat: "media", desc: "Brightness Down (&kp C_BRI_DN)" },
 
       // Apps & Browser & International
-      { code: 0x80 | 0x192, name: "Calc", cat: "apps", desc: "Launch Calculator" },
-      { code: 0x80 | 0x194, name: "My PC", cat: "apps", desc: "File Explorer / PC" },
-      { code: 0x80 | 0x223, name: "Home", cat: "apps", desc: "Browser Homepage" },
-      { code: 0x80 | 0x224, name: "Back", cat: "apps", desc: "Browser Back" },
-      { code: 0x80 | 0x225, name: "Forward", cat: "apps", desc: "Browser Forward" },
-      { code: 0x80 | 0x227, name: "Refresh", cat: "apps", desc: "Browser Refresh" },
-      { code: 0x80 | 0x221, name: "Search", cat: "apps", desc: "Browser Search" },
-      { code: 0x80 | 0x18A, name: "Mail", cat: "apps", desc: "Mail Client" },
-      { code: 0x90, name: "한/영", cat: "apps", desc: "Korean Hangul / English (LANG1)" },
-      { code: 0x91, name: "한자", cat: "apps", desc: "Korean Hanja (LANG2)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0x192), name: "Calc", cat: "apps", desc: "Launch Calculator (&kp C_AL_CALC)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0x194), name: "My PC", cat: "apps", desc: "File Explorer / PC (&kp C_AL_MY_COMPUTER)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0x223), name: "Home", cat: "apps", desc: "Browser Homepage (&kp C_AC_HOME)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0x224), name: "Back", cat: "apps", desc: "Browser Back (&kp C_AC_BACK)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0x225), name: "Forward", cat: "apps", desc: "Browser Forward (&kp C_AC_FORWARD)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0x227), name: "Refresh", cat: "apps", desc: "Browser Refresh (&kp C_AC_REFRESH)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0x221), name: "Search", cat: "apps", desc: "Browser Search (&kp C_AC_SEARCH)" },
+      { code: zmkKey(HID_USAGE_CONSUMER, 0x18A), name: "Mail", cat: "apps", desc: "Mail Client (&kp C_AL_EMAIL)" },
+      { code: zmkKey(HID_USAGE_KEY, 0x90), name: "한/영", cat: "apps", desc: "Korean Hangul / English (LANG1)" },
+      { code: zmkKey(HID_USAGE_KEY, 0x91), name: "한자", cat: "apps", desc: "Korean Hanja (LANG2)" },
 
       // Mouse Buttons & Actions
       { beh: BEH_MKP, p1: 0, name: "Mouse L", cat: "mouse", desc: "Mouse Left Button (&mkp LCLK)" },
@@ -2655,10 +2688,70 @@
       { beh: BEH_OUT, p1: 2, p2: 0, name: "Out Tog", cat: "system", desc: "Toggle USB / BLE Output" },
     ];
 
+    // Helper to find keycode definition (handles 32-bit ZMK encoded, modifiers, 8-bit fallback)
+    function findKeycode(val) {
+      if (val === undefined || val === null) return null;
+      val = Number(val) >>> 0;
+
+      // 1. Direct match
+      let found = KEYCODES.find(k => k.code === val);
+      if (found) return found;
+
+      // 2. Decode ZMK keycode: [mods (8b)][page (8b)][id (16b)]
+      const mods = (val >>> 24) & 0xFF;
+      const page = (val >>> 16) & 0xFF;
+      const id = val & 0xFFFF;
+
+      // Check with stripped modifiers
+      if (mods !== 0) {
+        const baseVal = (val & 0x00FFFFFF) >>> 0;
+        const baseFound = KEYCODES.find(k => k.code === baseVal) ||
+                          KEYCODES.find(k => (k.code & 0xFFFF) === id && ((k.code >>> 16) & 0xFF) === (page || HID_USAGE_KEY));
+        if (baseFound) {
+          const modPrefixes = [];
+          if (mods & 0x01) modPrefixes.push("LC");
+          if (mods & 0x02) modPrefixes.push("LS");
+          if (mods & 0x04) modPrefixes.push("LA");
+          if (mods & 0x08) modPrefixes.push("LG");
+          if (mods & 0x10) modPrefixes.push("RC");
+          if (mods & 0x20) modPrefixes.push("RS");
+          if (mods & 0x40) modPrefixes.push("RA");
+          if (mods & 0x80) modPrefixes.push("RG");
+          return {
+            ...baseFound,
+            name: `${modPrefixes.join("+")}(${baseFound.name})`,
+            desc: `${modPrefixes.join("+")} + ${baseFound.desc}`
+          };
+        }
+      }
+
+      // 3. Fallback matching for Page 0x07 (Keyboard) or raw ID
+      if (page === HID_USAGE_KEY || page === 0) {
+        found = KEYCODES.find(k => {
+          const kPage = (k.code >>> 16) & 0xFF;
+          const kId = k.code & 0xFFFF;
+          return (kPage === HID_USAGE_KEY || kPage === 0) && kId === id;
+        });
+        if (found) return found;
+      }
+
+      // 4. Fallback matching for Page 0x0C (Consumer)
+      if (page === HID_USAGE_CONSUMER || (val >= 0x80 && val <= 0x3FF)) {
+        found = KEYCODES.find(k => {
+          const kPage = (k.code >>> 16) & 0xFF;
+          const kId = k.code & 0xFFFF;
+          return (kPage === HID_USAGE_CONSUMER) && (kId === id || kId === (val & 0xFF));
+        });
+        if (found) return found;
+      }
+
+      return null;
+    }
+
     // Helper to format key binding label
     function formatBindingLabel(beh, p1, p2) {
       if (beh === BEH_KP) {
-        const found = KEYCODES.find(k => k.code === p1);
+        const found = findKeycode(p1);
         return { primary: found ? found.name : `0x${p1.toString(16)}`, sub: "&kp" };
       }
       if (beh === BEH_MO) {
@@ -2676,13 +2769,13 @@
       }
       if (beh === BEH_MT) {
         const modMap = { 0x01: "CTL", 0x02: "SFT", 0x04: "ALT", 0x08: "GUI", 0x10: "RCTL", 0x20: "RSFT", 0x40: "RALT", 0x80: "RGUI" };
-        const keyItem = KEYCODES.find(k => k.code === p2);
+        const keyItem = findKeycode(p2);
         const kName = keyItem ? keyItem.name : `0x${p2.toString(16)}`;
         return { primary: `${modMap[p1] || "MOD"}/${kName}`, sub: "&mt" };
       }
       if (beh === BEH_LT) {
         const lShort = ["L0", "L1", "L2", "L3", "L4", "L5", "L6", "L7"];
-        const keyItem = KEYCODES.find(k => k.code === p2);
+        const keyItem = findKeycode(p2);
         const kName = keyItem ? keyItem.name : `0x${p2.toString(16)}`;
         return { primary: `${lShort[p1] || "L" + p1}/${kName}`, sub: "&lt" };
       }
@@ -2748,33 +2841,33 @@
 
       // Layer 0: Base
       // Top row 0..2
-      layers[0][0] = { beh: BEH_KP, p1: 0x46, p2: 0 }; // PrtSc
-      layers[0][1] = { beh: BEH_MO, p1: 3, p2: 0 };    // Fn
-      layers[0][2] = { beh: BEH_KP, p1: 0x80 | 0xE2, p2: 0 }; // Mute
+      layers[0][0] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, 0x46), p2: 0 }; // PrtSc
+      layers[0][1] = { beh: BEH_MO, p1: 3, p2: 0 };                            // Fn
+      layers[0][2] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_CONSUMER, 0xE2), p2: 0 }; // Mute
       // Row 1 (3..14): ` 1 2 3 4 5 6 7 8 9 0 Bspc
       const r1 = [0x35, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x2A];
-      r1.forEach((kc, i) => layers[0][3 + i] = { beh: BEH_KP, p1: kc, p2: 0 });
+      r1.forEach((kc, i) => layers[0][3 + i] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, kc), p2: 0 });
       // Row 2 (15..26): Tab Q W E R T Y U I O P \
       const r2 = [0x2B, 0x14, 0x1A, 0x08, 0x15, 0x17, 0x1C, 0x18, 0x0C, 0x12, 0x13, 0x31];
-      r2.forEach((kc, i) => layers[0][15 + i] = { beh: BEH_KP, p1: kc, p2: 0 });
+      r2.forEach((kc, i) => layers[0][15 + i] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, kc), p2: 0 });
       // Row 3 (27..38): Esc A S D F G H J K L ; '
       const r3 = [0x29, 0x04, 0x16, 0x07, 0x09, 0x0A, 0x0B, 0x0D, 0x0E, 0x0F, 0x33, 0x34];
-      r3.forEach((kc, i) => layers[0][27 + i] = { beh: BEH_KP, p1: kc, p2: 0 });
+      r3.forEach((kc, i) => layers[0][27 + i] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, kc), p2: 0 });
       // Row 4 (39..50): LShift Z X C V B N M , . / Enter
       const r4 = [0xE1, 0x1D, 0x1B, 0x06, 0x19, 0x05, 0x11, 0x10, 0x36, 0x37, 0x38, 0x28];
-      r4.forEach((kc, i) => layers[0][39 + i] = { beh: BEH_KP, p1: kc, p2: 0 });
+      r4.forEach((kc, i) => layers[0][39 + i] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, kc), p2: 0 });
       // Row 5 (51..61): LCtrl LGUI LAlt RAlt Lower Space(2u) Raise Left Down Up Right
-      layers[0][51] = { beh: BEH_KP, p1: 0xE0, p2: 0 }; // LCtrl
-      layers[0][52] = { beh: BEH_KP, p1: 0xE3, p2: 0 }; // LGUI
-      layers[0][53] = { beh: BEH_KP, p1: 0xE2, p2: 0 }; // LAlt
-      layers[0][54] = { beh: BEH_KP, p1: 0xE6, p2: 0 }; // RAlt
-      layers[0][55] = { beh: BEH_MO, p1: 1, p2: 0 };    // Lower
-      layers[0][56] = { beh: BEH_KP, p1: 0x2C, p2: 0 }; // Space (2u)
-      layers[0][57] = { beh: BEH_MO, p1: 2, p2: 0 };    // Raise
-      layers[0][58] = { beh: BEH_KP, p1: 0x50, p2: 0 }; // Left
-      layers[0][59] = { beh: BEH_KP, p1: 0x51, p2: 0 }; // Down
-      layers[0][60] = { beh: BEH_KP, p1: 0x52, p2: 0 }; // Up
-      layers[0][61] = { beh: BEH_KP, p1: 0x4F, p2: 0 }; // Right
+      layers[0][51] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, 0xE0), p2: 0 }; // LCtrl
+      layers[0][52] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, 0xE3), p2: 0 }; // LGUI
+      layers[0][53] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, 0xE2), p2: 0 }; // LAlt
+      layers[0][54] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, 0xE6), p2: 0 }; // RAlt
+      layers[0][55] = { beh: BEH_MO, p1: 1, p2: 0 };                            // Lower
+      layers[0][56] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, 0x2C), p2: 0 }; // Space (2u)
+      layers[0][57] = { beh: BEH_MO, p1: 2, p2: 0 };                            // Raise
+      layers[0][58] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, 0x50), p2: 0 }; // Left
+      layers[0][59] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, 0x51), p2: 0 }; // Down
+      layers[0][60] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, 0x52), p2: 0 }; // Up
+      layers[0][61] = { beh: BEH_KP, p1: zmkKey(HID_USAGE_KEY, 0x4F), p2: 0 }; // Right
 
       // Layer 3 (Function) & Layer 4 (TriFunction) Unlock Key at Pos 40 (Z position)
       layers[3][40] = { beh: BEH_STUDIO_UNLOCK, p1: 0, p2: 0 };
@@ -2819,7 +2912,7 @@
         this.macros = { 1: "", 2: "", 3: "" };
         this.knobConfigs = [];
         for (let i = 0; i < NUM_LAYERS; i++) {
-          this.knobConfigs.push({ cwBeh: 1, cwParam: 0x80 | 0xE9, ccwBeh: 1, ccwParam: 0x80 | 0xEA, ppd: 2 });
+          this.knobConfigs.push({ cwBeh: 1, cwParam: zmkKey(HID_USAGE_CONSUMER, 0xE9), ccwBeh: 1, ccwParam: zmkKey(HID_USAGE_CONSUMER, 0xEA), ppd: 2 });
         }
         this.pwConfig = {
           defaultLen: 16,
@@ -3215,7 +3308,7 @@
               break;
             case CMD_HANDSHAKE: {
               const resp = new Uint8Array(23);
-              resp[0] = 2; resp[1] = 0; resp[2] = 0; // v2.0.0
+              resp[0] = 2; resp[1] = 0; resp[2] = 1; // v2.0.1
               resp[3] = state.locked ? 1 : 0;
               resp[4] = 8; resp[5] = 5; resp[6] = 12;
               const name = new TextEncoder().encode("Preonic");
@@ -3549,7 +3642,7 @@
         keycap.classList.add("key-layer");
       } else if (binding.beh === BEH_STUDIO_UNLOCK) {
         keycap.classList.add("key-unlock");
-      } else if ([0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0x28, 0x29, 0x2A, 0x2B].includes(binding.p1)) {
+      } else if ([0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0x28, 0x29, 0x2A, 0x2B].includes(binding.p1 & 0xFFFF)) {
         keycap.classList.add("key-mod");
       }
 
@@ -3703,7 +3796,7 @@
         opt.innerText = `${k.name} (${k.desc})`;
         selTap.appendChild(opt);
       });
-      selTap.value = "44"; // Space
+      selTap.value = String(zmkKey(HID_USAGE_KEY, 0x2C)); // Space (0x7002C)
 
       function updateDualSelection() {
         const tapCode = parseInt(selTap.value, 10);
@@ -3838,32 +3931,39 @@
 
     // Rotary Encoder Action Mappings & Synchronization
     const KNOB_ACTIONS = [
-      { id: "vol_up", name: "Volume Up (C_VOLUME_UP)", beh: 0x01, param: 0x80 | 0xE9 },
-      { id: "vol_dn", name: "Volume Down (C_VOLUME_DOWN)", beh: 0x01, param: 0x80 | 0xEA },
+      { id: "vol_up", name: "Volume Up (C_VOLUME_UP)", beh: 0x01, param: zmkKey(HID_USAGE_CONSUMER, 0xE9) },
+      { id: "vol_dn", name: "Volume Down (C_VOLUME_DOWN)", beh: 0x01, param: zmkKey(HID_USAGE_CONSUMER, 0xEA) },
       { id: "scrl_up", name: "Mouse Scroll Up (↑)", beh: 0x12, param: 10 },
       { id: "scrl_dn", name: "Mouse Scroll Down (↓)", beh: 0x12, param: 0xFFFFFFF6 },
       { id: "scrl_right", name: "Mouse Scroll Right (→)", beh: 0x12, param: 10 },
       { id: "scrl_left", name: "Mouse Scroll Left (←)", beh: 0x12, param: 0xFFFFFFF6 },
-      { id: "pg_up", name: "Page Up", beh: 0x01, param: 0x4B },
-      { id: "pg_dn", name: "Page Down", beh: 0x01, param: 0x4E },
-      { id: "arrow_up", name: "Arrow Up (↑)", beh: 0x01, param: 0x52 },
-      { id: "arrow_down", name: "Arrow Down (↓)", beh: 0x01, param: 0x51 },
-      { id: "arrow_left", name: "Arrow Left (←)", beh: 0x01, param: 0x50 },
-      { id: "arrow_right", name: "Arrow Right (→)", beh: 0x01, param: 0x4F },
-      { id: "next_track", name: "Next Track (C_NEXT)", beh: 0x01, param: 0x80 | 0xB5 },
-      { id: "prev_track", name: "Previous Track (C_PREV)", beh: 0x01, param: 0x80 | 0xB6 },
-      { id: "play_pause", name: "Play / Pause (C_PP)", beh: 0x01, param: 0x80 | 0xCD },
-      { id: "mute", name: "Mute Audio (C_MUTE)", beh: 0x01, param: 0x80 | 0xE2 },
-      { id: "zoom_in", name: "Zoom In (Equal / Plus)", beh: 0x01, param: 0x2E },
-      { id: "zoom_out", name: "Zoom Out (Minus)", beh: 0x01, param: 0x2D },
-      { id: "undo", name: "Undo (Z)", beh: 0x01, param: 0x1D },
-      { id: "redo", name: "Redo (Y)", beh: 0x01, param: 0x1C },
-      { id: "bright_up", name: "Brightness Up", beh: 0x01, param: 0x80 | 0x6F },
-      { id: "bright_dn", name: "Brightness Down", beh: 0x01, param: 0x80 | 0x70 }
+      { id: "pg_up", name: "Page Up", beh: 0x01, param: zmkKey(HID_USAGE_KEY, 0x4B) },
+      { id: "pg_dn", name: "Page Down", beh: 0x01, param: zmkKey(HID_USAGE_KEY, 0x4E) },
+      { id: "arrow_up", name: "Arrow Up (↑)", beh: 0x01, param: zmkKey(HID_USAGE_KEY, 0x52) },
+      { id: "arrow_down", name: "Arrow Down (↓)", beh: 0x01, param: zmkKey(HID_USAGE_KEY, 0x51) },
+      { id: "arrow_left", name: "Arrow Left (←)", beh: 0x01, param: zmkKey(HID_USAGE_KEY, 0x50) },
+      { id: "arrow_right", name: "Arrow Right (→)", beh: 0x01, param: zmkKey(HID_USAGE_KEY, 0x4F) },
+      { id: "next_track", name: "Next Track (C_NEXT)", beh: 0x01, param: zmkKey(HID_USAGE_CONSUMER, 0xB5) },
+      { id: "prev_track", name: "Previous Track (C_PREV)", beh: 0x01, param: zmkKey(HID_USAGE_CONSUMER, 0xB6) },
+      { id: "play_pause", name: "Play / Pause (C_PP)", beh: 0x01, param: zmkKey(HID_USAGE_CONSUMER, 0xCD) },
+      { id: "mute", name: "Mute Audio (C_MUTE)", beh: 0x01, param: zmkKey(HID_USAGE_CONSUMER, 0xE2) },
+      { id: "zoom_in", name: "Zoom In (Equal / Plus)", beh: 0x01, param: zmkKey(HID_USAGE_KEY, 0x2E) },
+      { id: "zoom_out", name: "Zoom Out (Minus)", beh: 0x01, param: zmkKey(HID_USAGE_KEY, 0x2D) },
+      { id: "undo", name: "Undo (Z)", beh: 0x01, param: zmkKey(HID_USAGE_KEY, 0x1D) },
+      { id: "redo", name: "Redo (Y)", beh: 0x01, param: zmkKey(HID_USAGE_KEY, 0x1C) },
+      { id: "bright_up", name: "Brightness Up", beh: 0x01, param: zmkKey(HID_USAGE_CONSUMER, 0x6F) },
+      { id: "bright_dn", name: "Brightness Down", beh: 0x01, param: zmkKey(HID_USAGE_CONSUMER, 0x70) }
     ];
 
     function findKnobActionId(beh, param, defaultId = "vol_up") {
-      const match = KNOB_ACTIONS.find(a => a.beh === beh && (a.param === param || (a.param & 0xFFFF) === (param & 0xFFFF)));
+      param = Number(param) >>> 0;
+      const match = KNOB_ACTIONS.find(a => {
+        if (a.beh !== beh) return false;
+        if (a.param === param) return true;
+        const aId = a.param & 0xFFFF;
+        const pId = param & 0xFFFF;
+        return aId === pId;
+      });
       return match ? match.id : defaultId;
     }
 
@@ -3873,7 +3973,7 @@
 
     function updateKnobUIForLayer(layer) {
       if (!state.knobConfigs[layer]) {
-        state.knobConfigs[layer] = { cwBeh: 1, cwParam: 0x80 | 0xE9, ccwBeh: 1, ccwParam: 0x80 | 0xEA, ppd: 2 };
+        state.knobConfigs[layer] = { cwBeh: 1, cwParam: zmkKey(HID_USAGE_CONSUMER, 0xE9), ccwBeh: 1, ccwParam: zmkKey(HID_USAGE_CONSUMER, 0xEA), ppd: 2 };
       }
       const k = state.knobConfigs[layer];
       const cwSelect = document.getElementById("knobCwSelect");
@@ -4069,7 +4169,7 @@
         if (state.connected) return;
         state.demoMode = !state.demoMode;
         if (state.demoMode) {
-          state.firmwareVersion = "2.0.0";
+          state.firmwareVersion = "2.0.1";
           state.keymaps = generateDefaultKeymap();
           renderAllKeycaps();
           const banner = document.getElementById("keymapSyncStatus");
@@ -4845,7 +4945,7 @@
 
       // Installed version
       if (state.connected || state.demoMode) {
-        const instVer = state.firmwareVersion || "2.0.0";
+        const instVer = state.firmwareVersion || "2.0.1";
         if (fwInstalledVer) fwInstalledVer.textContent = `v${instVer}`;
         if (fwInstalledSub) fwInstalledSub.textContent = state.demoMode ? "Preonic (Demo Mode)" : `${state.deviceName} (Connected)`;
       } else {
@@ -4855,7 +4955,7 @@
 
       // Latest GitHub version
       const latestTag = state.githubLatestRelease ? state.githubLatestRelease.tag_name : null;
-      if (fwLatestVer) fwLatestVer.textContent = latestTag || (state.githubStatus === "checking" ? "Checking..." : "v2.0.0");
+      if (fwLatestVer) fwLatestVer.textContent = latestTag || (state.githubStatus === "checking" ? "Checking..." : "v2.0.1");
       if (fwLatestDate) {
         if (state.githubLatestRelease && state.githubLatestRelease.published_at) {
           const d = new Date(state.githubLatestRelease.published_at);
@@ -4871,7 +4971,7 @@
       let isUpdateAvail = false;
       let isUpToDate = false;
       if (latestTag && (state.connected || state.demoMode)) {
-        const cmp = compareSemVer(state.firmwareVersion || "2.0.0", latestTag);
+        const cmp = compareSemVer(state.firmwareVersion || "2.0.1", latestTag);
         if (cmp < 0) {
           isUpdateAvail = true;
         } else {
@@ -4888,11 +4988,11 @@
           badgeText.textContent = `Update: ${latestTag} ⚡`;
         } else if (isUpToDate) {
           badge.classList.add("badge-up-to-date");
-          badgeText.textContent = `GitHub: ${latestTag || "v2.0.0"} ✓`;
+          badgeText.textContent = `GitHub: ${latestTag || "v2.0.1"} ✓`;
         } else if (latestTag) {
           badgeText.textContent = `GitHub: ${latestTag}`;
         } else {
-          badgeText.textContent = "GitHub: v2.0.0";
+          badgeText.textContent = "GitHub: v2.0.1";
         }
       }
 
@@ -4916,7 +5016,7 @@
           fwStatusText.innerHTML = `⚡ <strong>New Firmware Available (${latestTag})</strong> — Download the UF2 file below and flash in bootloader mode!`;
         } else if (isUpToDate) {
           fwStatusBanner.classList.add("up-to-date");
-          fwStatusText.innerHTML = `✅ <strong>Up to Date</strong> — Your Preonic keyboard is running the latest firmware (${latestTag || "v2.0.0"}).`;
+          fwStatusText.innerHTML = `✅ <strong>Up to Date</strong> — Your Preonic keyboard is running the latest firmware (${latestTag || "v2.0.1"}).`;
         } else if (state.githubStatus === "checking") {
           fwStatusBanner.classList.add("checking");
           fwStatusText.innerHTML = `⏳ Checking GitHub repository (${repo}) for latest releases and commits...`;
@@ -4930,8 +5030,8 @@
       }
 
       // Update download links
-      let mainUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.0"}/keyboardio_preonic__zmk.uf2`;
-      let resetUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.0"}/settings_reset-keyboardio_preonic__zmk.uf2`;
+      let mainUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.1"}/keyboardio_preonic__zmk.uf2`;
+      let resetUf2Url = `https://github.com/${repo}/releases/download/${latestTag || "v2.0.1"}/settings_reset-keyboardio_preonic__zmk.uf2`;
 
       if (state.githubLatestRelease && Array.isArray(state.githubLatestRelease.assets)) {
         const fwAsset = state.githubLatestRelease.assets.find(a => a.name.includes("preonic") && a.name.endsWith(".uf2") && !a.name.includes("reset"));
