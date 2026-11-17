@@ -933,6 +933,63 @@ static void preonic_studio_dispatch_command(uint8_t cmd, uint8_t seq, const uint
         break;
     }
 
+    case CMD_GET_MACRO_STEPS: {
+        if (check_locked_rejection(cmd, seq)) break;
+        if (len < 3) {
+            uint8_t err = STATUS_ERR_INVALID;
+            send_packet(CMD_GET_MACRO_STEPS, seq, &err, 1);
+            break;
+        }
+        uint8_t slot_num = data[0];
+        uint16_t offset = data[1] | ((uint16_t)data[2] << 8);
+        if (slot_num < 1 || slot_num > 3) {
+            uint8_t err = STATUS_ERR_INVALID;
+            send_packet(CMD_GET_MACRO_STEPS, seq, &err, 1);
+            break;
+        }
+
+        struct dyn_macro_step chunk[10];
+        uint16_t total_steps = 0;
+        uint8_t count = dynamic_macro_get_slot_steps_range(slot_num, offset, chunk, 10, &total_steps);
+
+        uint8_t resp[6 + 10 * sizeof(struct dyn_macro_step)];
+        resp[0] = slot_num;
+        resp[1] = total_steps & 0xFF;
+        resp[2] = (total_steps >> 8) & 0xFF;
+        resp[3] = offset & 0xFF;
+        resp[4] = (offset >> 8) & 0xFF;
+        resp[5] = count;
+        if (count > 0) {
+            memcpy(&resp[6], chunk, count * sizeof(struct dyn_macro_step));
+        }
+        send_packet(CMD_GET_MACRO_STEPS, seq, resp, 6 + count * sizeof(struct dyn_macro_step));
+        break;
+    }
+
+    case CMD_SET_MACRO_STEPS: {
+        if (check_locked_rejection(cmd, seq)) break;
+        if (len < 5) {
+            uint8_t err = STATUS_ERR_INVALID;
+            send_packet(CMD_SET_MACRO_STEPS, seq, &err, 1);
+            break;
+        }
+        uint8_t slot_num = data[0];
+        uint16_t offset = data[1] | ((uint16_t)data[2] << 8);
+        uint8_t count = data[3];
+        bool is_final = (data[4] != 0);
+        if (slot_num < 1 || slot_num > 3 || count > 10 ||
+            (size_t)(5 + count * sizeof(struct dyn_macro_step)) > len) {
+            uint8_t err = STATUS_ERR_INVALID;
+            send_packet(CMD_SET_MACRO_STEPS, seq, &err, 1);
+            break;
+        }
+
+        int ret = dynamic_macro_set_slot_steps_chunk(slot_num, offset, &data[5], count, is_final);
+        uint8_t status = (ret == 0) ? STATUS_OK : STATUS_ERR_INVALID;
+        send_packet(CMD_SET_MACRO_STEPS, seq, &status, 1);
+        break;
+    }
+
     case CMD_GET_PW_CONFIG: {
         uint8_t def_len = 16;
         uint8_t interval = 12;

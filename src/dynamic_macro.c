@@ -25,7 +25,7 @@
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
-#define DYN_MACRO_MAX_STEPS 128
+#define DYN_MACRO_MAX_STEPS 256
 #define DYN_MACRO_STEP_INTERVAL_MS 16
 #define DYN_MACRO_MOD_INTERVAL_MS 30
 
@@ -273,6 +273,100 @@ uint16_t dynamic_macro_get_slot_steps(uint8_t slot_num, void *out_buf, uint16_t 
     return to_copy;
 }
 
+static void release_unmatched_steps(struct dyn_macro_slot *slot, uint16_t limit, bool emit_hid) {
+    for (uint16_t i = 0; i < limit; i++) {
+        if (slot->steps[i].pressed) {
+            bool released = false;
+            for (uint16_t j = i + 1; j < limit; j++) {
+                if (slot->steps[j].keycode == slot->steps[i].keycode && !slot->steps[j].pressed) {
+                    released = true;
+                    break;
+                }
+            }
+            if (!released) {
+                if (emit_hid) {
+                    raise_zmk_keycode_state_changed_from_encoded(slot->steps[i].keycode, false, k_uptime_get());
+                } else if (slot->count < DYN_MACRO_MAX_STEPS) {
+                    slot->steps[slot->count++] = (struct dyn_macro_step){
+                        .keycode = slot->steps[i].keycode,
+                        .pressed = 0
+                    };
+                }
+            }
+        }
+    }
+}
+
+uint8_t dynamic_macro_get_slot_steps_range(uint8_t slot_num, uint16_t offset, void *out_buf,
+                                           uint8_t max_steps, uint16_t *out_total_steps) {
+    struct dyn_macro_slot *slot = get_slot_ptr(slot_num);
+    if (!slot) {
+        if (out_total_steps) *out_total_steps = 0;
+        return 0;
+    }
+
+    if (out_total_steps) {
+        *out_total_steps = slot->count;
+    }
+    if (!out_buf || max_steps == 0 || offset >= slot->count) {
+        return 0;
+    }
+
+    uint16_t avail = slot->count - offset;
+    uint8_t to_copy = (avail < max_steps) ? (uint8_t)avail : max_steps;
+    memcpy(out_buf, &slot->steps[offset], to_copy * sizeof(struct dyn_macro_step));
+    return to_copy;
+}
+
+int dynamic_macro_set_slot_steps_chunk(uint8_t slot_num, uint16_t offset, const void *steps_buf,
+                                       uint8_t step_count, bool is_final) {
+    struct dyn_macro_slot *slot = get_slot_ptr(slot_num);
+    if (!slot || (step_count > 0 && steps_buf == NULL)) {
+        return -EINVAL;
+    }
+    if ((uint32_t)offset + step_count > DYN_MACRO_MAX_STEPS) {
+        return -ENOSPC;
+    }
+
+    if (playing_slot == slot_num) {
+        dynamic_macro_abort();
+    }
+    if (recording_slot == slot_num) {
+        recording_slot = 0;
+        butterfly_set_macro_mode(BUTTERFLY_MACRO_IDLE);
+    }
+
+    if (offset == 0) {
+        slot->count = 0;
+    }
+    if (step_count > 0) {
+        memcpy(&slot->steps[offset], steps_buf, step_count * sizeof(struct dyn_macro_step));
+    }
+
+    if (is_final) {
+        slot->count = offset + step_count;
+        release_unmatched_steps(slot, slot->count, false);
+        dynamic_macro_save_slot(slot_num);
+        LOG_INF("Dynamic Macro %u saved via step chunks: %u steps", slot_num, slot->count);
+    }
+    return 0;
+}
+
+void dynamic_macro_abort(void) {
+    if (playing_slot == 0) {
+        return;
+    }
+    k_work_cancel_delayable(&play_work);
+    struct dyn_macro_slot *slot = get_slot_ptr(playing_slot);
+    if (slot && play_step_idx > 0) {
+        uint16_t executed = (play_step_idx <= slot->count) ? play_step_idx : slot->count;
+        release_unmatched_steps(slot, executed, true);
+    }
+    LOG_INF("Dynamic Macro %u playback aborted", playing_slot);
+    playing_slot = 0;
+    play_step_idx = 0;
+}
+
 
 uint8_t dynamic_macro_get_recording_slot(void) {
     return recording_slot;
@@ -351,7 +445,8 @@ void dynamic_macro_play(uint8_t slot_num) {
     }
 
     if (playing_slot != 0) {
-        return; // Already playing
+        dynamic_macro_abort();
+        return;
     }
 
     struct dyn_macro_slot *slot = get_slot_ptr(slot_num);
@@ -401,11 +496,7 @@ static int dynamic_macro_event_listener(const zmk_event_t *eh) {
     const struct zmk_activity_state_changed *act_ev = as_zmk_activity_state_changed(eh);
     if (act_ev != NULL) {
         if (act_ev->state == ZMK_ACTIVITY_SLEEP) {
-            if (playing_slot != 0) {
-                k_work_cancel_delayable(&play_work);
-                playing_slot = 0;
-                play_step_idx = 0;
-            }
+            dynamic_macro_abort();
             if (recording_slot != 0) {
                 recording_slot = 0;
                 butterfly_set_macro_mode(BUTTERFLY_MACRO_IDLE);

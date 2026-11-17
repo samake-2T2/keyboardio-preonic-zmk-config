@@ -36,6 +36,8 @@ extern "C" {
 #define CMD_GET_MACRO       0x30
 #define CMD_SET_MACRO       0x31
 #define CMD_PLAY_MACRO      0x32
+#define CMD_GET_MACRO_STEPS 0x33
+#define CMD_SET_MACRO_STEPS 0x34
 
 #define CMD_GET_PW_CONFIG   0x40
 #define CMD_SET_PW_CONFIG   0x41

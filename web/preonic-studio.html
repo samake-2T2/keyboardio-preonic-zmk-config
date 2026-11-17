@@ -1710,19 +1710,41 @@
           </button>
         </div>
 
+        <!-- Macro Mode Switcher -->
+        <div style="display: flex; gap: 8px; margin-bottom: 12px; align-items: center;">
+          <button id="btnMacroModeText" class="btn btn-primary" type="button" data-i18n="macroModeText">Text Mode</button>
+          <button id="btnMacroModeSteps" class="btn btn-secondary" type="button" data-i18n="macroModeSteps">Key Steps (Down/Up)</button>
+          <span style="font-size: 11.5px; color: var(--text-muted); margin-left: auto;" data-i18n="macroMaxNote">Max 256 steps per slot (Down + Up)</span>
+        </div>
+
         <!-- Macro Text Editor -->
-        <div class="macro-editor-box">
-          <label class="form-label" data-i18n="macroLabel">Macro ASCII Text String (Max 32 characters, shifts & symbols supported)</label>
+        <div id="macroTextBox" class="macro-editor-box">
+          <label class="form-label" data-i18n="macroLabel">Macro ASCII Text String (Max 64 chars / 256 steps, shifts & symbols supported)</label>
           <textarea id="macroText" class="macro-textarea" data-i18n-placeholder="macroPlaceholder" placeholder="Type text to inject into keyboard slot (e.g. MySecretPassword123!)"></textarea>
           <div class="macro-stats-row">
-            <span><span data-i18n="macroChars">Chars</span>: <strong id="macroCharCount">0</strong> / 32</span>
-            <span><span data-i18n="macroSteps">Estimated Keystroke Steps</span>: <strong id="macroStepEstimate">0</strong> / 128 max</span>
+            <span><span data-i18n="macroChars">Chars</span>: <strong id="macroCharCount">0</strong> / 64</span>
+            <span><span data-i18n="macroSteps">Estimated Keystroke Steps</span>: <strong id="macroStepEstimate">0</strong> / 256 max</span>
+          </div>
+        </div>
+
+        <!-- Macro Key Steps (Down/Up) Editor -->
+        <div id="macroStepsBox" class="macro-editor-box" style="display: none;">
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px;">
+            <button id="btnRecordMacroSteps" class="btn btn-warning" type="button" data-i18n="btnRecordMacroSteps">Record Keys (Browser)</button>
+            <select id="macroStepKeySelect" class="form-control" style="width: 190px; padding: 6px 8px; font-size: 12px;"></select>
+            <button id="btnAddStepTap" class="btn btn-secondary" type="button" data-i18n="btnAddStepTap">+ Tap (Down+Up)</button>
+            <button id="btnAddStepDown" class="btn btn-secondary" type="button" data-i18n="btnAddStepDown">+ Down</button>
+            <button id="btnAddStepUp" class="btn btn-secondary" type="button" data-i18n="btnAddStepUp">+ Up</button>
+            <span style="font-size: 12px; color: var(--text-muted); margin-left: auto;"><strong id="macroStepCount">0</strong> / 256 steps</span>
+          </div>
+          <div id="macroStepsList" style="max-height: 240px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); padding: 8px; display: flex; flex-direction: column; gap: 4px;">
+            <div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 16px;" data-i18n="macroStepsEmpty">No steps recorded. Click "Record Keys" or add steps manually.</div>
           </div>
         </div>
 
         <div class="macro-actions-row">
           <button id="btnSaveMacro" class="btn btn-primary" data-i18n="btnSaveMacro">
-            Write Text to Slot
+            Write to Slot
           </button>
           <button id="btnPlayMacro" class="btn btn-success" data-i18n="btnPlayMacro">
             Play Macro on Keyboard
@@ -2513,6 +2535,8 @@
     const CMD_GET_MACRO       = 0x30;
     const CMD_SET_MACRO       = 0x31;
     const CMD_PLAY_MACRO      = 0x32;
+    const CMD_GET_MACRO_STEPS = 0x33;
+    const CMD_SET_MACRO_STEPS = 0x34;
     const CMD_GET_PW_CONFIG   = 0x40;
     const CMD_SET_PW_CONFIG   = 0x41;
     const CMD_GET_MOUSE_CFG   = 0x50;
@@ -3652,6 +3676,45 @@
               showToast(`Played Macro Slot ${data[0]} on keyboard!`, "success");
               resolve({ cmd, data: new Uint8Array([STATUS_OK]) });
               break;
+            case CMD_GET_MACRO_STEPS: {
+              const slot = data[0];
+              const offset = data[1] | (data[2] << 8);
+              const allSteps = (state.macroSteps && state.macroSteps[slot]) ? state.macroSteps[slot] : [];
+              const slice = allSteps.slice(offset, offset + 10);
+              const resp = new Uint8Array(6 + slice.length * 5);
+              resp[0] = slot;
+              resp[1] = allSteps.length & 0xFF;
+              resp[2] = (allSteps.length >> 8) & 0xFF;
+              resp[3] = offset & 0xFF;
+              resp[4] = (offset >> 8) & 0xFF;
+              resp[5] = slice.length;
+              slice.forEach((s, i) => {
+                const base = 6 + i * 5;
+                resp[base] = s.keycode & 0xFF;
+                resp[base + 1] = (s.keycode >>> 8) & 0xFF;
+                resp[base + 2] = (s.keycode >>> 16) & 0xFF;
+                resp[base + 3] = (s.keycode >>> 24) & 0xFF;
+                resp[base + 4] = s.pressed ? 1 : 0;
+              });
+              resolve({ cmd, data: resp });
+              break;
+            }
+            case CMD_SET_MACRO_STEPS: {
+              const slot = data[0];
+              const offset = data[1] | (data[2] << 8);
+              const count = data[3];
+              const isFinal = data[4] !== 0;
+              if (!state.macroSteps) state.macroSteps = { 1: [], 2: [], 3: [] };
+              if (offset === 0) state.macroSteps[slot] = [];
+              for (let i = 0; i < count; i++) {
+                const base = 5 + i * 5;
+                const keycode = (data[base] | (data[base + 1] << 8) | (data[base + 2] << 16) | (data[base + 3] << 24)) >>> 0;
+                state.macroSteps[slot][offset + i] = { keycode, pressed: data[base + 4] !== 0 };
+              }
+              if (isFinal) state.macroSteps[slot] = state.macroSteps[slot].slice(0, offset + count);
+              resolve({ cmd, data: new Uint8Array([STATUS_OK]) });
+              break;
+            }
             case CMD_GET_PW_CONFIG: {
               const specials = new TextEncoder().encode(state.pwConfig.specials);
               const resp = new Uint8Array(35);
@@ -4877,6 +4940,210 @@
         }
       });
 
+      if (!state.macroSteps) state.macroSteps = { 1: [], 2: [], 3: [] };
+      let macroEditorMode = "text";
+      let isRecordingBrowserKeys = false;
+
+      const DOM_CODE_TO_HID = {
+        KeyA: 0x070004, KeyB: 0x070005, KeyC: 0x070006, KeyD: 0x070007, KeyE: 0x070008, KeyF: 0x070009,
+        KeyG: 0x07000A, KeyH: 0x07000B, KeyI: 0x07000C, KeyJ: 0x07000D, KeyK: 0x07000E, KeyL: 0x07000F,
+        KeyM: 0x070010, KeyN: 0x070011, KeyO: 0x070012, KeyP: 0x070013, KeyQ: 0x070014, KeyR: 0x070015,
+        KeyS: 0x070016, KeyT: 0x070017, KeyU: 0x070018, KeyV: 0x070019, KeyW: 0x07001A, KeyX: 0x07001B,
+        KeyY: 0x07001C, KeyZ: 0x07001D,
+        Digit1: 0x07001E, Digit2: 0x07001F, Digit3: 0x070020, Digit4: 0x070021, Digit5: 0x070022,
+        Digit6: 0x070023, Digit7: 0x070024, Digit8: 0x070025, Digit9: 0x070026, Digit0: 0x070027,
+        Enter: 0x070028, Escape: 0x070029, Backspace: 0x07002A, Tab: 0x07002B, Space: 0x07002C,
+        Minus: 0x07002D, Equal: 0x07002E, BracketLeft: 0x07002F, BracketRight: 0x070030, Backslash: 0x070031,
+        Semicolon: 0x070033, Quote: 0x070034, Backquote: 0x070035, Comma: 0x070036, Period: 0x070037, Slash: 0x070038,
+        CapsLock: 0x070039,
+        F1: 0x07003A, F2: 0x07003B, F3: 0x07003C, F4: 0x07003D, F5: 0x07003E, F6: 0x07003F,
+        F7: 0x070040, F8: 0x070041, F9: 0x070042, F10: 0x070043, F11: 0x070044, F12: 0x070045,
+        PrintScreen: 0x070046, ScrollLock: 0x070047, Pause: 0x070048, Insert: 0x070049, Home: 0x07004A,
+        PageUp: 0x07004B, Delete: 0x07004C, End: 0x07004D, PageDown: 0x07004E,
+        ArrowRight: 0x07004F, ArrowLeft: 0x070050, ArrowDown: 0x070051, ArrowUp: 0x070052,
+        ControlLeft: 0x0700E0, ShiftLeft: 0x0700E1, AltLeft: 0x0700E2, MetaLeft: 0x0700E3,
+        ControlRight: 0x0700E4, ShiftRight: 0x0700E5, AltRight: 0x0700E6, MetaRight: 0x0700E7
+      };
+
+      function formatMacroKeyName(kc) {
+        const found = findKeycode(kc);
+        if (found) return found.name;
+        const usage = kc & 0xFFFF;
+        for (const [domCode, hid] of Object.entries(DOM_CODE_TO_HID)) {
+          if ((hid & 0xFFFF) === usage) return domCode;
+        }
+        return `0x${kc.toString(16)}`;
+      }
+
+      function asciiToMacroSteps(text) {
+        const steps = [];
+        const shiftChars = {
+          "!": 0x07001E, "@": 0x07001F, "#": 0x070020, "$": 0x070021, "%": 0x070022,
+          "^": 0x070023, "&": 0x070024, "*": 0x070025, "(": 0x070026, ")": 0x070027,
+          "_": 0x07002D, "+": 0x07002E, "{": 0x07002F, "}": 0x070030, "|": 0x070031,
+          ":": 0x070033, '"': 0x070034, "~": 0x070035, "<": 0x070036, ">": 0x070037, "?": 0x070038
+        };
+        const plainChars = {
+          " ": 0x07002C, "\n": 0x070028, "\t": 0x07002B, "-": 0x07002D, "=": 0x07002E,
+          "[": 0x07002F, "]": 0x070030, "\\": 0x070031, ";": 0x070033, "'": 0x070034,
+          "`": 0x070035, ",": 0x070036, ".": 0x070037, "/": 0x070038
+        };
+        for (const ch of text) {
+          if (ch === "\r") continue;
+          let kc = null, needShift = false;
+          if (ch >= "a" && ch <= "z") kc = 0x070004 + (ch.charCodeAt(0) - 97);
+          else if (ch >= "A" && ch <= "Z") { kc = 0x070004 + (ch.charCodeAt(0) - 65); needShift = true; }
+          else if (ch >= "1" && ch <= "9") kc = 0x07001E + (ch.charCodeAt(0) - 49);
+          else if (ch === "0") kc = 0x070027;
+          else if (shiftChars[ch]) { kc = shiftChars[ch]; needShift = true; }
+          else if (plainChars[ch]) kc = plainChars[ch];
+          if (!kc) continue;
+          if (needShift) {
+            steps.push({ keycode: 0x0700E1, pressed: true });
+            steps.push({ keycode: kc, pressed: true });
+            steps.push({ keycode: kc, pressed: false });
+            steps.push({ keycode: 0x0700E1, pressed: false });
+          } else {
+            steps.push({ keycode: kc, pressed: true });
+            steps.push({ keycode: kc, pressed: false });
+          }
+        }
+        return steps;
+      }
+
+      function macroStepsToAsciiText(steps) {
+        const shiftMap = {
+          0x1E:"!",0x1F:"@",0x20:"#",0x21:"$",0x22:"%",0x23:"^",0x24:"&",0x25:"*",0x26:"(",0x27:")",
+          0x2D:"_",0x2E:"+",0x2F:"{",0x30:"}",0x31:"|",0x33:":",0x34:'"',0x35:"~",0x36:"<",0x37:">",0x38:"?"
+        };
+        const plainMap = {
+          0x28:"\n",0x2B:"\t",0x2C:" ",0x2D:"-",0x2E:"=",0x2F:"[",0x30:"]",0x31:"\\",
+          0x33:";",0x34:"'",0x35:"`",0x36:",",0x37:".",0x38:"/"
+        };
+        let out = "", shifted = false;
+        for (const s of steps) {
+          const u = s.keycode & 0xFFFF;
+          if (u === 0xE1 || u === 0xE5) { shifted = !!s.pressed; continue; }
+          if (!s.pressed) continue;
+          if (u >= 0x04 && u <= 0x1D) out += String.fromCharCode((shifted ? 65 : 97) + (u - 0x04));
+          else if (u >= 0x1E && u <= 0x26) out += shifted ? shiftMap[u] : String.fromCharCode(49 + (u - 0x1E));
+          else if (u === 0x27) out += shifted ? ")" : "0";
+          else if (shifted && shiftMap[u]) out += shiftMap[u];
+          else if (plainMap[u]) out += plainMap[u];
+        }
+        return out;
+      }
+
+      const macroStepSelect = document.getElementById("macroStepKeySelect");
+      if (macroStepSelect) {
+        const kpKeys = KEYCODES.filter(k => k.beh === BEH_KP && k.code);
+        macroStepSelect.innerHTML = kpKeys.map(k => `<option value="${k.code}">${escapeHtml(k.name)} (${escapeHtml(k.desc)})</option>`).join("");
+      }
+
+      function renderMacroSteps() {
+        const listEl = document.getElementById("macroStepsList");
+        const countEl = document.getElementById("macroStepCount");
+        const steps = state.macroSteps[state.activeMacroSlot] || [];
+        if (countEl) countEl.innerText = steps.length;
+        const badge = document.getElementById(`slotBadge${state.activeMacroSlot}`);
+        if (badge && macroEditorMode === "steps") badge.innerText = `${steps.length} steps`;
+        if (!listEl) return;
+        if (steps.length === 0) {
+          const emptyMsg = currentLang === "ko"
+            ? '기록된 스텝이 없습니다. "키 입력 녹화"를 누르거나 아래에서 직접 추가하세요.'
+            : 'No steps recorded. Click "Record Keys" or add steps manually.';
+          listEl.innerHTML = `<div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 16px;">${emptyMsg}</div>`;
+          return;
+        }
+        listEl.innerHTML = steps.map((s, idx) => `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 5px 10px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="color: var(--text-muted); font-variant-numeric: tabular-nums; min-width: 24px;">#${idx + 1}</span>
+              <strong style="color: var(--text-primary);">${escapeHtml(formatMacroKeyName(s.keycode))}</strong>
+              <span class="pill-badge" style="padding: 1px 7px; font-size: 10px; border-color: ${s.pressed ? "rgba(61,126,255,0.45)" : "rgba(104,112,125,0.4)"}; color: ${s.pressed ? "#8ab4ff" : "#9ca3b0"};">${s.pressed ? "DOWN" : "UP"}</span>
+            </div>
+            <button type="button" class="btn btn-danger btn-del-macro-step" data-idx="${idx}" style="padding: 2px 8px; font-size: 11px;">&times;</button>
+          </div>
+        `).join("");
+        listEl.querySelectorAll(".btn-del-macro-step").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const i = parseInt(btn.dataset.idx, 10);
+            state.macroSteps[state.activeMacroSlot].splice(i, 1);
+            renderMacroSteps();
+          });
+        });
+      }
+
+      function setMacroEditorMode(mode) {
+        macroEditorMode = mode;
+        const textBox = document.getElementById("macroTextBox");
+        const stepsBox = document.getElementById("macroStepsBox");
+        const btnText = document.getElementById("btnMacroModeText");
+        const btnSteps = document.getElementById("btnMacroModeSteps");
+        if (mode === "steps") {
+          if (textBox) textBox.style.display = "none";
+          if (stepsBox) stepsBox.style.display = "block";
+          if (btnText) { btnText.classList.remove("btn-primary"); btnText.classList.add("btn-secondary"); }
+          if (btnSteps) { btnSteps.classList.add("btn-primary"); btnSteps.classList.remove("btn-secondary"); }
+          renderMacroSteps();
+        } else {
+          if (textBox) textBox.style.display = "block";
+          if (stepsBox) stepsBox.style.display = "none";
+          if (btnText) { btnText.classList.add("btn-primary"); btnText.classList.remove("btn-secondary"); }
+          if (btnSteps) { btnSteps.classList.remove("btn-primary"); btnSteps.classList.add("btn-secondary"); }
+          updateMacroStats();
+        }
+      }
+
+      document.getElementById("btnMacroModeText")?.addEventListener("click", () => setMacroEditorMode("text"));
+      document.getElementById("btnMacroModeSteps")?.addEventListener("click", () => setMacroEditorMode("steps"));
+
+      function pushMacroStep(keycode, pressed) {
+        const arr = state.macroSteps[state.activeMacroSlot];
+        if (arr.length >= 256) {
+          showToast("Maximum 256 steps reached for this slot.", "warning");
+          return false;
+        }
+        arr.push({ keycode: keycode >>> 0, pressed: !!pressed });
+        renderMacroSteps();
+        return true;
+      }
+
+      document.getElementById("btnAddStepTap")?.addEventListener("click", () => {
+        const kc = parseInt(macroStepSelect.value, 10);
+        if (kc) { pushMacroStep(kc, true); pushMacroStep(kc, false); }
+      });
+      document.getElementById("btnAddStepDown")?.addEventListener("click", () => {
+        const kc = parseInt(macroStepSelect.value, 10);
+        if (kc) pushMacroStep(kc, true);
+      });
+      document.getElementById("btnAddStepUp")?.addEventListener("click", () => {
+        const kc = parseInt(macroStepSelect.value, 10);
+        if (kc) pushMacroStep(kc, false);
+      });
+
+      const btnRecSteps = document.getElementById("btnRecordMacroSteps");
+      function handleBrowserMacroKey(e) {
+        if (!isRecordingBrowserKeys) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.repeat) return;
+        const kc = DOM_CODE_TO_HID[e.code];
+        if (!kc) return;
+        pushMacroStep(kc, e.type === "keydown");
+      }
+      window.addEventListener("keydown", handleBrowserMacroKey, true);
+      window.addEventListener("keyup", handleBrowserMacroKey, true);
+
+      btnRecSteps?.addEventListener("click", () => {
+        isRecordingBrowserKeys = !isRecordingBrowserKeys;
+        btnRecSteps.classList.toggle("btn-danger", isRecordingBrowserKeys);
+        btnRecSteps.classList.toggle("btn-warning", !isRecordingBrowserKeys);
+        btnRecSteps.textContent = isRecordingBrowserKeys
+          ? (currentLang === "ko" ? "녹화 중지 (Stop)" : "Stop Recording")
+          : (I18N[currentLang].btnRecordMacroSteps || "Record Keys (Browser)");
+      });
+
       // Macro Slot Tabs
       document.querySelectorAll(".macro-slot-btn").forEach(btn => {
         btn.addEventListener("click", () => {
@@ -4885,6 +5152,7 @@
           state.activeMacroSlot = parseInt(btn.dataset.slot, 10);
           document.getElementById("macroText").value = state.macros[state.activeMacroSlot] || "";
           updateMacroStats();
+          renderMacroSteps();
         });
       });
 
@@ -4900,27 +5168,50 @@
         const est = estimateMacroSteps(text);
         document.getElementById("macroStepEstimate").innerText = est;
         const badge = document.getElementById(`slotBadge${state.activeMacroSlot}`);
-        if (badge) badge.innerText = `${est} steps`;
+        if (badge) badge.innerText = `${macroEditorMode === "steps" ? (state.macroSteps[state.activeMacroSlot]?.length || 0) : est} steps`;
       }
 
-      // Write Macro to Slot
+      // Write Macro to Slot (256 steps chunked via CMD_SET_MACRO_STEPS)
       document.getElementById("btnSaveMacro").addEventListener("click", async () => {
         const slot = state.activeMacroSlot;
-        const text = state.macros[slot] || "";
-        const encoded = new TextEncoder().encode(text);
-        if (encoded.length > 32) {
-          showToast("Macro text exceeds maximum of 32 characters.", "error");
+        const steps = (macroEditorMode === "steps")
+          ? (state.macroSteps[slot] || [])
+          : asciiToMacroSteps(state.macros[slot] || "");
+
+        if (steps.length > 256) {
+          showToast("Macro exceeds maximum of 256 steps.", "error");
           return;
         }
-
-        const payload = new Uint8Array(2 + encoded.length);
-        payload[0] = slot;
-        payload[1] = encoded.length;
-        payload.set(encoded, 2);
+        state.macroSteps[slot] = steps;
 
         try {
-          await serialDriver.sendCommand(CMD_SET_MACRO, payload);
-          showToast(`Saved macro text into Slot ${slot} in NVS!`, "success");
+          if (steps.length === 0) {
+            const payload = new Uint8Array([slot, 0, 0, 0, 1]);
+            await serialDriver.sendCommand(CMD_SET_MACRO_STEPS, payload);
+          } else {
+            for (let offset = 0; offset < steps.length; offset += 10) {
+              const chunk = steps.slice(offset, offset + 10);
+              const isFinal = (offset + chunk.length >= steps.length) ? 1 : 0;
+              const payload = new Uint8Array(5 + chunk.length * 5);
+              payload[0] = slot;
+              payload[1] = offset & 0xFF;
+              payload[2] = (offset >> 8) & 0xFF;
+              payload[3] = chunk.length;
+              payload[4] = isFinal;
+              chunk.forEach((s, i) => {
+                const base = 5 + i * 5;
+                payload[base] = s.keycode & 0xFF;
+                payload[base + 1] = (s.keycode >>> 8) & 0xFF;
+                payload[base + 2] = (s.keycode >>> 16) & 0xFF;
+                payload[base + 3] = (s.keycode >>> 24) & 0xFF;
+                payload[base + 4] = s.pressed ? 1 : 0;
+              });
+              await serialDriver.sendCommand(CMD_SET_MACRO_STEPS, payload);
+            }
+          }
+          showToast(`Saved ${steps.length} steps into Slot ${slot} in NVS!`, "success");
+          updateMacroStats();
+          renderMacroSteps();
         } catch (err) {
           showToast(err.message, "error");
           if (err.message.includes("LOCKED")) document.getElementById("unlockModal").classList.add("open");
@@ -4941,22 +5232,38 @@
 
       document.getElementById("btnClearMacro").addEventListener("click", () => {
         state.macros[state.activeMacroSlot] = "";
+        state.macroSteps[state.activeMacroSlot] = [];
         document.getElementById("macroText").value = "";
         updateMacroStats();
+        renderMacroSteps();
       });
 
       document.getElementById("btnReadMacro").addEventListener("click", async () => {
         const slot = state.activeMacroSlot;
         try {
-          const resp = await serialDriver.sendCommand(CMD_GET_MACRO, new Uint8Array([slot]));
-          if (resp && resp.data.length >= 4) {
-            const textLen = resp.data[3];
-            const text = new TextDecoder().decode(resp.data.slice(4, 4 + textLen));
-            state.macros[slot] = text;
-            document.getElementById("macroText").value = text;
-            updateMacroStats();
-            showToast(`Read Macro Slot ${slot} from keyboard.`, "success");
+          const allSteps = [];
+          let offset = 0;
+          while (true) {
+            const req = new Uint8Array([slot, offset & 0xFF, (offset >> 8) & 0xFF]);
+            const resp = await serialDriver.sendCommand(CMD_GET_MACRO_STEPS, req);
+            if (!resp || resp.data.length < 6) break;
+            const total = resp.data[1] | (resp.data[2] << 8);
+            const count = resp.data[5];
+            for (let i = 0; i < count; i++) {
+              const base = 6 + i * 5;
+              const keycode = (resp.data[base] | (resp.data[base + 1] << 8) | (resp.data[base + 2] << 16) | (resp.data[base + 3] << 24)) >>> 0;
+              allSteps.push({ keycode, pressed: resp.data[base + 4] !== 0 });
+            }
+            offset += count;
+            if (count === 0 || offset >= total || offset >= 256) break;
           }
+          state.macroSteps[slot] = allSteps;
+          const text = macroStepsToAsciiText(allSteps);
+          state.macros[slot] = text;
+          document.getElementById("macroText").value = text;
+          updateMacroStats();
+          renderMacroSteps();
+          showToast(`Read ${allSteps.length} steps from Macro Slot ${slot}.`, "success");
         } catch (err) {
           showToast(err.message, "error");
           if (err.message.includes("LOCKED")) document.getElementById("unlockModal").classList.add("open");
@@ -5694,11 +6001,19 @@
         macroSub: "Direct ASCII text injection and live playback for Slots 1, 2, and 3",
         btnBackupMacros: "Backup Macros (.json)",
         btnRestoreMacros: "Restore Macros (.json)",
-        macroLabel: "Macro ASCII Text String (Max 32 characters, shifts & symbols supported)",
+        macroLabel: "Macro ASCII Text String (Max 64 chars / 256 steps, shifts & symbols supported)",
         macroPlaceholder: "Type text to inject into keyboard slot (e.g. MySecretPassword123!)",
+        macroModeText: "Text Mode",
+        macroModeSteps: "Key Steps (Down/Up)",
+        macroMaxNote: "Max 256 steps per slot (Down + Up)",
+        btnRecordMacroSteps: "Record Keys (Browser)",
+        btnAddStepTap: "+ Tap (Down+Up)",
+        btnAddStepDown: "+ Down",
+        btnAddStepUp: "+ Up",
+        macroStepsEmpty: "No steps recorded. Click \"Record Keys\" or add steps manually.",
         macroChars: "Chars",
         macroSteps: "Estimated Keystroke Steps",
-        btnSaveMacro: "Write Text to Slot",
+        btnSaveMacro: "Write to Slot",
         btnPlayMacro: "Play Macro on Keyboard",
         btnClearMacro: "Clear Slot",
         btnReadMacro: "Read from Keyboard",
@@ -5875,8 +6190,16 @@
         macroSub: "슬롯 1, 2, 3에 ASCII 텍스트를 직접 저장하고 즉시 재생합니다",
         btnBackupMacros: "매크로 백업 (.json)",
         btnRestoreMacros: "매크로 복원 (.json)",
-        macroLabel: "매크로 ASCII 문자열 (최대 32자, Shift 및 기호 지원)",
+        macroLabel: "매크로 ASCII 문자열 (최대 64자 / 256스텝, Shift 및 기호 지원)",
         macroPlaceholder: "키보드 슬롯에 저장할 텍스트를 입력하세요 (예: MySecretPassword123!)",
+        macroModeText: "텍스트 모드",
+        macroModeSteps: "키 스텝 (Down/Up) 모드",
+        macroMaxNote: "슬롯당 최대 256 스텝 (Down + Up)",
+        btnRecordMacroSteps: "키 입력 녹화 (브라우저)",
+        btnAddStepTap: "+ 탭 (Down+Up)",
+        btnAddStepDown: "+ 누름 (Down)",
+        btnAddStepUp: "+ 뗌 (Up)",
+        macroStepsEmpty: "기록된 스텝이 없습니다. \"키 입력 녹화\"를 누르거나 아래에서 직접 추가하세요.",
         macroChars: "글자 수",
         macroSteps: "예상 키 입력 스텝",
         btnSaveMacro: "슬롯에 저장",

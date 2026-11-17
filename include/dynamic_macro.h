@@ -70,6 +70,37 @@ int dynamic_macro_set_slot_text(uint8_t slot_num, const char *text, uint16_t len
  */
 uint16_t dynamic_macro_get_slot_steps(uint8_t slot_num, void *out_buf, uint16_t max_bytes);
 
+/**
+ * @brief Read a range of macro steps starting at offset.
+ *
+ * @param slot_num Macro slot number (1, 2, or 3)
+ * @param offset Starting step index
+ * @param out_buf Output buffer (5 bytes per step)
+ * @param max_steps Maximum number of steps to copy
+ * @param out_total_steps Optional pointer to receive total step count in slot
+ * @return Number of steps actually copied
+ */
+uint8_t dynamic_macro_get_slot_steps_range(uint8_t slot_num, uint16_t offset, void *out_buf,
+                                           uint8_t max_steps, uint16_t *out_total_steps);
+
+/**
+ * @brief Write a chunk of raw macro steps to a slot, committing to Flash on final chunk.
+ *
+ * @param slot_num Macro slot number (1, 2, or 3)
+ * @param offset Starting step index
+ * @param steps_buf Input buffer containing step_count * 5 bytes
+ * @param step_count Number of steps in this chunk
+ * @param is_final True on the final chunk to finalize count and save to NVS
+ * @return 0 on success, negative error code on failure
+ */
+int dynamic_macro_set_slot_steps_chunk(uint8_t slot_num, uint16_t offset, const void *steps_buf,
+                                       uint8_t step_count, bool is_final);
+
+/**
+ * @brief Abort active macro playback and release any keys still held down.
+ */
+void dynamic_macro_abort(void);
+
 #ifdef __cplusplus
 }
 #endif
