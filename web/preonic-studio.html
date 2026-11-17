@@ -3228,6 +3228,11 @@
         }
 
         await selectedPort.open({ baudRate: 115200 });
+        try {
+          await selectedPort.setSignals({ dataTerminalReady: true });
+        } catch (sigErr) {
+          console.warn("DTR signal warning:", sigErr);
+        }
         this.port = selectedPort;
         this.writer = this.port.writable.getWriter();
         this.reader = this.port.readable.getReader();
