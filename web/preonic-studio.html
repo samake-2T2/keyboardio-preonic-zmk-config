@@ -17,32 +17,39 @@
   <title>Preonic Studio — Real-Time Keyboard Configurator</title>
   <style>
     :root {
-      --bg-main: #0d0e11;
-      --bg-panel: #14161a;
-      --bg-card: #1a1d22;
-      --bg-card-hover: #21252c;
-      --bg-input: #101215;
-      --border-color: #2a2e36;
-      --border-focus: #4c8bf5;
-      --accent-blue: #4c8bf5;
-      --accent-blue-hover: #3b76db;
+      --bg-main: #0f1012;
+      --bg-panel: #16181c;
+      --bg-card: #1c1f24;
+      --bg-card-hover: #23272e;
+      --bg-input: #111317;
+      --border-color: #272b33;
+      --border-focus: #3d7eff;
+      --accent-blue: #3d7eff;
+      --accent-blue-hover: #2c6ae6;
       --accent-green: #22a06b;
       --accent-amber: #d97724;
       --accent-red: #dc4c46;
       --accent-purple: #7c69ef;
-      --text-primary: #eceef2;
-      --text-secondary: #9aa1ad;
+      --text-primary: #eef0f4;
+      --text-secondary: #9ca3b0;
       --text-muted: #68707d;
       --key-alpha: #23272e;
       --key-mod: #191c21;
       --key-fn: #2d323b;
-      --key-active: #4c8bf5;
+      --key-active: #3d7eff;
       --key-highlight: #d97724;
-      --shadow-elevation: 0 2px 6px rgba(0, 0, 0, 0.35);
+      --shadow-elevation: none;
       --radius-sm: 4px;
       --radius-md: 6px;
-      --radius-lg: 8px;
-      --transition-fast: 0.12s ease;
+      --radius-lg: 10px;
+      --transition-fast: 0.1s ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
     }
 
     * {
@@ -387,12 +394,6 @@
 
     .tab-panel.active {
       display: block;
-      animation: fadeIn 0.16s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(3px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     .card {
@@ -400,8 +401,7 @@
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
       padding: 20px;
-      margin-bottom: 18px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), var(--shadow-elevation);
+      margin-bottom: 16px;
     }
 
     .card-header {
@@ -461,14 +461,14 @@
     }
 
     .keyboard-container {
-      background-color: #111317;
-      border: 1px solid #262a33;
+      background-color: #0a0b0d;
+      border: 1px solid #2a2e38;
       border-radius: var(--radius-lg);
       padding: 22px;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.55), 0 6px 20px rgba(0, 0, 0, 0.35);
+      box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.65), 0 8px 24px rgba(0, 0, 0, 0.45);
       margin-bottom: 18px;
       overflow-x: auto;
     }
@@ -719,12 +719,11 @@
     }
 
     .keycap .sub-label {
-      font-size: 8.5px;
-      font-weight: 600;
+      font-size: 9px;
+      font-weight: 500;
       color: #8b94a3;
       margin-top: 2px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.01em;
     }
 
     .keycap .key-pos-badge {
