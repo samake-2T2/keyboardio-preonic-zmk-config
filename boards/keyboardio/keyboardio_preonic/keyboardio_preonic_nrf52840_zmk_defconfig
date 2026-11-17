@@ -9,10 +9,6 @@ CONFIG_GPIO=y
 # 로깅 비활성화 (전력 절감 및 불필요한 콘솔 출력 억제)
 CONFIG_LOG=n
 
-# 칩셋 클럭 초기화 안정화
-CONFIG_CLOCK_CONTROL_NRF_K32SRC_RC=y
-CONFIG_CLOCK_CONTROL_NRF_K32SRC_RC_CALIBRATION=y
-
 # USB 장치 식별 정보 (Keyboardio Preonic 정식 VID:PID)
 CONFIG_USB_DEVICE_STACK=y
 CONFIG_ZMK_USB=y

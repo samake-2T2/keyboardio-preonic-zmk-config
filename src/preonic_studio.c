@@ -32,6 +32,9 @@
 #include <zmk/events/activity_state_changed.h>
 #include <zmk/events/layer_state_changed.h>
 #include <zmk/events/sensor_event.h>
+#if IS_ENABLED(CONFIG_ZMK_USB)
+#include <zmk/events/usb_conn_state_changed.h>
+#endif
 #include <zmk/virtual_key_position.h>
 
 #include "preonic_studio.h"
@@ -166,6 +169,12 @@ static void send_packet(uint8_t cmd, uint8_t seq, const uint8_t *data, uint8_t l
         test_tx_hook(cmd, seq, data, len);
         return;
     }
+
+#if IS_ENABLED(CONFIG_ZMK_USB)
+    if (zmk_usb_get_conn_state() != ZMK_USB_CONN_HID) {
+        return;
+    }
+#endif
 
     if (!uart_dev || !device_is_ready(uart_dev)) {
         return;
@@ -1181,6 +1190,20 @@ static int preonic_studio_event_listener(const zmk_event_t *eh) {
         return 0;
     }
 
+#if IS_ENABLED(CONFIG_ZMK_USB)
+    const struct zmk_usb_conn_state_changed *usb_ev = as_zmk_usb_conn_state_changed(eh);
+    if (usb_ev != NULL) {
+        if (usb_ev->conn_state == ZMK_USB_CONN_NONE ||
+            usb_ev->conn_state == ZMK_USB_CONN_POWERED) {
+            was_dtr_active = false;
+            if (!studio_locked) {
+                preonic_studio_lock();
+            }
+        }
+        return 0;
+    }
+#endif
+
     const struct zmk_sensor_event *sev = as_zmk_sensor_event(eh);
     if (sev != NULL) {
         // Let password generator handle hardware intercept on Fn (3) and Tri (4) layers
@@ -1237,6 +1260,9 @@ ZMK_SUBSCRIPTION(preonic_studio, zmk_position_state_changed);
 ZMK_SUBSCRIPTION(preonic_studio, zmk_activity_state_changed);
 ZMK_SUBSCRIPTION(preonic_studio, zmk_layer_state_changed);
 ZMK_SUBSCRIPTION(preonic_studio, zmk_sensor_event);
+#if IS_ENABLED(CONFIG_ZMK_USB)
+ZMK_SUBSCRIPTION(preonic_studio, zmk_usb_conn_state_changed);
+#endif
 
 #if IS_ENABLED(CONFIG_SETTINGS)
 static int studio_settings_set(const char *name, size_t len, settings_read_cb read_cb, void *cb_arg) {

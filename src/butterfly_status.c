@@ -81,6 +81,7 @@ static uint8_t pw_gauge_wings = 0;
 static int64_t pw_gauge_end_time = 0;
 static bool pw_success_anim = false;
 static int64_t pw_success_end_time = 0;
+static uint8_t studio_unlock_step = 0;
 
 static inline struct led_rgb make_rgb(uint8_t r, uint8_t g, uint8_t b) {
     return (struct led_rgb){ .r = r, .g = g, .b = b };
@@ -102,10 +103,28 @@ static void set_all_off(void) {
 }
 
 static void butterfly_work_handler(struct k_work *work) {
-    if (current_activity == ZMK_ACTIVITY_SLEEP) {
+    if (current_activity == ZMK_ACTIVITY_SLEEP || current_activity == ZMK_ACTIVITY_IDLE) {
         boot_anim_done = true;
         is_battery_gauge = false;
+        studio_unlock_step = 0;
         set_all_off();
+        return;
+    }
+
+    if (studio_unlock_step > 0) {
+        struct led_rgb pixels[BUTTERFLY_NUM_LEDS];
+        bool led_on = (studio_unlock_step % 2) == 1;
+        for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
+            pixels[i] = led_on ? make_rgb(220, 120, 0) : make_rgb(0, 0, 0);
+        }
+        update_leds(pixels);
+        if (studio_unlock_step < 4) {
+            studio_unlock_step++;
+        } else {
+            studio_unlock_step = 0;
+            state_change_time = k_uptime_get();
+        }
+        k_work_reschedule(&butterfly_work, K_MSEC(80));
         return;
     }
 
@@ -408,34 +427,18 @@ void butterfly_show_studio_unlock(void) {
     if (!device_is_ready(strip_dev) || current_activity == ZMK_ACTIVITY_SLEEP) {
         return;
     }
-    k_work_cancel_delayable(&butterfly_work);
-
-    struct led_rgb amber_pixels[BUTTERFLY_NUM_LEDS];
-    for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
-        amber_pixels[i] = make_rgb(220, 120, 0);
-    }
-    struct led_rgb off_pixels[BUTTERFLY_NUM_LEDS];
-    for (size_t i = 0; i < BUTTERFLY_NUM_LEDS; i++) {
-        off_pixels[i] = make_rgb(0, 0, 0);
-    }
-
-    for (int i = 0; i < 2; i++) {
-        update_leds(amber_pixels);
-        k_msleep(80);
-        update_leds(off_pixels);
-        k_msleep(80);
-    }
-
     boot_anim_done = true;
-    butterfly_status_refresh();
+    studio_unlock_step = 1;
+    k_work_reschedule(&butterfly_work, K_NO_WAIT);
 }
 
 static int butterfly_event_listener(const zmk_event_t *eh) {
     struct zmk_activity_state_changed *act_ev = as_zmk_activity_state_changed(eh);
     if (act_ev != NULL) {
         current_activity = act_ev->state;
-        if (current_activity == ZMK_ACTIVITY_SLEEP) {
+        if (current_activity == ZMK_ACTIVITY_SLEEP || current_activity == ZMK_ACTIVITY_IDLE) {
             is_battery_gauge = false;
+            studio_unlock_step = 0;
             k_work_cancel_delayable(&butterfly_work);
             set_all_off();
             return 0;
@@ -460,6 +463,7 @@ static int butterfly_event_listener(const zmk_event_t *eh) {
 
     const struct zmk_position_state_changed *pos_ev = as_zmk_position_state_changed(eh);
     if (pos_ev != NULL) {
+        bool was_boot_anim = !boot_anim_done;
         boot_anim_done = true;
 
         if (pos_ev->state) {
@@ -473,6 +477,10 @@ static int butterfly_event_listener(const zmk_event_t *eh) {
                     return 0;
                 }
             }
+            if (was_boot_anim) {
+                butterfly_status_refresh();
+            }
+            return 0;
         } else {
             // Key release: if battery gauge is currently showing, turn off immediately on B release or layer exit
             if (is_battery_gauge) {
