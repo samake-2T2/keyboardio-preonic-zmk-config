@@ -685,6 +685,14 @@ static void preonic_studio_dispatch_command(uint8_t cmd, uint8_t seq, const uint
             p1 = b->param1;
             p2 = b->param2;
             beh_type = behavior_dev_to_type(b->behavior_dev);
+            if (b->behavior_dev) {
+                const char *sel = strstr(b->behavior_dev, "bt_sel_");
+                if (sel && sel[7] >= '0' && sel[7] <= '3') {
+                    beh_type = PREONIC_BEH_BT;
+                    p1 = 0;
+                    p2 = (uint32_t)(sel[7] - '0');
+                }
+            }
         }
         resp[2] = beh_type;
         resp[3] = p1 & 0xFF;
@@ -731,6 +739,23 @@ static void preonic_studio_dispatch_command(uint8_t cmd, uint8_t seq, const uint
 
 #if IS_ENABLED(CONFIG_ZMK_KEYMAP_SETTINGS_STORAGE)
         const char *dev_name = behavior_type_to_dev(beh_type);
+        if (beh_type == PREONIC_BEH_BT && p1 == 0 && p2 <= 3) {
+            switch (p2) {
+#if DT_NODE_EXISTS(DT_NODELABEL(bt_sel_0))
+            case 0: dev_name = DEVICE_DT_NAME(DT_NODELABEL(bt_sel_0)); p2 = 0; break;
+#endif
+#if DT_NODE_EXISTS(DT_NODELABEL(bt_sel_1))
+            case 1: dev_name = DEVICE_DT_NAME(DT_NODELABEL(bt_sel_1)); p2 = 0; break;
+#endif
+#if DT_NODE_EXISTS(DT_NODELABEL(bt_sel_2))
+            case 2: dev_name = DEVICE_DT_NAME(DT_NODELABEL(bt_sel_2)); p2 = 0; break;
+#endif
+#if DT_NODE_EXISTS(DT_NODELABEL(bt_sel_3))
+            case 3: dev_name = DEVICE_DT_NAME(DT_NODELABEL(bt_sel_3)); p2 = 0; break;
+#endif
+            default: break;
+            }
+        }
         if (!dev_name) {
             uint8_t err = STATUS_ERR_INVALID;
             send_packet(CMD_SET_KEY, seq, &err, 1);
