@@ -4312,6 +4312,98 @@
       }
     }
 
+    async function loadExtraConfigsFromDevice() {
+      try {
+        const pwResp = await serialDriver.sendCommand(CMD_GET_PW_CONFIG);
+        if (pwResp && pwResp.data.length >= 3) {
+          const d = pwResp.data;
+          const defaultLen = d[0];
+          const intervalMs = d[1];
+          const sLen = d[2];
+          const specials = new TextDecoder().decode(d.slice(3, 3 + sLen)).replace(/\0/g, "");
+          state.pwConfig = { defaultLen, intervalMs, specials };
+          const lenEl = document.getElementById("pwLengthInput");
+          const intEl = document.getElementById("pwIntervalSlider");
+          const intValEl = document.getElementById("pwIntervalValue");
+          const specEl = document.getElementById("pwSpecialsInput");
+          if (lenEl) lenEl.value = defaultLen;
+          if (intEl) intEl.value = intervalMs;
+          if (intValEl) intValEl.innerText = `${intervalMs} ms`;
+          if (specEl) specEl.value = specials;
+        }
+      } catch (err) {
+        console.warn("Failed to load password config from device:", err);
+      }
+
+      try {
+        const mouseResp = await serialDriver.sendCommand(CMD_GET_MOUSE_CFG);
+        if (mouseResp && mouseResp.data.length >= 7) {
+          const d = mouseResp.data;
+          const mmvTimeMs = d[0] | (d[1] << 8);
+          const mmvExp = d[2];
+          const mscTimeMs = d[3] | (d[4] << 8);
+          const mscExp = d[5];
+          const mscStep = d[6];
+          state.mouseConfig = { mmvTimeMs, mmvExp, mscTimeMs, mscExp, mscStep };
+
+          const mmvTimeEl = document.getElementById("mmvTimeSlider");
+          const mmvTimeValEl = document.getElementById("mmvTimeValue");
+          const mscTimeEl = document.getElementById("mscTimeSlider");
+          const mscTimeValEl = document.getElementById("mscTimeValue");
+          const mscStepEl = document.getElementById("mscStepSlider");
+          const mscStepValEl = document.getElementById("mscStepValue");
+          if (mmvTimeEl) mmvTimeEl.value = mmvTimeMs;
+          if (mmvTimeValEl) mmvTimeValEl.innerText = `${mmvTimeMs} ms`;
+          if (mscTimeEl) mscTimeEl.value = mscTimeMs;
+          if (mscTimeValEl) mscTimeValEl.innerText = `${mscTimeMs} ms`;
+          if (mscStepEl) mscStepEl.value = mscStep;
+          if (mscStepValEl) mscStepValEl.innerText = `${mscStep}`;
+
+          document.querySelectorAll(".mmv-exp-btn").forEach(btn => {
+            const active = parseInt(btn.dataset.exp, 10) === mmvExp;
+            btn.classList.toggle("active", active);
+            btn.classList.toggle("btn-primary", active);
+            btn.classList.toggle("btn-secondary", !active);
+          });
+          document.querySelectorAll(".msc-exp-btn").forEach(btn => {
+            const active = parseInt(btn.dataset.exp, 10) === mscExp;
+            btn.classList.toggle("active", active);
+            btn.classList.toggle("btn-primary", active);
+            btn.classList.toggle("btn-secondary", !active);
+          });
+        }
+      } catch (err) {
+        console.warn("Failed to load mouse config from device:", err);
+      }
+
+      try {
+        const audioResp = await serialDriver.sendCommand(CMD_GET_AUDIO_CFG);
+        if (audioResp && audioResp.data.length >= 5) {
+          const d = audioResp.data;
+          const masterEn = d[0] !== 0;
+          const clickyEn = d[1] !== 0;
+          const freqHz = d[2] | (d[3] << 8);
+          const durMs = d[4];
+          state.audioConfig = { masterEn, clickyEn, freqHz, durMs };
+
+          const masterEl = document.getElementById("audioMasterSwitch");
+          const clickyEl = document.getElementById("audioClickySwitch");
+          const freqEl = document.getElementById("audioFreqSlider");
+          const freqValEl = document.getElementById("audioFreqValue");
+          const durEl = document.getElementById("audioDurSlider");
+          const durValEl = document.getElementById("audioDurValue");
+          if (masterEl) masterEl.checked = masterEn;
+          if (clickyEl) clickyEl.checked = clickyEn;
+          if (freqEl) freqEl.value = freqHz;
+          if (freqValEl) freqValEl.innerText = `${freqHz} Hz`;
+          if (durEl) durEl.value = durMs;
+          if (durValEl) durValEl.innerText = `${durMs} ms`;
+        }
+      } catch (err) {
+        console.warn("Failed to load audio config from device:", err);
+      }
+    }
+
     // Connect & Initial Handshake
     async function doConnect() {
       try {
@@ -4344,6 +4436,9 @@
 
         // Automatically load configured rotary knob settings for all 8 layers
         await loadKnobConfigsFromDevice();
+
+        // Automatically load password, mouse, and audio configs from keyboard
+        await loadExtraConfigsFromDevice();
       } catch (err) {
         console.warn("Connection error:", err);
         showToast(err.message || "Failed to connect to Preonic USB serial.", "error");

@@ -111,7 +111,7 @@ static struct studio_knob_config knob_configs[NUM_LAYERS] = {
         .cw_param = 0x0C00E9,  /* C_VOLUME_UP */
         .ccw_beh = 0x01,
         .ccw_param = 0x0C00EA, /* C_VOLUME_DOWN */
-        .pulses_per_detent = 2
+        .pulses_per_detent = 4
     }
 };
 
@@ -412,6 +412,12 @@ static const char *behavior_type_to_dev(uint8_t beh_type) {
         return DEVICE_DT_NAME(DT_NODELABEL(sl));
 #else
         return "sticky_layer";
+#endif
+    case PREONIC_BEH_STUDIO_UNLOCK:
+#if DT_NODE_EXISTS(DT_NODELABEL(studio_unlock))
+        return DEVICE_DT_NAME(DT_NODELABEL(studio_unlock));
+#else
+        return "studio_unlock";
 #endif
     default:
         return NULL;
@@ -987,6 +993,9 @@ static void preonic_studio_dispatch_command(uint8_t cmd, uint8_t seq, const uint
         }
         audio_cfg.click_freq_hz = data[2] | ((uint16_t)data[3] << 8);
         audio_cfg.click_dur_ms = data[4];
+#if IS_ENABLED(CONFIG_KEYBOARDIO_PREONIC_SOUND)
+        preonic_sound_set_click_params(audio_cfg.click_freq_hz, audio_cfg.click_dur_ms);
+#endif
         save_audio_config();
 
         uint8_t status = STATUS_OK;
@@ -1003,7 +1012,9 @@ static void preonic_studio_dispatch_command(uint8_t cmd, uint8_t seq, const uint
         }
         uint16_t freq = data[0] | ((uint16_t)data[1] << 8);
         uint16_t dur = data[2] | ((uint16_t)data[3] << 8);
-        preonic_sound_play_tone_ms(freq, dur);
+#if IS_ENABLED(CONFIG_KEYBOARDIO_PREONIC_SOUND)
+        preonic_sound_test_tone_ms(freq, dur);
+#endif
 
         uint8_t status = STATUS_OK;
         send_packet(CMD_TEST_PIEZO, seq, &status, 1);
@@ -1212,33 +1223,52 @@ static int preonic_studio_event_listener(const zmk_event_t *eh) {
         }
 
         if (sev->channel_data_size > 0) {
-            int val = sev->channel_data[0].value.val1;
-            if (val == 0) {
+            int64_t udeg = (int64_t)sev->channel_data[0].value.val1 * 1000000LL +
+                           (int64_t)sev->channel_data[0].value.val2;
+            if (udeg == 0) {
                 return 0;
             }
 
+            static int64_t udeg_acc = 0;
             static int pulse_accumulator = 0;
             static int64_t last_pulse_time = 0;
             int64_t now = k_uptime_get();
 
-            // Reset accumulator if idle for > 300ms
+            // Reset accumulators if idle for > 300ms
             if (now - last_pulse_time > 300) {
+                udeg_acc = 0;
                 pulse_accumulator = 0;
             }
             last_pulse_time = now;
 
             // Reset on direction change for instant reverse response
-            if ((pulse_accumulator > 0 && val < 0) || (pulse_accumulator < 0 && val > 0)) {
+            if ((udeg_acc > 0 && udeg < 0) || (udeg_acc < 0 && udeg > 0) ||
+                (pulse_accumulator > 0 && udeg < 0) || (pulse_accumulator < 0 && udeg > 0)) {
+                udeg_acc = 0;
                 pulse_accumulator = 0;
             }
 
-            pulse_accumulator += val;
+            int pulses = 0;
+            if (udeg > -4500000LL && udeg < 4500000LL && sev->channel_data[0].value.val1 != 0) {
+                // Fallback if driver reports raw pulses instead of EC11 4.5 deg/step rotation
+                pulses = sev->channel_data[0].value.val1;
+            } else {
+                udeg_acc += udeg;
+                pulses = (int)(udeg_acc / 4500000LL);
+                udeg_acc %= 4500000LL;
+            }
+
+            if (pulses == 0) {
+                return ZMK_EV_EVENT_HANDLED;
+            }
+
+            pulse_accumulator += pulses;
 
             uint8_t layer = (uint8_t)zmk_keymap_highest_layer_active();
             if (layer >= NUM_LAYERS) layer = 0;
 
             uint8_t ppd = knob_configs[layer].pulses_per_detent;
-            if (ppd < 1) ppd = 2;
+            if (ppd < 1) ppd = 4;
 
             while (pulse_accumulator >= ppd) {
                 pulse_accumulator -= ppd;
@@ -1281,6 +1311,9 @@ static int studio_settings_set(const char *name, size_t len, settings_read_cb re
     }
     if (settings_name_steq(name, "audio", &next) && !next) {
         read_cb(cb_arg, &audio_cfg, MIN(len, sizeof(struct studio_audio_config)));
+#if IS_ENABLED(CONFIG_KEYBOARDIO_PREONIC_SOUND)
+        preonic_sound_set_click_params(audio_cfg.click_freq_hz, audio_cfg.click_dur_ms);
+#endif
         return 0;
     }
     return -ENOENT;

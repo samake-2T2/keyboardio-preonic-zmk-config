@@ -75,6 +75,8 @@ static struct k_work_delayable boot_coin_work;
 static bool sound_master_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_MASTER_DEFAULT);
 static bool clicky_enabled = IS_ENABLED(CONFIG_PREONIC_SOUND_CLICKY_DEFAULT);
 static bool cold_boot_done = false;
+static uint16_t dynamic_click_freq_hz = CONFIG_PREONIC_SOUND_CLICK_FREQ;
+static uint8_t dynamic_click_dur_ms = CONFIG_PREONIC_SOUND_CLICK_DURATION_MS;
 
 #if defined(NRF_POWER)
 #define GPREGRET_MAGIC_MASK  0xF0
@@ -321,8 +323,8 @@ void preonic_sound_play_click(void) {
         return;
     }
     current_sound_state = SOUND_STATE_CLICKY;
-    set_tone(CONFIG_PREONIC_SOUND_CLICK_FREQ);
-    k_work_reschedule(&sound_work, K_MSEC(CONFIG_PREONIC_SOUND_CLICK_DURATION_MS));
+    set_tone(dynamic_click_freq_hz);
+    k_work_reschedule(&sound_work, K_MSEC(dynamic_click_dur_ms));
 }
 
 bool preonic_sound_toggle_master(void) {
@@ -436,6 +438,37 @@ void preonic_sound_play_tone_ms(uint32_t freq_hz, uint32_t dur_ms) {
         dur_ms = 2000;
     }
     preonic_sound_play_tone(freq_hz, dur_ms);
+}
+
+void preonic_sound_set_click_params(uint16_t freq_hz, uint8_t dur_ms) {
+    if (freq_hz < 500) {
+        freq_hz = 500;
+    } else if (freq_hz > 10000) {
+        freq_hz = 10000;
+    }
+    if (dur_ms < 1) {
+        dur_ms = 1;
+    } else if (dur_ms > 50) {
+        dur_ms = 50;
+    }
+    dynamic_click_freq_hz = freq_hz;
+    dynamic_click_dur_ms = dur_ms;
+}
+
+void preonic_sound_test_tone_ms(uint32_t freq_hz, uint32_t dur_ms) {
+    if (!device_is_ready(pwm_dev)) {
+        return;
+    }
+    if (freq_hz == 0 || dur_ms == 0) {
+        preonic_sound_stop();
+        return;
+    }
+    if (dur_ms > 2000) {
+        dur_ms = 2000;
+    }
+    current_sound_state = SOUND_STATE_CUSTOM_TONE;
+    set_tone(freq_hz);
+    k_work_reschedule(&sound_work, K_MSEC(dur_ms));
 }
 
 static void boot_coin_work_handler(struct k_work *work) {
