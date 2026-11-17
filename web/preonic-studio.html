@@ -3423,6 +3423,10 @@
     // Event Handler for Firmware Layer Changed
     function onFirmwareLayerChanged(layer) {
       if (layer >= 0 && layer < NUM_LAYERS) {
+        const liveLayerEl = document.getElementById("liveLayerName");
+        if (liveLayerEl) {
+          liveLayerEl.innerText = LAYER_NAMES[layer] || `L${layer}`;
+        }
         state.activeLayer = layer;
         document.querySelectorAll(".layer-btn:not(.knob-layer-btn)").forEach(b => {
           if (parseInt(b.dataset.layer, 10) === layer) {
