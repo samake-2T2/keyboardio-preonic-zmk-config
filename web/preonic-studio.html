@@ -1666,15 +1666,15 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="card-title">📜 Dynamic Macro Manager</div>
-            <div class="card-subtitle">Direct ASCII text injection and live playback for Slots 1, 2, and 3</div>
+            <div class="card-title" data-i18n="macroTitle">Dynamic Macro Manager</div>
+            <div class="card-subtitle" data-i18n="macroSub">Direct ASCII text injection and live playback for Slots 1, 2, and 3</div>
           </div>
           <div style="display: flex; gap: 8px;">
-            <button id="btnBackupMacros" class="btn btn-secondary" title="Export all macros to JSON file">
-              📥 Backup Macros (.json)
+            <button id="btnBackupMacros" class="btn btn-secondary" data-i18n="btnBackupMacros" title="Export all macros to JSON file">
+              Backup Macros (.json)
             </button>
-            <button id="btnRestoreMacros" class="btn btn-secondary" title="Import macros from JSON file">
-              📤 Restore Macros (.json)
+            <button id="btnRestoreMacros" class="btn btn-secondary" data-i18n="btnRestoreMacros" title="Import macros from JSON file">
+              Restore Macros (.json)
             </button>
             <input type="file" id="macroFileInput" accept=".json" style="display: none;">
           </div>
@@ -1695,26 +1695,26 @@
 
         <!-- Macro Text Editor -->
         <div class="macro-editor-box">
-          <label class="form-label">Macro ASCII Text String (Max 32 characters, shifts & symbols supported)</label>
-          <textarea id="macroText" class="macro-textarea" placeholder="Type text to inject into keyboard slot (e.g. MySecretPassword123!)"></textarea>
+          <label class="form-label" data-i18n="macroLabel">Macro ASCII Text String (Max 32 characters, shifts & symbols supported)</label>
+          <textarea id="macroText" class="macro-textarea" data-i18n-placeholder="macroPlaceholder" placeholder="Type text to inject into keyboard slot (e.g. MySecretPassword123!)"></textarea>
           <div class="macro-stats-row">
-            <span>Chars: <strong id="macroCharCount">0</strong> / 32</span>
-            <span>Estimated Keystroke Steps: <strong id="macroStepEstimate">0</strong> / 128 max</span>
+            <span><span data-i18n="macroChars">Chars</span>: <strong id="macroCharCount">0</strong> / 32</span>
+            <span><span data-i18n="macroSteps">Estimated Keystroke Steps</span>: <strong id="macroStepEstimate">0</strong> / 128 max</span>
           </div>
         </div>
 
         <div class="macro-actions-row">
-          <button id="btnSaveMacro" class="btn btn-primary">
-            💾 Write Text to Slot
+          <button id="btnSaveMacro" class="btn btn-primary" data-i18n="btnSaveMacro">
+            Write Text to Slot
           </button>
-          <button id="btnPlayMacro" class="btn btn-success">
-            ▶ Play Macro on Keyboard
+          <button id="btnPlayMacro" class="btn btn-success" data-i18n="btnPlayMacro">
+            Play Macro on Keyboard
           </button>
-          <button id="btnClearMacro" class="btn btn-danger">
-            🗑 Clear Slot
+          <button id="btnClearMacro" class="btn btn-danger" data-i18n="btnClearMacro">
+            Clear Slot
           </button>
-          <button id="btnReadMacro" class="btn btn-secondary">
-            🔄 Read from Keyboard
+          <button id="btnReadMacro" class="btn btn-secondary" data-i18n="btnReadMacro">
+            Read from Keyboard
           </button>
         </div>
       </div>
@@ -1725,27 +1725,27 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="card-title">🎛️ EC11 Rotary Encoder Configuration</div>
-            <div class="card-subtitle">Per-layer CW/CCW rotation actions and detent divider sensitivity</div>
+            <div class="card-title" data-i18n="knobTitle">EC11 Rotary Encoder Configuration</div>
+            <div class="card-subtitle" data-i18n="knobSub">Per-layer CW/CCW rotation actions and detent divider sensitivity</div>
           </div>
           <div>
-            <button id="btnApplyKnob" class="btn btn-primary">
-              💾 Apply Knob Settings
+            <button id="btnApplyKnob" class="btn btn-primary" data-i18n="btnApplyKnob">
+              Apply Knob Settings
             </button>
-            <button id="btnReadKnob" class="btn btn-secondary">
-              🔄 Read Knob Settings
+            <button id="btnReadKnob" class="btn btn-secondary" data-i18n="btnReadKnob">
+              Read Knob Settings
             </button>
           </div>
         </div>
 
         <!-- Layer Selector for Knob -->
         <div class="layer-selector-bar">
-          <span style="font-weight: 600; color: var(--text-muted); margin-right: 4px;">LAYER:</span>
+          <span style="font-weight: 600; color: var(--text-muted); margin-right: 4px;" data-i18n="layerLabel">LAYER:</span>
           <button class="layer-btn knob-layer-btn active" data-layer="0">0: Base</button>
           <button class="layer-btn knob-layer-btn" data-layer="1">1: Lower</button>
           <button class="layer-btn knob-layer-btn" data-layer="2">2: Raise</button>
-          <button class="layer-btn knob-layer-btn" data-layer="3" title="Hardware Intercept: TRNG Password Generator">3: Func 🔑</button>
-          <button class="layer-btn knob-layer-btn" data-layer="4" title="Hardware Intercept: TRNG Password Generator">4: Tri 🔑</button>
+          <button class="layer-btn knob-layer-btn" data-layer="3" title="Hardware Intercept: TRNG Password Generator">3: Func</button>
+          <button class="layer-btn knob-layer-btn" data-layer="4" title="Hardware Intercept: TRNG Password Generator">4: Tri</button>
           <button class="layer-btn knob-layer-btn" data-layer="5">5: Extra 1</button>
           <button class="layer-btn knob-layer-btn" data-layer="6">6: Extra 2</button>
           <button class="layer-btn knob-layer-btn" data-layer="7">7: Extra 3</button>
@@ -1757,58 +1757,58 @@
             <div id="knobDial" class="knob-dial">
               <div class="knob-indicator"></div>
             </div>
-            <div id="knobVisualTitle" style="font-weight: 700; margin-top: 14px; color: #fff;">Preonic Top-Right Knob</div>
-            <div id="knobVisualSub" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Click & drag to simulate detents</div>
+            <div id="knobVisualTitle" style="font-weight: 700; margin-top: 14px; color: #fff;" data-i18n="knobVisualTitle">Preonic Top-Right Knob</div>
+            <div id="knobVisualSub" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="knobVisualSub">Click & drag to simulate detents</div>
           </div>
 
           <!-- Configuration Form -->
           <div>
             <!-- Hardware Intercept Banner for Layer 3 (Func) & 4 (Tri) -->
-            <div id="knobHwNoticeBox" style="display: none; background: rgba(120, 53, 15, 0.35); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+            <div id="knobHwNoticeBox" style="display: none; background: rgba(120, 53, 15, 0.35); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 6px; padding: 12px; margin-bottom: 14px;">
               <div style="font-weight: 700; color: #fbbf24; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                <span>🔑 Hardware TRNG Password Generator Intercept Active</span>
+                <span data-i18n="knobHwTitle">Hardware TRNG Password Generator Intercept Active</span>
                 <span class="pill-badge" style="background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 10px;">HW Intercept</span>
               </div>
               <div style="font-size: 12px; color: #fef3c7; margin-top: 6px; line-height: 1.45;">
-                This layer is hardcoded in the firmware event listener (<code>password_generator.c</code>) to control the Hardware TRNG Password Generator:
+                <span data-i18n="knobHwDesc">This layer is hardcoded in the firmware event listener (password_generator.c) to control the Hardware TRNG Password Generator:</span>
                 <div style="margin-top: 4px; display: grid; grid-template-columns: 1fr; gap: 4px;">
-                  <div>• <strong>Rotate (CW / CCW)</strong>: Cycle Length (12 ➡️ 16 ➡️ 20 ➡️ 24 chars)</div>
-                  <div>• <strong>Click (Single)</strong>: Generate DB Safe Password</div>
-                  <div>• <strong>Click (Double)</strong>: Generate Web Extended Password</div>
-                  <div>• <strong>Click (Hold 0.4s)</strong>: Generate Alphanumeric Password</div>
+                  <div data-i18n-html="knobHwItem1">• <strong>Rotate (CW / CCW)</strong>: Cycle Length (12 / 16 / 20 / 24 chars)</div>
+                  <div data-i18n-html="knobHwItem2">• <strong>Click (Single)</strong>: Generate DB Safe Password</div>
+                  <div data-i18n-html="knobHwItem3">• <strong>Click (Double)</strong>: Generate Web Extended Password</div>
+                  <div data-i18n-html="knobHwItem4">• <strong>Click (Hold 0.4s)</strong>: Generate Alphanumeric Password</div>
                 </div>
-                <div style="margin-top: 6px; font-size: 11px; color: #cbd5e1;">
-                  <em>* Standard software keycode bindings configured below are overridden by the hardware listener while on this layer.</em>
+                <div style="margin-top: 6px; font-size: 11px; color: #cbd5e1;" data-i18n="knobHwNote">
+                  * Standard software keycode bindings configured below are overridden by the hardware listener while on this layer.
                 </div>
               </div>
               <div style="margin-top: 10px;">
-                <button id="btnJumpToPwGen" class="btn btn-secondary" style="font-size: 11px; padding: 4px 12px; background: #78350f; border-color: #f59e0b;">
-                  🔑 Open Password Generator Tab
+                <button id="btnJumpToPwGen" class="btn btn-secondary" data-i18n="btnJumpToPwGen" style="font-size: 11px; padding: 4px 12px;">
+                  Open Password Generator Tab
                 </button>
               </div>
             </div>
 
             <!-- Layer Modifier Guidance Notice for Layers 1, 2, 5, 6, 7 -->
-            <div id="knobLayerHintBox" style="display: none; background: rgba(30, 58, 138, 0.35); border: 1px solid rgba(59, 130, 246, 0.45); border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+            <div id="knobLayerHintBox" style="display: none; background: rgba(30, 58, 138, 0.35); border: 1px solid rgba(59, 130, 246, 0.45); border-radius: 6px; padding: 12px; margin-bottom: 14px;">
               <div style="font-weight: 700; color: #93c5fd; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                <span id="knobLayerHintTitle">💡 레이어 전용 노브 설정 안내 (Layer-Specific Knob Action)</span>
+                <span id="knobLayerHintTitle" data-i18n="knobLayerHintTitle">Layer-Specific Knob Action</span>
                 <span class="pill-badge" style="background: rgba(59, 130, 246, 0.2); color: #bfdbfe; border: 1px solid rgba(59, 130, 246, 0.4); font-size: 10px;">Layer Action</span>
               </div>
-              <div id="knobLayerHintDesc" style="font-size: 12px; color: #dbeafe; margin-top: 6px; line-height: 1.5;">
-                현재 설정 중인 노브 액션은 해당 레이어가 활성화된 상태(예: 키보드에서 <strong>Raise</strong> 또는 <strong>Lower</strong> 키를 누른 상태)에서 노브를 돌릴 때만 실행됩니다.
+              <div id="knobLayerHintDesc" data-i18n-html="knobLayerHintDesc" style="font-size: 12px; color: #dbeafe; margin-top: 6px; line-height: 1.5;">
+                This knob action only runs while this layer is active (e.g., holding Raise or Lower).
               </div>
-              <div style="margin-top: 8px; font-size: 11px; color: #bfdbfe;">
-                ⚡ <em>평상시 기본 타이핑 상태(키를 누르지 않은 상태)에서 노브를 돌려 마우스 스크롤이나 볼륨 조절을 사용하시려면 <strong>[0: Base] 레이어</strong>를 선택하여 설정해주세요.</em>
+              <div style="margin-top: 8px; font-size: 11px; color: #bfdbfe;" data-i18n-html="knobLayerHintNote">
+                To use the knob during normal typing, select <strong>0: Base</strong> layer.
               </div>
               <div style="margin-top: 10px;">
-                <button id="btnSwitchToBaseLayer" class="btn btn-secondary" style="font-size: 11px; padding: 4px 12px; background: #1e3a8a; border-color: #3b82f6; color: #fff;">
-                  🏠 0: Base 레이어로 전환 (Set on Base Layer)
+                <button id="btnSwitchToBaseLayer" class="btn btn-secondary" data-i18n="btnSwitchToBaseLayer" style="font-size: 11px; padding: 4px 12px;">
+                  Switch to 0: Base Layer
                 </button>
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Clockwise (CW) Rotation Action</label>
+              <label class="form-label" data-i18n="knobCwLabel">Clockwise (CW) Rotation Action</label>
               <select id="knobCwSelect" class="form-control">
                 <option value="pw_length" style="color: #fbbf24; font-weight: bold;">🔑 Hardware TRNG: Cycle Password Length (12/16/20/24)</option>
                 <option value="vol_up">Volume Up (C_VOLUME_UP)</option>
@@ -1837,7 +1837,7 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">Counter-Clockwise (CCW) Rotation Action</label>
+              <label class="form-label" data-i18n="knobCcwLabel">Counter-Clockwise (CCW) Rotation Action</label>
               <select id="knobCcwSelect" class="form-control">
                 <option value="pw_length" style="color: #fbbf24; font-weight: bold;">🔑 Hardware TRNG: Cycle Password Length (12/16/20/24)</option>
                 <option value="vol_dn">Volume Down (C_VOLUME_DOWN)</option>
@@ -1866,13 +1866,13 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">Encoder Pulses-Per-Detent Divider (Sensitivity)</label>
+              <label class="form-label" data-i18n="knobPpdLabel">Encoder Pulses-Per-Detent Divider (Sensitivity)</label>
               <div class="slider-container">
-                <input type="range" id="knobPpdSlider" class="slider-input" min="2" max="16" step="1" value="2">
-                <span id="knobPpdValue" class="slider-value">2 pulses</span>
+                <input type="range" id="knobPpdSlider" class="slider-input" min="2" max="16" step="1" value="4">
+                <span id="knobPpdValue" class="slider-value">4 pulses</span>
               </div>
-              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
-                Standard EC11 encoder generates 2 to 4 pulses per tactile click. Higher divider requires more physical rotation per action.
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="knobPpdDesc">
+                Standard EC11 encoder generates 4 pulses per tactile click. Higher divider requires more rotation per action.
               </div>
             </div>
           </div>
@@ -1885,15 +1885,15 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="card-title">🔑 Hardware TRNG Password Generator</div>
-            <div class="card-subtitle">On-board true random password generator parameters & typing speed</div>
+            <div class="card-title" data-i18n="pwTitle">Hardware TRNG Password Generator</div>
+            <div class="card-subtitle" data-i18n="pwSub">On-board true random password generator parameters & typing speed</div>
           </div>
           <div>
-            <button id="btnSavePwConfig" class="btn btn-primary">
-              💾 Save Password Config
+            <button id="btnSavePwConfig" class="btn btn-primary" data-i18n="btnSavePw">
+              Save Password Config
             </button>
-            <button id="btnReadPwConfig" class="btn btn-secondary">
-              🔄 Read Password Config
+            <button id="btnReadPwConfig" class="btn btn-secondary" data-i18n="btnReadPw">
+              Read Password Config
             </button>
           </div>
         </div>
@@ -1902,31 +1902,31 @@
           <!-- Configuration Options -->
           <div>
             <div class="form-group">
-              <label class="form-label">Default Password Length</label>
+              <label class="form-label" data-i18n="pwLenLabel">Default Password Length</label>
               <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                <button class="btn btn-secondary pw-len-btn" data-len="12">12 chars</button>
-                <button class="btn btn-primary pw-len-btn active" data-len="16">16 chars</button>
-                <button class="btn btn-secondary pw-len-btn" data-len="20">20 chars</button>
-                <button class="btn btn-secondary pw-len-btn" data-len="24">24 chars</button>
+                <button class="btn btn-secondary pw-len-btn" data-len="12">12</button>
+                <button class="btn btn-primary pw-len-btn active" data-len="16">16</button>
+                <button class="btn btn-secondary pw-len-btn" data-len="20">20</button>
+                <button class="btn btn-secondary pw-len-btn" data-len="24">24</button>
               </div>
               <input type="number" id="pwLengthInput" class="form-control" min="8" max="32" value="16" style="width: 120px;">
             </div>
 
             <div class="form-group">
-              <label class="form-label">Custom Special Characters Pool (Max 32)</label>
+              <label class="form-label" data-i18n="pwSpecLabel">Custom Special Characters Pool (Max 32)</label>
               <input type="text" id="pwSpecialsInput" class="form-control form-control-mono" value="!@#$%*?_-.@">
-              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="pwSpecDesc">
                 Only symbols from this custom set will be selected during hardware password generation.
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Keystroke Typing Interval Delay</label>
+              <label class="form-label" data-i18n="pwIntervalLabel">Keystroke Typing Interval Delay</label>
               <div class="slider-container">
                 <input type="range" id="pwIntervalSlider" class="slider-input" min="5" max="50" step="1" value="12">
                 <span id="pwIntervalValue" class="slider-value">12 ms</span>
               </div>
-              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="pwIntervalDesc">
                 Recommended: 10ms - 15ms. Lower values type faster; higher values prevent input drops on slow host machines.
               </div>
             </div>
@@ -1935,16 +1935,16 @@
           <!-- Interactive Test Preview -->
           <div style="background-color: var(--bg-card); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
             <div style="font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-              <span>Algorithm Preview</span>
-              <button id="btnGenPreview" class="btn btn-success" style="padding: 4px 10px; font-size: 12px;">
-                🎲 Generate Preview
+              <span data-i18n="pwPreviewTitle">Algorithm Preview</span>
+              <button id="btnGenPreview" class="btn btn-success" data-i18n="btnGenPreview" style="padding: 4px 10px; font-size: 12px;">
+                Generate Preview
               </button>
             </div>
 
             <div class="pw-preview-box">
               <span id="pwPreviewText" class="pw-preview-text">k9#M@v2$P_7!qX8L</span>
-              <button id="btnCopyPw" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" title="Copy to clipboard">
-                📋
+              <button id="btnCopyPw" class="btn btn-secondary" data-i18n="btnCopy" style="padding: 4px 8px; font-size: 12px;" title="Copy to clipboard">
+                Copy
               </button>
             </div>
 
@@ -1953,7 +1953,7 @@
             </div>
 
             <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted);">
-              <span>Estimated Entropy: <strong id="pwEntropyText" style="color: #34d399;">98 bits</strong></span>
+              <span><span data-i18n="pwEntropy">Estimated Entropy</span>: <strong id="pwEntropyText" style="color: #34d399;">98 bits</strong></span>
               <span id="pwStrengthLabel" style="font-weight: 600; color: #34d399;">Very Strong</span>
             </div>
           </div>
@@ -1966,15 +1966,15 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="card-title">🖱️ Mouse Keys & Smooth Scrolling Curves</div>
-            <div class="card-subtitle">Fine-tune MMV cursor acceleration and MSC scroll sensitivity</div>
+            <div class="card-title" data-i18n="mouseTitle">Mouse Keys & Smooth Scrolling Curves</div>
+            <div class="card-subtitle" data-i18n="mouseSub">Fine-tune MMV cursor acceleration and MSC scroll sensitivity</div>
           </div>
           <div>
-            <button id="btnSaveMouse" class="btn btn-primary">
-              💾 Save Mouse Config
+            <button id="btnSaveMouse" class="btn btn-primary" data-i18n="btnSaveMouse">
+              Save Mouse Config
             </button>
-            <button id="btnReadMouse" class="btn btn-secondary">
-              🔄 Read Mouse Config
+            <button id="btnReadMouse" class="btn btn-secondary" data-i18n="btnReadMouse">
+              Read Mouse Config
             </button>
           </div>
         </div>
@@ -1982,19 +1982,19 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
           <!-- Mouse Movement (MMV) -->
           <div style="background-color: var(--bg-card); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-            <h3 style="font-size: 14px; color: #fff; margin-bottom: 12px;">Mouse Cursor Movement (MMV)</h3>
+            <h3 style="font-size: 14px; color: #fff; margin-bottom: 12px;" data-i18n="mmvTitle">Mouse Cursor Movement (MMV)</h3>
 
             <div class="form-group">
-              <label class="form-label">Acceleration Exponent</label>
+              <label class="form-label" data-i18n="mmvExpLabel">Acceleration Exponent</label>
               <div style="display: flex; gap: 8px;">
-                <button class="btn btn-secondary mmv-exp-btn" data-exp="0">0 (Constant)</button>
-                <button class="btn btn-primary mmv-exp-btn active" data-exp="1">1 (Linear)</button>
-                <button class="btn btn-secondary mmv-exp-btn" data-exp="2">2 (Quadratic)</button>
+                <button class="btn btn-secondary mmv-exp-btn" data-exp="0" data-i18n="expConst">0 (Constant)</button>
+                <button class="btn btn-primary mmv-exp-btn active" data-exp="1" data-i18n="expLinear">1 (Linear)</button>
+                <button class="btn btn-secondary mmv-exp-btn" data-exp="2" data-i18n="expQuad">2 (Quadratic)</button>
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Time to Max Speed (ms)</label>
+              <label class="form-label" data-i18n="mmvTimeLabel">Time to Max Speed (ms)</label>
               <div class="slider-container">
                 <input type="range" id="mmvTimeSlider" class="slider-input" min="100" max="2000" step="50" value="500">
                 <span id="mmvTimeValue" class="slider-value">500 ms</span>
@@ -2004,19 +2004,19 @@
 
           <!-- Mouse Scrolling (MSC) -->
           <div style="background-color: var(--bg-card); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-            <h3 style="font-size: 14px; color: #fff; margin-bottom: 12px;">Smooth Scrolling (MSC)</h3>
+            <h3 style="font-size: 14px; color: #fff; margin-bottom: 12px;" data-i18n="mscTitle">Smooth Scrolling (MSC)</h3>
 
             <div class="form-group">
-              <label class="form-label">Scroll Acceleration Exponent</label>
+              <label class="form-label" data-i18n="mscExpLabel">Scroll Acceleration Exponent</label>
               <div style="display: flex; gap: 8px;">
-                <button class="btn btn-secondary msc-exp-btn" data-exp="0">0 (Constant)</button>
-                <button class="btn btn-primary msc-exp-btn active" data-exp="1">1 (Linear)</button>
-                <button class="btn btn-secondary msc-exp-btn" data-exp="2">2 (Quadratic)</button>
+                <button class="btn btn-secondary msc-exp-btn" data-exp="0" data-i18n="expConst">0 (Constant)</button>
+                <button class="btn btn-primary msc-exp-btn active" data-exp="1" data-i18n="expLinear">1 (Linear)</button>
+                <button class="btn btn-secondary msc-exp-btn" data-exp="2" data-i18n="expQuad">2 (Quadratic)</button>
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Time to Max Scroll Speed (ms)</label>
+              <label class="form-label" data-i18n="mscTimeLabel">Time to Max Scroll Speed (ms)</label>
               <div class="slider-container">
                 <input type="range" id="mscTimeSlider" class="slider-input" min="100" max="2000" step="50" value="300">
                 <span id="mscTimeValue" class="slider-value">300 ms</span>
@@ -2024,7 +2024,7 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">Scroll Step Size</label>
+              <label class="form-label" data-i18n="mscStepLabel">Scroll Step Size</label>
               <div class="slider-container">
                 <input type="range" id="mscStepSlider" class="slider-input" min="1" max="50" step="1" value="10">
                 <span id="mscStepValue" class="slider-value">10</span>
@@ -2035,7 +2035,7 @@
 
         <!-- Interactive Sandbox -->
         <div style="margin-top: 20px;">
-          <label class="form-label">Interactive Smooth Scrolling Test Sandbox</label>
+          <label class="form-label" data-i18n="scrollSandboxLabel">Interactive Smooth Scrolling Test Sandbox</label>
           <div id="scrollSandbox" class="scroll-sandbox">
             <div class="scroll-sandbox-content">
               <div class="scroll-item">Scroll Item 1 — Test your mouse scroll keys (Raise layer: S, E, F)</div>
@@ -2059,15 +2059,15 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="card-title">🔊 Piezo Audio & Hardware Telemetry</div>
-            <div class="card-subtitle">On-board buzzer sound feedback and real-time battery & BLE status</div>
+            <div class="card-title" data-i18n="audioTitle">Piezo Audio & Hardware Telemetry</div>
+            <div class="card-subtitle" data-i18n="audioSub">On-board buzzer sound feedback and real-time battery & BLE status</div>
           </div>
           <div>
-            <button id="btnSaveAudio" class="btn btn-primary">
-              💾 Save Audio Config
+            <button id="btnSaveAudio" class="btn btn-primary" data-i18n="btnSaveAudio">
+              Save Audio Config
             </button>
-            <button id="btnRefreshTelemetry" class="btn btn-secondary">
-              🔄 Refresh Status
+            <button id="btnRefreshTelemetry" class="btn btn-secondary" data-i18n="btnRefreshTelemetry">
+              Refresh Status
             </button>
           </div>
         </div>
@@ -2075,38 +2075,38 @@
         <!-- Telemetry Stat Widgets -->
         <div class="telemetry-grid">
           <div class="telemetry-stat">
-            <div class="telemetry-label">Battery Level</div>
+            <div class="telemetry-label" data-i18n="telBattLabel">Battery Level</div>
             <div id="telemetrySoc" class="telemetry-value">-- %</div>
             <div id="telemetryMv" class="telemetry-sub">-- mV (MAX17048)</div>
           </div>
 
           <div class="telemetry-stat">
-            <div class="telemetry-label">Active Transport</div>
+            <div class="telemetry-label" data-i18n="telTransLabel">Active Transport</div>
             <div id="telemetryConn" class="telemetry-value">USB CDC ACM</div>
             <div id="telemetryBle" class="telemetry-sub">BLE Profile 0 Active</div>
           </div>
 
           <div class="telemetry-stat">
-            <div class="telemetry-label">Security Lock</div>
+            <div class="telemetry-label" data-i18n="telLockLabel">Security Lock</div>
             <div id="telemetryLock" class="telemetry-value" style="color: #fbbf24;">Locked</div>
             <div id="telemetryLockTimer" class="telemetry-sub">Auto-relock in 300s</div>
           </div>
 
           <div class="telemetry-stat">
-            <div class="telemetry-label">Firmware Subsystem</div>
-            <div class="telemetry-value">Preonic v1.9.0</div>
+            <div class="telemetry-label" data-i18n="telFwLabel">Firmware Subsystem</div>
+            <div class="telemetry-value">Preonic v2.0.5</div>
             <div class="telemetry-sub">ZMK / Zephyr RTOS</div>
           </div>
         </div>
 
         <!-- Audio Sound Settings -->
         <div style="background-color: var(--bg-card); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color); max-width: 680px;">
-          <h3 style="font-size: 15px; color: #fff; margin-bottom: 16px;">Piezo Buzzer Configuration</h3>
+          <h3 style="font-size: 15px; color: #fff; margin-bottom: 16px;" data-i18n="piezoCfgTitle">Piezo Buzzer Configuration</h3>
 
           <div class="switch-group">
             <div>
-              <div class="switch-label">Master Audio Sound</div>
-              <div class="switch-desc">Enables/disables all audio chimes (startup tune, unlock tune, error tones)</div>
+              <div class="switch-label" data-i18n="audioMasterLabel">Master Audio Sound</div>
+              <div class="switch-desc" data-i18n="audioMasterDesc">Enables/disables all audio chimes (startup tune, unlock tune, error tones)</div>
             </div>
             <label class="switch">
               <input type="checkbox" id="audioMasterSwitch" checked>
@@ -2116,8 +2116,8 @@
 
           <div class="switch-group">
             <div>
-              <div class="switch-label">Mechanical Clicky Sound</div>
-              <div class="switch-desc">Generates a subtle tactile piezo click on every physical keypress</div>
+              <div class="switch-label" data-i18n="audioClickyLabel">Mechanical Clicky Sound</div>
+              <div class="switch-desc" data-i18n="audioClickyDesc">Generates a subtle tactile piezo click on every physical keypress</div>
             </div>
             <label class="switch">
               <input type="checkbox" id="audioClickySwitch" checked>
@@ -2126,7 +2126,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Clicky Tone Frequency (Hz)</label>
+            <label class="form-label" data-i18n="audioFreqLabel">Clicky Tone Frequency (Hz)</label>
             <div class="slider-container">
               <input type="range" id="audioFreqSlider" class="slider-input" min="1000" max="6000" step="100" value="3000">
               <span id="audioFreqValue" class="slider-value">3000 Hz</span>
@@ -2134,7 +2134,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Clicky Tone Duration (ms)</label>
+            <label class="form-label" data-i18n="audioDurLabel">Clicky Tone Duration (ms)</label>
             <div class="slider-container">
               <input type="range" id="audioDurSlider" class="slider-input" min="1" max="20" step="1" value="5">
               <span id="audioDurValue" class="slider-value">5 ms</span>
@@ -2142,11 +2142,11 @@
           </div>
 
           <div style="margin-top: 16px;">
-            <button id="btnTestPiezo" class="btn btn-success">
-              🔔 Play Test Tone on Keyboard
+            <button id="btnTestPiezo" class="btn btn-success" data-i18n="btnTestPiezo">
+              Play Test Tone on Keyboard
             </button>
-            <span style="font-size: 12px; color: var(--text-muted); margin-left: 10px;">
-              Sends CMD_TEST_PIEZO to trigger the physical buzzer immediately!
+            <span style="font-size: 12px; color: var(--text-muted); margin-left: 10px;" data-i18n="testPiezoDesc">
+              Triggers the physical buzzer immediately with the selected frequency and duration.
             </span>
           </div>
         </div>
@@ -2158,16 +2158,16 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="card-title">🔍 Interactive Switch Matrix & Chatter Tester</div>
-            <div class="card-subtitle">Real-time hardware switch contact diagnostics, press counters, and visual matrix verification</div>
+            <div class="card-title" data-i18n="testerTitle">Interactive Switch Matrix & Chatter Tester</div>
+            <div class="card-subtitle" data-i18n="testerSub">Real-time hardware switch contact diagnostics, press counters, and visual matrix verification</div>
           </div>
           <div class="actions-group">
             <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); cursor: pointer;">
               <input type="checkbox" id="chkTesterSound" checked>
-              <span>Click Sound</span>
+              <span data-i18n="testerSound">Click Sound</span>
             </label>
-            <button id="btnResetTester" class="btn btn-secondary">
-              🔄 Reset Tester
+            <button id="btnResetTester" class="btn btn-secondary" data-i18n="btnResetTester">
+              Reset Tester
             </button>
           </div>
         </div>
@@ -2175,15 +2175,15 @@
         <!-- Tester Status Dashboard -->
         <div style="display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
           <div class="pill-badge" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #34d399; padding: 6px 14px; font-size: 13px;">
-            <span>Tested Keys: </span>
+            <span data-i18n="testerCountLabel">Tested Keys</span>:
             <strong id="testerCount" style="margin-left: 4px;">0 / 62</strong>
           </div>
           <div class="pill-badge" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 6px 14px; font-size: 13px;">
-            <span>Last Pressed: </span>
+            <span data-i18n="testerLastLabel">Last Pressed</span>:
             <strong id="testerLastKey" style="margin-left: 4px;">None</strong>
           </div>
           <div id="testerChatterBadge" class="pill-badge" style="background: rgba(107, 114, 128, 0.1); border-color: rgba(107, 114, 128, 0.3); color: #9ca3af; padding: 6px 14px; font-size: 13px;">
-            <span>Chatter Status: </span>
+            <span data-i18n="testerChatterLabel">Chatter Status</span>:
             <strong id="testerChatterText" style="margin-left: 4px;">Clean</strong>
           </div>
         </div>
@@ -2200,15 +2200,15 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="card-title">🚀 Firmware Version & GitHub Integration</div>
-            <div class="card-subtitle">Real-time firmware version tracking, update alerts, commit history, and one-click UF2 downloads</div>
+            <div class="card-title" data-i18n="fwTitle">Firmware Version & GitHub Integration</div>
+            <div class="card-subtitle" data-i18n="fwSub">Real-time firmware version tracking, update alerts, commit history, and UF2 downloads</div>
           </div>
           <div class="actions-group">
-            <button id="btnCheckUpdates" class="btn btn-secondary">
-              🔄 Check for Updates
+            <button id="btnCheckUpdates" class="btn btn-secondary" data-i18n="btnCheckUpdates">
+              Check for Updates
             </button>
-            <a id="linkRepo" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config" target="_blank" rel="noopener" class="btn btn-secondary">
-              🐙 Open GitHub Repo
+            <a id="linkRepo" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config" target="_blank" rel="noopener" class="btn btn-secondary" data-i18n="linkRepo">
+              Open GitHub Repo
             </a>
           </div>
         </div>
@@ -2218,27 +2218,26 @@
           <div class="fw-hero-card">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
               <div>
-                <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary);">Firmware Status</h3>
-                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Installed hardware firmware vs latest GitHub release</p>
+                <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary);" data-i18n="fwStatusTitle">Firmware Status</h3>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;" data-i18n="fwStatusSub">Installed hardware firmware vs latest GitHub release</p>
               </div>
-              <span id="fwHeroBadge" class="pill-badge badge-github">🐙 GitHub Connected</span>
+              <span id="fwHeroBadge" class="pill-badge badge-github">GitHub Connected</span>
             </div>
 
             <div class="fw-hero-grid">
               <div class="fw-stat-box">
-                <div class="fw-stat-label">Keyboard Firmware</div>
+                <div class="fw-stat-label" data-i18n="fwInstalledLabel">Keyboard Firmware</div>
                 <div id="fwInstalledVer" class="fw-stat-val">Not Connected</div>
-                <div id="fwInstalledSub" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Connect USB to detect</div>
+                <div id="fwInstalledSub" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="fwConnectDetect">Connect USB to detect</div>
               </div>
               <div class="fw-stat-box">
-                <div class="fw-stat-label">Latest Release (GitHub)</div>
+                <div class="fw-stat-label" data-i18n="fwLatestLabel">Latest Release (GitHub)</div>
                 <div id="fwLatestVer" class="fw-stat-val">Loading...</div>
-                <div id="fwLatestDate" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Checking repository...</div>
+                <div id="fwLatestDate" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="fwCheckingRepo">Checking repository...</div>
               </div>
             </div>
 
             <div id="fwStatusBanner" class="fw-status-banner checking">
-              <span>⏳</span>
               <span id="fwStatusText">Connecting to GitHub REST API...</span>
             </div>
           </div>
@@ -2247,20 +2246,20 @@
           <div class="card" style="border-radius: var(--radius-lg);">
             <div class="card-header" style="padding: 0 0 12px 0; border-bottom: 1px solid var(--border-color);">
               <div>
-                <div class="card-title" style="font-size: 15px;">⚡ Quick Bootloader (DFU Flash Mode)</div>
-                <div class="card-subtitle">Put keyboard directly into USB drive mode without pressing physical buttons</div>
+                <div class="card-title" style="font-size: 15px;" data-i18n="bootTitle">Quick Bootloader (DFU Flash Mode)</div>
+                <div class="card-subtitle" data-i18n="bootSub">Put keyboard directly into USB drive mode without pressing physical buttons</div>
               </div>
             </div>
-            <p style="font-size: 12px; color: var(--text-secondary); margin: 12px 0;">
+            <p style="font-size: 12px; color: var(--text-secondary); margin: 12px 0;" data-i18n-html="bootDesc">
               Clicking the button below sends a hardware command over Web Serial to reboot your Preonic keyboard into Adafruit nRF52 UF2 Bootloader mode. A USB drive named <code style="color: #93c5fd;">PREONIC</code> will mount on your computer.
             </p>
             <div style="display: flex; gap: 10px; margin-bottom: 16px;">
-              <button id="btnRebootBootloader" class="btn btn-warning" style="flex: 1; padding: 12px; font-weight: 600;">
-                ⚡ Reboot Keyboard to Bootloader
+              <button id="btnRebootBootloader" class="btn btn-warning" data-i18n="btnRebootBootloader" style="flex: 1; padding: 12px; font-weight: 600;">
+                Reboot Keyboard to Bootloader
               </button>
             </div>
-            <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: var(--radius-md); padding: 10px 14px; font-size: 12px; color: #fbbf24;">
-              💡 <strong>Safety note:</strong> Keyboard must be unlocked (<code style="background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">Fn + Z</code>) to prevent accidental reboot. You can also enter bootloader mode anytime by double-tapping the physical reset button or pressing <code style="background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">Fn + LCtrl</code>.
+            <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: var(--radius-md); padding: 10px 14px; font-size: 12px; color: #fbbf24;" data-i18n-html="bootSafetyNote">
+              <strong>Safety note:</strong> Keyboard must be unlocked (<code style="background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">Fn + Z</code>) to prevent accidental reboot. You can also enter bootloader mode anytime by double-tapping the physical reset button or pressing <code style="background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">Fn + LCtrl</code>.
             </div>
           </div>
 
@@ -2268,36 +2267,34 @@
           <div class="card" style="border-radius: var(--radius-lg);">
             <div class="card-header" style="padding: 0 0 12px 0; border-bottom: 1px solid var(--border-color);">
               <div>
-                <div class="card-title" style="font-size: 15px;">📥 Direct Firmware Downloads (.uf2)</div>
-                <div class="card-subtitle">Compiled binary files ready to flash via drag-and-drop</div>
+                <div class="card-title" style="font-size: 15px;" data-i18n="dlTitle">Direct Firmware Downloads (.uf2)</div>
+                <div class="card-subtitle" data-i18n="dlSub">Compiled binary files ready to flash via drag-and-drop</div>
               </div>
             </div>
             <div style="margin-top: 14px;">
               <a id="btnDlFirmware" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.5/keyboardio_preonic__zmk.uf2" download="keyboardio_preonic__zmk.uf2" class="fw-dl-btn fw-dl-primary">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <span style="font-size: 20px;">📦</span>
                   <div style="text-align: left;">
                     <div style="font-weight: 600;">keyboardio_preonic__zmk.uf2</div>
-                    <div id="fwDlMetaMain" style="font-size: 11px; color: var(--text-muted);">Main Custom Firmware (~503 KB)</div>
+                    <div id="fwDlMetaMain" style="font-size: 11px; color: var(--text-muted);" data-i18n="dlMetaMain">Main Custom Firmware (~503 KB)</div>
                   </div>
                 </div>
-                <span class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;">Download 📥</span>
+                <span class="btn btn-primary" data-i18n="btnDownload" style="padding: 6px 14px; font-size: 12px;">Download</span>
               </a>
 
               <a id="btnDlReset" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/download/v2.0.5/settings_reset-keyboardio_preonic__zmk.uf2" download="settings_reset-keyboardio_preonic__zmk.uf2" class="fw-dl-btn">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <span style="font-size: 20px;">🧹</span>
                   <div style="text-align: left;">
                     <div style="font-weight: 600;">settings_reset-keyboardio_preonic__zmk.uf2</div>
-                    <div id="fwDlMetaReset" style="font-size: 11px; color: var(--text-muted);">Erase Bluetooth & NVS Flash Storage (~175 KB)</div>
+                    <div id="fwDlMetaReset" style="font-size: 11px; color: var(--text-muted);" data-i18n="dlMetaReset">Erase Bluetooth & NVS Flash Storage (~175 KB)</div>
                   </div>
                 </div>
-                <span class="btn btn-secondary" style="padding: 6px 14px; font-size: 12px;">Download 📥</span>
+                <span class="btn btn-secondary" data-i18n="btnDownload" style="padding: 6px 14px; font-size: 12px;">Download</span>
               </a>
 
               <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <a id="linkReleasePage" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases" target="_blank" rel="noopener" class="btn btn-secondary" style="flex: 1; text-align: center; text-decoration: none;">
-                  📂 View All GitHub Releases
+                <a id="linkReleasePage" href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases" target="_blank" rel="noopener" class="btn btn-secondary" data-i18n="linkAllReleases" style="flex: 1; text-align: center; text-decoration: none;">
+                  View All GitHub Releases
                 </a>
               </div>
             </div>
@@ -2307,39 +2304,39 @@
           <div class="card" style="border-radius: var(--radius-lg);">
             <div class="card-header" style="padding: 0 0 12px 0; border-bottom: 1px solid var(--border-color);">
               <div>
-                <div class="card-title" style="font-size: 15px;">📖 Step-by-Step Flashing Guide</div>
-                <div class="card-subtitle">How to update your Preonic keyboard firmware in under 30 seconds</div>
+                <div class="card-title" style="font-size: 15px;" data-i18n="guideTitle">Step-by-Step Flashing Guide</div>
+                <div class="card-subtitle" data-i18n="guideSub">How to update your Preonic keyboard firmware in under 30 seconds</div>
               </div>
             </div>
             <div class="fw-step-list" style="margin-top: 14px;">
               <div class="fw-step">
                 <div class="fw-step-num">1</div>
-                <div>
+                <div data-i18n-html="guideStep1">
                   <strong>Download Firmware</strong>: Click the <code style="color: #60a5fa;">keyboardio_preonic__zmk.uf2</code> download button above to save the latest build to your computer.
                 </div>
               </div>
               <div class="fw-step">
                 <div class="fw-step-num">2</div>
-                <div>
+                <div data-i18n-html="guideStep2">
                   <strong>Enter Bootloader</strong>: Click <code style="color: #fbbf24;">Reboot Keyboard to Bootloader</code> above, or double-tap the physical reset button (or press <code style="color: #fbbf24;">Fn + LCtrl</code>).
                 </div>
               </div>
               <div class="fw-step">
                 <div class="fw-step-num">3</div>
-                <div>
+                <div data-i18n-html="guideStep3">
                   <strong>Locate USB Drive</strong>: A removable USB mass storage drive named <strong>PREONIC</strong> (or NICENANO) will appear in File Explorer / Finder.
                 </div>
               </div>
               <div class="fw-step">
                 <div class="fw-step-num">4</div>
-                <div>
+                <div data-i18n-html="guideStep4">
                   <strong>Drag & Drop UF2</strong>: Drag the downloaded <code style="color: #60a5fa;">.uf2</code> file into the <strong>PREONIC</strong> drive.
                 </div>
               </div>
               <div class="fw-step">
                 <div class="fw-step-num">5</div>
-                <div>
-                  <strong>Complete & Reboot</strong>: The drive will automatically unmount itself within 2 seconds, and the keyboard will reboot with the new firmware!
+                <div data-i18n-html="guideStep5">
+                  <strong>Complete & Reboot</strong>: The drive will automatically unmount itself within 2 seconds, and the keyboard will reboot with the new firmware.
                 </div>
               </div>
             </div>
@@ -2349,14 +2346,14 @@
           <div class="card" style="grid-column: 1 / -1; border-radius: var(--radius-lg);">
             <div class="card-header" style="padding: 0 0 12px 0; border-bottom: 1px solid var(--border-color);">
               <div>
-                <div class="card-title" style="font-size: 15px;">📜 Recent GitHub Commits (Changelog)</div>
-                <div class="card-subtitle">Live commit activity from the master branch</div>
+                <div class="card-title" style="font-size: 15px;" data-i18n="commitsTitle">Recent GitHub Commits (Changelog)</div>
+                <div class="card-subtitle" data-i18n="commitsSub">Live commit activity from the master branch</div>
               </div>
               <span id="commitsCountBadge" class="pill-badge" style="font-size: 11px;">6 Commits</span>
             </div>
             <div id="fwCommitList" style="margin-top: 8px;">
-              <div style="padding: 16px; text-align: center; color: var(--text-muted);">
-                ⏳ Loading commit history from GitHub...
+              <div style="padding: 16px; text-align: center; color: var(--text-muted);" data-i18n="commitsLoading">
+                Loading commit history from GitHub...
               </div>
             </div>
           </div>
@@ -2365,18 +2362,18 @@
           <div class="card" style="grid-column: 1 / -1; border-radius: var(--radius-lg); background: rgba(22, 24, 29, 0.6);">
             <div class="card-header" style="padding: 0 0 10px 0;">
               <div>
-                <div class="card-title" style="font-size: 14px;">⚙️ GitHub Repository Settings</div>
-                <div class="card-subtitle">Configure repository path or personal access token if using a private fork</div>
+                <div class="card-title" style="font-size: 14px;" data-i18n="ghCfgTitle">GitHub Repository Settings</div>
+                <div class="card-subtitle" data-i18n="ghCfgSub">Configure repository path if using a custom fork</div>
               </div>
             </div>
             <div style="display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap;">
               <div style="flex: 2; min-width: 260px;">
-                <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Repository (owner/repo)</label>
+                <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;" data-i18n="ghRepoLabel">Repository (owner/repo)</label>
                 <input type="text" id="inputGhRepo" class="form-control" value="samake-2T2/keyboardio-preonic-zmk-config">
               </div>
               <div style="display: flex; align-items: flex-end; gap: 8px;">
-                <button id="btnSaveGhSettings" class="btn btn-primary" style="height: 38px;">Save Settings</button>
-                <button id="btnResetGhSettings" class="btn btn-secondary" style="height: 38px;">Reset Default</button>
+                <button id="btnSaveGhSettings" class="btn btn-primary" data-i18n="btnSaveSettings" style="height: 38px;">Save Settings</button>
+                <button id="btnResetGhSettings" class="btn btn-secondary" data-i18n="btnResetDefault" style="height: 38px;">Reset Default</button>
               </div>
             </div>
           </div>
@@ -2391,29 +2388,29 @@
   <div id="pickerModal" class="modal-backdrop">
     <div class="modal-dialog">
       <div class="modal-header">
-        <div class="modal-title">Select Key Binding for Key <span id="pickerKeyIndex">#--</span></div>
+        <div class="modal-title"><span data-i18n="pickerTitle">Select Key Binding for Key</span> <span id="pickerKeyIndex">#--</span></div>
         <button class="modal-close-btn" id="btnPickerClose">&times;</button>
       </div>
 
       <div class="modal-body">
         <!-- Search bar -->
-        <input type="text" id="pickerSearch" class="form-control" placeholder="Search keycodes (e.g. Enter, Shift, F5, Volume)..." style="margin-bottom: 12px;">
+        <input type="text" id="pickerSearch" class="form-control" data-i18n-placeholder="pickerSearchPlaceholder" placeholder="Search keycodes (e.g. Enter, Shift, F5, Volume)..." style="margin-bottom: 12px;">
 
         <!-- Categories -->
         <div class="picker-categories">
-          <button class="picker-cat-btn active" data-cat="alpha">A-Z Letters</button>
-          <button class="picker-cat-btn" data-cat="numbers">Numbers & Punct</button>
-          <button class="picker-cat-btn" data-cat="numpad">🔢 Numpad</button>
-          <button class="picker-cat-btn" data-cat="nav">Navigation & Edit</button>
-          <button class="picker-cat-btn" data-cat="mods">Modifiers</button>
-          <button class="picker-cat-btn" data-cat="fn">Function (F1-F24)</button>
-          <button class="picker-cat-btn" data-cat="media">Media & Sound</button>
-          <button class="picker-cat-btn" data-cat="apps">🖥️ Apps & Web</button>
-          <button class="picker-cat-btn" data-cat="mouse">🖱️ Mouse Keys</button>
-          <button class="picker-cat-btn" data-cat="layers">Layers (&mo/to/tog)</button>
-          <button class="picker-cat-btn" data-cat="system">Special & System</button>
-          <button class="picker-cat-btn" data-cat="preonic">Preonic Custom</button>
-          <button class="picker-cat-btn" data-cat="dual" style="border-color: rgba(245, 158, 11, 0.5); color: #fbbf24;">Dual-Action (Tap-Hold)</button>
+          <button class="picker-cat-btn active" data-cat="alpha" data-i18n="catAlpha">A-Z Letters</button>
+          <button class="picker-cat-btn" data-cat="numbers" data-i18n="catNumbers">Numbers & Punct</button>
+          <button class="picker-cat-btn" data-cat="numpad" data-i18n="catNumpad">Numpad</button>
+          <button class="picker-cat-btn" data-cat="nav" data-i18n="catNav">Navigation & Edit</button>
+          <button class="picker-cat-btn" data-cat="mods" data-i18n="catMods">Modifiers</button>
+          <button class="picker-cat-btn" data-cat="fn" data-i18n="catFn">Function (F1-F24)</button>
+          <button class="picker-cat-btn" data-cat="media" data-i18n="catMedia">Media & Sound</button>
+          <button class="picker-cat-btn" data-cat="apps" data-i18n="catApps">Apps & Web</button>
+          <button class="picker-cat-btn" data-cat="mouse" data-i18n="catMouse">Mouse Keys</button>
+          <button class="picker-cat-btn" data-cat="layers" data-i18n="catLayers">Layers (&mo/to/tog)</button>
+          <button class="picker-cat-btn" data-cat="system" data-i18n="catSystem">Special & System</button>
+          <button class="picker-cat-btn" data-cat="preonic" data-i18n="catPreonic">Preonic Custom</button>
+          <button class="picker-cat-btn" data-cat="dual" data-i18n="catDual" style="border-color: rgba(245, 158, 11, 0.5); color: #fbbf24;">Dual-Action (Tap-Hold)</button>
         </div>
 
         <!-- Keycode Item Grid -->
@@ -2426,8 +2423,8 @@
         <span id="pickerSelectionSummary" style="margin-right: auto; font-size: 13px; color: #fff;">
           Selected: <strong>&kp A</strong>
         </span>
-        <button id="btnPickerCancel" class="btn btn-secondary">Cancel</button>
-        <button id="btnPickerApply" class="btn btn-primary">Apply Binding</button>
+        <button id="btnPickerCancel" class="btn btn-secondary" data-i18n="btnCancel">Cancel</button>
+        <button id="btnPickerApply" class="btn btn-primary" data-i18n="btnApplyBinding">Apply Binding</button>
       </div>
     </div>
   </div>
@@ -2436,37 +2433,36 @@
   <div id="unlockModal" class="modal-backdrop">
     <div class="modal-dialog" style="max-width: 540px;">
       <div class="modal-header">
-        <div class="modal-title">🔐 Physical Presence Authorization</div>
+        <div class="modal-title" data-i18n="unlockModalTitle">Physical Presence Authorization</div>
         <button class="modal-close-btn" id="btnUnlockModalClose">&times;</button>
       </div>
 
       <div class="modal-body" style="text-align: center; padding: 24px;">
-        <div style="font-size: 48px; margin-bottom: 12px;">🛡️</div>
-        <h3 style="font-size: 18px; color: #fff; margin-bottom: 8px;">Press Fn + Z on your Preonic keyboard</h3>
-        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;">
+        <h3 style="font-size: 18px; color: #fff; margin-bottom: 8px;" data-i18n="unlockModalHeading">Press Fn + Z on your Preonic keyboard</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;" data-i18n="unlockModalDesc">
           To protect stored passwords, macros, and keymaps against unauthorized browser scripts, mutating changes require physical presence confirmation on the keyboard.
         </p>
 
         <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; text-align: left; font-size: 13px; margin-bottom: 20px;">
-          <div style="font-weight: 700; color: #fff; margin-bottom: 6px;">How to Unlock:</div>
+          <div style="font-weight: 700; color: #fff; margin-bottom: 6px;" data-i18n="unlockHowTitle">How to Unlock:</div>
           <ol style="margin-left: 20px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;">
-            <li>Hold the <strong>Fn</strong> key (Top right, Key #1).</li>
-            <li>Press the <strong>Z</strong> key (Row 4, Column 2, Key #40).</li>
-            <li>The keyboard buzzer will play an ascending chime and butterfly LEDs will double-blink amber.</li>
-            <li>This Web GUI will automatically unlock in real-time!</li>
+            <li data-i18n-html="unlockStep1">Hold the <strong>Fn</strong> key (Top right, Key #1).</li>
+            <li data-i18n-html="unlockStep2">Press the <strong>Z</strong> key (Row 4, Column 2, Key #40).</li>
+            <li data-i18n="unlockStep3">The keyboard buzzer will play an ascending chime and butterfly LEDs will double-blink amber.</li>
+            <li data-i18n="unlockStep4">This Web GUI will automatically unlock in real-time.</li>
           </ol>
         </div>
 
         <div id="demoUnlockSection" style="display: none; border-top: 1px dashed var(--border-color); padding-top: 16px;">
-          <div style="font-size: 12px; color: #c084fc; margin-bottom: 8px;">Demo Mode Simulator:</div>
-          <button id="btnSimulatePhysicalUnlock" class="btn btn-warning" style="width: 100%;">
-            ⚡ Simulate Physical Fn + Z Unlock
+          <div style="font-size: 12px; color: #c084fc; margin-bottom: 8px;" data-i18n="demoSimLabel">Demo Mode Simulator:</div>
+          <button id="btnSimulatePhysicalUnlock" class="btn btn-warning" data-i18n="btnSimUnlock" style="width: 100%;">
+            Simulate Physical Fn + Z Unlock
           </button>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button id="btnUnlockModalDone" class="btn btn-primary">Got it</button>
+        <button id="btnUnlockModalDone" class="btn btn-primary" data-i18n="btnGotIt">Got it</button>
       </div>
     </div>
   </div>
@@ -5639,7 +5635,157 @@
         btnConfigKnob: "Configure Knob",
         btnOpenMacro: "Open Macro Manager",
         btnOpenPw: "Open Password Tab",
-        btnOpenAudio: "Open Audio Tab"
+        btnOpenAudio: "Open Audio Tab",
+        macroTitle: "Dynamic Macro Manager",
+        macroSub: "Direct ASCII text injection and live playback for Slots 1, 2, and 3",
+        btnBackupMacros: "Backup Macros (.json)",
+        btnRestoreMacros: "Restore Macros (.json)",
+        macroLabel: "Macro ASCII Text String (Max 32 characters, shifts & symbols supported)",
+        macroPlaceholder: "Type text to inject into keyboard slot (e.g. MySecretPassword123!)",
+        macroChars: "Chars",
+        macroSteps: "Estimated Keystroke Steps",
+        btnSaveMacro: "Write Text to Slot",
+        btnPlayMacro: "Play Macro on Keyboard",
+        btnClearMacro: "Clear Slot",
+        btnReadMacro: "Read from Keyboard",
+        knobTitle: "EC11 Rotary Encoder Configuration",
+        knobSub: "Per-layer CW/CCW rotation actions and detent divider sensitivity",
+        btnApplyKnob: "Apply Knob Settings",
+        btnReadKnob: "Read Knob Settings",
+        knobVisualTitle: "Preonic Top-Right Knob",
+        knobVisualSub: "Click & drag to simulate detents",
+        knobHwTitle: "Hardware TRNG Password Generator Intercept Active",
+        knobHwDesc: "This layer is hardcoded in the firmware event listener (password_generator.c) to control the Hardware TRNG Password Generator:",
+        knobHwItem1: "• <strong>Rotate (CW / CCW)</strong>: Cycle Length (12 / 16 / 20 / 24 chars)",
+        knobHwItem2: "• <strong>Click (Single)</strong>: Generate DB Safe Password",
+        knobHwItem3: "• <strong>Click (Double)</strong>: Generate Web Extended Password",
+        knobHwItem4: "• <strong>Click (Hold 0.4s)</strong>: Generate Alphanumeric Password",
+        knobHwNote: "* Standard software keycode bindings configured below are overridden by the hardware listener while on this layer.",
+        btnJumpToPwGen: "Open Password Generator Tab",
+        knobLayerHintTitle: "Layer-Specific Knob Action",
+        knobLayerHintDesc: "This knob action only runs while this layer is active (e.g., holding Raise or Lower).",
+        knobLayerHintNote: "To use the knob during normal typing, select <strong>0: Base</strong> layer.",
+        btnSwitchToBaseLayer: "Switch to 0: Base Layer",
+        knobCwLabel: "Clockwise (CW) Rotation Action",
+        knobCcwLabel: "Counter-Clockwise (CCW) Rotation Action",
+        knobPpdLabel: "Encoder Pulses-Per-Detent Divider (Sensitivity)",
+        knobPpdDesc: "Standard EC11 encoder generates 4 pulses per tactile click. Higher divider requires more rotation per action.",
+        pwTitle: "Hardware TRNG Password Generator",
+        pwSub: "On-board true random password generator parameters & typing speed",
+        btnSavePw: "Save Password Config",
+        btnReadPw: "Read Password Config",
+        pwLenLabel: "Default Password Length",
+        pwSpecLabel: "Custom Special Characters Pool (Max 32)",
+        pwSpecDesc: "Only symbols from this custom set will be selected during hardware password generation.",
+        pwIntervalLabel: "Keystroke Typing Interval Delay",
+        pwIntervalDesc: "Recommended: 10ms - 15ms. Lower values type faster; higher values prevent input drops on slow host machines.",
+        pwPreviewTitle: "Algorithm Preview",
+        btnGenPreview: "Generate Preview",
+        btnCopy: "Copy",
+        pwEntropy: "Estimated Entropy",
+        mouseTitle: "Mouse Keys & Smooth Scrolling Curves",
+        mouseSub: "Fine-tune MMV cursor acceleration and MSC scroll sensitivity",
+        btnSaveMouse: "Save Mouse Config",
+        btnReadMouse: "Read Mouse Config",
+        mmvTitle: "Mouse Cursor Movement (MMV)",
+        mmvExpLabel: "Acceleration Exponent",
+        mmvTimeLabel: "Time to Max Speed (ms)",
+        mscTitle: "Smooth Scrolling (MSC)",
+        mscExpLabel: "Scroll Acceleration Exponent",
+        mscTimeLabel: "Time to Max Scroll Speed (ms)",
+        mscStepLabel: "Scroll Step Size",
+        expConst: "0 (Constant)",
+        expLinear: "1 (Linear)",
+        expQuad: "2 (Quadratic)",
+        scrollSandboxLabel: "Interactive Smooth Scrolling Test Sandbox",
+        audioTitle: "Piezo Audio & Hardware Telemetry",
+        audioSub: "On-board buzzer sound feedback and real-time battery & BLE status",
+        btnSaveAudio: "Save Audio Config",
+        btnRefreshTelemetry: "Refresh Status",
+        telBattLabel: "Battery Level",
+        telTransLabel: "Active Transport",
+        telLockLabel: "Security Lock",
+        telFwLabel: "Firmware Subsystem",
+        piezoCfgTitle: "Piezo Buzzer Configuration",
+        audioMasterLabel: "Master Audio Sound",
+        audioMasterDesc: "Enables/disables all audio chimes (startup tune, unlock tune, error tones)",
+        audioClickyLabel: "Mechanical Clicky Sound",
+        audioClickyDesc: "Generates a subtle tactile piezo click on every physical keypress",
+        audioFreqLabel: "Clicky Tone Frequency (Hz)",
+        audioDurLabel: "Clicky Tone Duration (ms)",
+        btnTestPiezo: "Play Test Tone on Keyboard",
+        testPiezoDesc: "Triggers the physical buzzer immediately with the selected frequency and duration.",
+        testerTitle: "Interactive Switch Matrix & Chatter Tester",
+        testerSub: "Real-time hardware switch contact diagnostics, press counters, and visual matrix verification",
+        testerSound: "Click Sound",
+        btnResetTester: "Reset Tester",
+        testerCountLabel: "Tested Keys",
+        testerLastLabel: "Last Pressed",
+        testerChatterLabel: "Chatter Status",
+        fwTitle: "Firmware Version & GitHub Integration",
+        fwSub: "Real-time firmware version tracking, update alerts, commit history, and UF2 downloads",
+        btnCheckUpdates: "Check for Updates",
+        linkRepo: "Open GitHub Repo",
+        fwStatusTitle: "Firmware Status",
+        fwStatusSub: "Installed hardware firmware vs latest GitHub release",
+        fwInstalledLabel: "Keyboard Firmware",
+        fwConnectDetect: "Connect USB to detect",
+        fwLatestLabel: "Latest Release (GitHub)",
+        fwCheckingRepo: "Checking repository...",
+        bootTitle: "Quick Bootloader (DFU Flash Mode)",
+        bootSub: "Put keyboard directly into USB drive mode without pressing physical buttons",
+        bootDesc: "Clicking the button below sends a hardware command over Web Serial to reboot your Preonic keyboard into Adafruit nRF52 UF2 Bootloader mode. A USB drive named <code>PREONIC</code> will mount on your computer.",
+        btnRebootBootloader: "Reboot Keyboard to Bootloader",
+        bootSafetyNote: "<strong>Safety note:</strong> Keyboard must be unlocked (<code>Fn + Z</code>) to prevent accidental reboot. You can also enter bootloader mode anytime by double-tapping the physical reset button or pressing <code>Fn + LCtrl</code>.",
+        dlTitle: "Direct Firmware Downloads (.uf2)",
+        dlSub: "Compiled binary files ready to flash via drag-and-drop",
+        dlMetaMain: "Main Custom Firmware (~503 KB)",
+        dlMetaReset: "Erase Bluetooth & NVS Flash Storage (~175 KB)",
+        btnDownload: "Download",
+        linkAllReleases: "View All GitHub Releases",
+        guideTitle: "Step-by-Step Flashing Guide",
+        guideSub: "How to update your Preonic keyboard firmware in under 30 seconds",
+        guideStep1: "<strong>Download Firmware</strong>: Click the <code>keyboardio_preonic__zmk.uf2</code> download button above to save the latest build to your computer.",
+        guideStep2: "<strong>Enter Bootloader</strong>: Click <code>Reboot Keyboard to Bootloader</code> above, or double-tap the physical reset button (or press <code>Fn + LCtrl</code>).",
+        guideStep3: "<strong>Locate USB Drive</strong>: A removable USB mass storage drive named <strong>PREONIC</strong> (or NICENANO) will appear in File Explorer / Finder.",
+        guideStep4: "<strong>Drag & Drop UF2</strong>: Drag the downloaded <code>.uf2</code> file into the <strong>PREONIC</strong> drive.",
+        guideStep5: "<strong>Complete & Reboot</strong>: The drive will automatically unmount itself within 2 seconds, and the keyboard will reboot with the new firmware.",
+        commitsTitle: "Recent GitHub Commits (Changelog)",
+        commitsSub: "Live commit activity from the master branch",
+        commitsLoading: "Loading commit history from GitHub...",
+        ghCfgTitle: "GitHub Repository Settings",
+        ghCfgSub: "Configure repository path if using a custom fork",
+        ghRepoLabel: "Repository (owner/repo)",
+        btnSaveSettings: "Save Settings",
+        btnResetDefault: "Reset Default",
+        pickerTitle: "Select Key Binding for Key",
+        pickerSearchPlaceholder: "Search keycodes (e.g. Enter, Shift, F5, Volume)...",
+        catAlpha: "A-Z Letters",
+        catNumbers: "Numbers & Punct",
+        catNumpad: "Numpad",
+        catNav: "Navigation & Edit",
+        catMods: "Modifiers",
+        catFn: "Function (F1-F24)",
+        catMedia: "Media & Sound",
+        catApps: "Apps & Web",
+        catMouse: "Mouse Keys",
+        catLayers: "Layers (&mo/to/tog)",
+        catSystem: "Special & System",
+        catPreonic: "Preonic Custom",
+        catDual: "Dual-Action (Tap-Hold)",
+        btnCancel: "Cancel",
+        btnApplyBinding: "Apply Binding",
+        unlockModalTitle: "Physical Presence Authorization",
+        unlockModalHeading: "Press Fn + Z on your Preonic keyboard",
+        unlockModalDesc: "To protect stored passwords, macros, and keymaps against unauthorized browser scripts, mutating changes require physical presence confirmation on the keyboard.",
+        unlockHowTitle: "How to Unlock:",
+        unlockStep1: "Hold the <strong>Fn</strong> key (Top right, Key #1).",
+        unlockStep2: "Press the <strong>Z</strong> key (Row 4, Column 2, Key #40).",
+        unlockStep3: "The keyboard buzzer will play an ascending chime and butterfly LEDs will double-blink amber.",
+        unlockStep4: "This Web GUI will automatically unlock in real-time.",
+        demoSimLabel: "Demo Mode Simulator:",
+        btnSimUnlock: "Simulate Physical Fn + Z Unlock",
+        btnGotIt: "Got it"
       },
       ko: {
         btnBackup: "백업",
@@ -5670,7 +5816,157 @@
         btnConfigKnob: "노브 설정",
         btnOpenMacro: "매크로 탭 열기",
         btnOpenPw: "비밀번호 탭 열기",
-        btnOpenAudio: "오디오 탭 열기"
+        btnOpenAudio: "오디오 탭 열기",
+        macroTitle: "동적 매크로 관리",
+        macroSub: "슬롯 1, 2, 3에 ASCII 텍스트를 직접 저장하고 즉시 재생합니다",
+        btnBackupMacros: "매크로 백업 (.json)",
+        btnRestoreMacros: "매크로 복원 (.json)",
+        macroLabel: "매크로 ASCII 문자열 (최대 32자, Shift 및 기호 지원)",
+        macroPlaceholder: "키보드 슬롯에 저장할 텍스트를 입력하세요 (예: MySecretPassword123!)",
+        macroChars: "글자 수",
+        macroSteps: "예상 키 입력 스텝",
+        btnSaveMacro: "슬롯에 저장",
+        btnPlayMacro: "키보드에서 재생",
+        btnClearMacro: "슬롯 비우기",
+        btnReadMacro: "키보드에서 읽기",
+        knobTitle: "EC11 로터리 엔코더 설정",
+        knobSub: "레이어별 시계/반시계 회전 동작 및 감도(Pulses-Per-Detent) 설정",
+        btnApplyKnob: "노브 설정 적용",
+        btnReadKnob: "노브 설정 읽기",
+        knobVisualTitle: "Preonic 우측 상단 노브",
+        knobVisualSub: "드래그하여 회전 동작을 테스트하세요",
+        knobHwTitle: "하드웨어 TRNG 비밀번호 생성기 인터셉트 활성",
+        knobHwDesc: "이 레이어에서는 펌웨어(password_generator.c)가 노브 입력을 가로채 비밀번호 생성기를 제어합니다:",
+        knobHwItem1: "• <strong>회전 (CW / CCW)</strong>: 비밀번호 길이 순환 (12 / 16 / 20 / 24자)",
+        knobHwItem2: "• <strong>1회 클릭</strong>: DB Safe 비밀번호 생성",
+        knobHwItem3: "• <strong>2회 클릭</strong>: Web Extended 비밀번호 생성",
+        knobHwItem4: "• <strong>길게 누르기 (0.4초)</strong>: 영숫자 전용 비밀번호 생성",
+        knobHwNote: "* 이 레이어에서는 아래 일반 키코드 설정보다 하드웨어 인터셉트가 우선 적용됩니다.",
+        btnJumpToPwGen: "비밀번호 생성기 탭 열기",
+        knobLayerHintTitle: "레이어 전용 노브 설정 안내",
+        knobLayerHintDesc: "현재 선택된 노브 설정은 해당 레이어가 활성화된 상태(예: Raise 또는 Lower 키를 누른 상태)에서만 동작합니다.",
+        knobLayerHintNote: "평상시 기본 타이핑 상태에서 노브를 사용하려면 <strong>0: Base</strong> 레이어를 선택하세요.",
+        btnSwitchToBaseLayer: "0: Base 레이어로 전환",
+        knobCwLabel: "시계 방향 (CW) 회전 동작",
+        knobCcwLabel: "반시계 방향 (CCW) 회전 동작",
+        knobPpdLabel: "엔코더 감도 (Pulses-Per-Detent)",
+        knobPpdDesc: "표준 EC11 엔코더는 1틱당 4펄스를 생성합니다. 값이 클수록 더 많이 돌려야 1회 동작합니다.",
+        pwTitle: "하드웨어 TRNG 비밀번호 생성기",
+        pwSub: "온보드 난수 생성기 기반 비밀번호 길이, 특수문자, 타이핑 속도 설정",
+        btnSavePw: "비밀번호 설정 저장",
+        btnReadPw: "비밀번호 설정 읽기",
+        pwLenLabel: "기본 비밀번호 길이",
+        pwSpecLabel: "사용자 지정 특수문자 목록 (최대 32자)",
+        pwSpecDesc: "Web Extended 모드에서 이 목록에 포함된 특수문자만 사용됩니다.",
+        pwIntervalLabel: "키 입력 간격 (ms)",
+        pwIntervalDesc: "권장: 10ms ~ 15ms. 값이 낮을수록 빠르며, 느린 PC에서 입력 누락 시 값을 높이세요.",
+        pwPreviewTitle: "알고리즘 미리보기",
+        btnGenPreview: "미리보기 생성",
+        btnCopy: "복사",
+        pwEntropy: "예상 엔트로피",
+        mouseTitle: "마우스 키 및 스크롤 가속 설정",
+        mouseSub: "MMV 커서 이동 가속도와 MSC 스크롤 감도를 조절합니다",
+        btnSaveMouse: "마우스 설정 저장",
+        btnReadMouse: "마우스 설정 읽기",
+        mmvTitle: "마우스 커서 이동 (MMV)",
+        mmvExpLabel: "가속 지수",
+        mmvTimeLabel: "최대 속도 도달 시간 (ms)",
+        mscTitle: "부드러운 스크롤 (MSC)",
+        mscExpLabel: "스크롤 가속 지수",
+        mscTimeLabel: "최대 스크롤 도달 시간 (ms)",
+        mscStepLabel: "스크롤 스텝 크기",
+        expConst: "0 (일정)",
+        expLinear: "1 (선형)",
+        expQuad: "2 (2차 곡선)",
+        scrollSandboxLabel: "스크롤 테스트 영역",
+        audioTitle: "피에조 오디오 및 하드웨어 상태",
+        audioSub: "온보드 부저 사운드 설정 및 실시간 배터리·BLE 상태 확인",
+        btnSaveAudio: "오디오 설정 저장",
+        btnRefreshTelemetry: "상태 새로고침",
+        telBattLabel: "배터리 잔량",
+        telTransLabel: "현재 연결 방식",
+        telLockLabel: "보안 잠금",
+        telFwLabel: "펌웨어 정보",
+        piezoCfgTitle: "피에조 부저 설정",
+        audioMasterLabel: "마스터 오디오",
+        audioMasterDesc: "모든 부저 사운드(부팅음, 잠금 해제음, 경고음 등)를 켜거나 끕니다",
+        audioClickyLabel: "타건 클릭음",
+        audioClickyDesc: "키를 누를 때마다 짧은 피에조 클릭음을 출력합니다",
+        audioFreqLabel: "클릭음 주파수 (Hz)",
+        audioDurLabel: "클릭음 지속시간 (ms)",
+        btnTestPiezo: "키보드 부저 테스트",
+        testPiezoDesc: "선택한 주파수와 지속시간으로 키보드 부저를 즉시 울립니다.",
+        testerTitle: "스위치 매트릭스 및 채터링 테스터",
+        testerSub: "실시간 스위치 접점 진단, 입력 횟수 및 매트릭스 동작 확인",
+        testerSound: "테스트 클릭음",
+        btnResetTester: "테스터 초기화",
+        testerCountLabel: "테스트된 키",
+        testerLastLabel: "마지막 입력",
+        testerChatterLabel: "채터링 상태",
+        fwTitle: "펌웨어 버전 및 GitHub 연동",
+        fwSub: "설치된 펌웨어 버전 확인, 커밋 이력 조회 및 UF2 파일 다운로드",
+        btnCheckUpdates: "업데이트 확인",
+        linkRepo: "GitHub 저장소 열기",
+        fwStatusTitle: "펌웨어 상태",
+        fwStatusSub: "키보드에 설치된 펌웨어와 최신 GitHub 릴리스 비교",
+        fwInstalledLabel: "키보드 펌웨어",
+        fwConnectDetect: "USB 연결 시 자동 감지",
+        fwLatestLabel: "최신 릴리스 (GitHub)",
+        fwCheckingRepo: "저장소 확인 중...",
+        bootTitle: "원클릭 부트로더 (DFU 플래싱 모드)",
+        bootSub: "물리 리셋 버튼을 누르지 않고 USB 드라이브 모드로 바로 진입합니다",
+        bootDesc: "아래 버튼을 누르면 Web Serial로 명령을 전송해 키보드를 Adafruit nRF52 UF2 부트로더 모드로 재부팅합니다. 컴퓨터에 <code>PREONIC</code> 드라이브가 나타납니다.",
+        btnRebootBootloader: "부트로더 모드로 재부팅",
+        bootSafetyNote: "<strong>안전 안내:</strong> 실수 재부팅을 방지하기 위해 키보드 잠금 해제(<code>Fn + Z</code>)가 필요합니다. 물리 리셋 버튼 더블클릭 또는 <code>Fn + LCtrl</code>로도 진입할 수 있습니다.",
+        dlTitle: "펌웨어 직접 다운로드 (.uf2)",
+        dlSub: "드래그 앤 드롭으로 플래싱할 수 있는 빌드 파일",
+        dlMetaMain: "메인 커스텀 펌웨어 (~503 KB)",
+        dlMetaReset: "블루투스 및 NVS 설정 초기화용 (~175 KB)",
+        btnDownload: "다운로드",
+        linkAllReleases: "모든 GitHub 릴리스 보기",
+        guideTitle: "단계별 플래싱 안내",
+        guideSub: "30초 안에 Preonic 펌웨어를 업데이트하는 방법",
+        guideStep1: "<strong>펌웨어 다운로드</strong>: 위 <code>keyboardio_preonic__zmk.uf2</code> 다운로드 버튼을 눌러 파일을 저장합니다.",
+        guideStep2: "<strong>부트로더 진입</strong>: <code>부트로더 모드로 재부팅</code>을 누르거나 리셋 버튼을 두 번 누릅니다 (또는 <code>Fn + LCtrl</code>).",
+        guideStep3: "<strong>USB 드라이브 확인</strong>: 파일 탐색기에 <strong>PREONIC</strong> 드라이브가 나타납니다.",
+        guideStep4: "<strong>UF2 복사</strong>: 다운로드한 <code>.uf2</code> 파일을 <strong>PREONIC</strong> 드라이브로 드래그해 복사합니다.",
+        guideStep5: "<strong>완료 및 재부팅</strong>: 2초 내로 드라이브가 자동 해제되며 새 펌웨어로 재부팅됩니다.",
+        commitsTitle: "최근 GitHub 커밋 (변경 이력)",
+        commitsSub: "master 브랜치의 실시간 커밋 내역",
+        commitsLoading: "GitHub에서 커밋 내역을 불러오는 중...",
+        ghCfgTitle: "GitHub 저장소 설정",
+        ghCfgSub: "개인 포크 저장소를 사용하는 경우 경로를 변경하세요",
+        ghRepoLabel: "저장소 (owner/repo)",
+        btnSaveSettings: "설정 저장",
+        btnResetDefault: "기본값 복원",
+        pickerTitle: "키 바인딩 선택 — 키",
+        pickerSearchPlaceholder: "키코드 검색 (예: Enter, Shift, F5, Volume)...",
+        catAlpha: "영문자 (A-Z)",
+        catNumbers: "숫자 및 기호",
+        catNumpad: "숫자패드",
+        catNav: "방향 및 편집",
+        catMods: "모디파이어",
+        catFn: "기능키 (F1-F24)",
+        catMedia: "미디어 및 볼륨",
+        catApps: "앱 및 웹",
+        catMouse: "마우스 키",
+        catLayers: "레이어 (&mo/to/tog)",
+        catSystem: "특수 및 시스템",
+        catPreonic: "Preonic 사용자 정의",
+        catDual: "듀얼 액션 (Tap-Hold)",
+        btnCancel: "취소",
+        btnApplyBinding: "바인딩 적용",
+        unlockModalTitle: "물리적 보안 잠금 해제",
+        unlockModalHeading: "키보드에서 Fn + Z를 누르세요",
+        unlockModalDesc: "저장된 비밀번호, 매크로, 키맵이 브라우저 스크립트에 의해 임의로 변경되는 것을 막기 위해 물리적 확인이 필요합니다.",
+        unlockHowTitle: "잠금 해제 방법:",
+        unlockStep1: "<strong>Fn</strong> 키(우측 상단 Key #1)를 누른 상태에서",
+        unlockStep2: "<strong>Z</strong> 키(4행 2열, Key #40)를 누릅니다.",
+        unlockStep3: "부저에서 상승 멜로디가 울리고 나비 LED가 주황색으로 두 번 깜빡입니다.",
+        unlockStep4: "웹 화면의 잠금이 실시간으로 자동 해제됩니다.",
+        demoSimLabel: "데모 모드 시뮬레이터:",
+        btnSimUnlock: "Fn + Z 물리 해제 시뮬레이션",
+        btnGotIt: "확인"
       }
     };
 
@@ -5687,6 +5983,18 @@
           } else {
             el.textContent = dict[key];
           }
+        }
+      });
+      document.querySelectorAll("[data-i18n-html]").forEach(el => {
+        const key = el.dataset.i18nHtml;
+        if (dict[key] !== undefined) {
+          el.innerHTML = dict[key];
+        }
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        if (dict[key] !== undefined) {
+          el.setAttribute("placeholder", dict[key]);
         }
       });
       const btnEn = document.getElementById("btnLangEn");
