@@ -4499,6 +4499,9 @@
 
         // Automatically load password, mouse, and audio configs from keyboard
         await loadExtraConfigsFromDevice();
+
+        // Start safe 30s status polling after initial sync completes
+        startStatusPolling();
       } catch (err) {
         console.warn("Connection error:", err);
         showToast(err.message || "Failed to connect to Preonic USB serial.", "error");
@@ -4506,6 +4509,7 @@
     }
 
     async function doDisconnect() {
+      stopStatusPolling();
       await serialDriver.disconnect();
       state.connected = false;
       state.locked = true;
@@ -4585,7 +4589,29 @@
       }
     }
 
+    let statusPollTimer = null;
+    let isPollingStatus = false;
+
+    function startStatusPolling() {
+      stopStatusPolling();
+      statusPollTimer = setInterval(() => {
+        if (state.connected && !state.demoMode && !isPollingStatus) {
+          pollKeyboardStatus();
+        }
+      }, 30000);
+    }
+
+    function stopStatusPolling() {
+      if (statusPollTimer !== null) {
+        clearInterval(statusPollTimer);
+        statusPollTimer = null;
+      }
+      isPollingStatus = false;
+    }
+
     async function pollKeyboardStatus() {
+      if (isPollingStatus) return;
+      isPollingStatus = true;
       try {
         const statusResp = await serialDriver.sendCommand(CMD_GET_STATUS);
         if (statusResp && statusResp.data.length >= 7) {
@@ -4607,6 +4633,8 @@
         }
       } catch (e) {
         console.warn("Telemetry polling warning:", e);
+      } finally {
+        isPollingStatus = false;
       }
     }
 
