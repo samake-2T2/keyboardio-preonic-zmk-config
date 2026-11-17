@@ -1,7 +1,7 @@
 # Keyboardio Preonic - ZMK Firmware Configuration
 
 <p align="center">
-  <a href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/tag/v2.0.5"><img src="https://img.shields.io/badge/Release-v2.0.5-blue.svg?style=for-the-badge" alt="Latest Release v2.0.5"></a>
+  <a href="https://github.com/samake-2T2/keyboardio-preonic-zmk-config/releases/tag/v2.1.0"><img src="https://img.shields.io/badge/Release-v2.1.0-blue.svg?style=for-the-badge" alt="Latest Release v2.1.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License"></a>
 </p>
 
@@ -17,10 +17,11 @@
 Custom ZMK firmware configuration specifically developed for the **Keyboardio Preonic**, manufactured by [Keyboardio](https://keyboard.io).
 
 > [!TIP]
-> **Latest Release v2.0.5**: **Fixed Rotary Encoder Mouse Scroll (`&msc`) & Layer Guidance in Studio**:
-> - **Direct Input Reporting for Encoder Scrolling**: Fixed the 0ms delayed work cancellation bug in ZMK's `behavior_input_two_axis`. Rotating the encoder now directly issues discrete relative wheel events (`INPUT_REL_WHEEL` / `INPUT_REL_HWHEEL`) via Zephyr's input subsystem for instantaneous, reliable mouse scrolling.
-> - **Studio Action Parameter & UI Layer Helper**: Corrected mouse scroll parameters (`0x0000000A`, `0x0000FFF6`, `0x000A0000`, `0xFFF60000`) and added an interactive layer callout clarifying that Layer 1/2 knob bindings require holding the respective layer key (`Raise`/`Lower`), with a 1-click switch to configure on `0: Base`.
-> - **Hardware Intercept Safeguard**: Retains dedicated TRNG password length cycling (`12 ➡️ 16 ➡️ 20 ➡️ 24`) on Layer 3 (Func) and Layer 4 (Tri).
+> **Latest Release v2.1.0**: **256-Step Down/Up Dynamic Macros, Remappable `&preonic_fn` Actions, BLE/Audio/RGB Stability & Preonic Studio Web Overhaul**:
+> - **256-Step Down/Up Dynamic Macros & VM/RDP Modifier Stability**: Expanded dynamic macro capacity from 128 to **256 steps** (128 keystrokes) with explicit key **Down/Up** step transfer (`CMD_GET_MACRO_STEPS` / `CMD_SET_MACRO_STEPS` chunked protocol), 32-bit keycode masking in `hid_to_ascii()`, `30ms` modifier settle delay (`16ms` base step interval) so Shift/Ctrl/Alt modifiers are never dropped in VMs or remote desktops, and safe abort-with-release handling.
+> - **Remappable Custom Actions (`&preonic_fn`)**: Added a dedicated ZMK `&preonic_fn` behavior so users can freely remap Preonic custom actions (TRNG passwords, battery gauge/typer, dynamic macro rec/play, sound toggles) anywhere in Preonic Studio, alongside full BT profile (`0..3`) and `&studio_unlock` keymap editing.
+> - **BLE Stability & Non-Blocking Hardware Architecture**: Restored XTAL 32kHz LFCLK, tuned BLE TX power to balanced `+4 dBm`, increased `CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE=3072`, eliminated blocking `k_msleep` and per-key SPI3 RGB refreshes, normalized EC11 4.5-degree encoder pulses (`ppd=4`), and added USB/DTR guards for Serial CDC Studio reliability.
+> - **Preonic Studio Web (`web/preonic-studio.html`)**: Full English/Korean i18n, interactive key-step recorder & Down/Up step editor, dynamic audio configuration with Piezo test button, automatic device extra-config sync on connect, live layer status sync, and 30-second background telemetry polling.
 
 > [!IMPORTANT]
 > **Hardware Compatibility Note**:
@@ -31,7 +32,7 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
 
 * **5×12 Ortholinear (MIT Layout)**: 62 keys total (including 2 top buttons, 1 rotary encoder push switch, and a centered 2U spacebar).
 * **Rotary Encoder (EC11)**: Smooth volume control (`Volume Up / Down`) with click-to-mute (`C_MUTE`).
-* **Enhanced Wireless Connection**: Bluetooth Low Energy (BLE) with 4 profile slots and **+8 dBm** transmit power for maximum stability.
+* **Enhanced Wireless Connection**: Bluetooth Low Energy (BLE) with 4 profile slots and balanced **+4 dBm** transmit power for reliable stability.
 * **Low-Latency Debouncing**: Optimized debouncing (1 ms press / 5 ms release) for rapid response and debounce error prevention.
 * **Full NKRO**: N-Key Rollover enabled for simultaneous keypress accuracy.
 * **RGB Underglow**: Keyboardio butterfly logo illuminated on startup with signature cyan breathing effect (`HSV: 195, 100, 100`).
@@ -43,9 +44,9 @@ Custom ZMK firmware configuration specifically developed for the **Keyboardio Pr
 * **Dynamic Macro System (QMK-Compatible)**:
   * **On-the-Fly Recording & Replay**: Record and play back keystrokes instantly without reflashing or software.
   * **NVS Flash Persistence**: Recorded macros are automatically saved to non-volatile flash memory (NVS) and preserved across power loss or reboot.
-  * **Triple Independent Slots**: Slot 1 (`Fn + 5` Rec, `Fn + 6` Play), Slot 2 (`Fn + 7` Rec, `Fn + 8` Play), and Slot 3 (`Fn + 9` Rec, `Fn + 0` Play) up to 128 keystrokes each. Starting a new recording instantly clears and overwrites the previous macro.
+  * **Triple Independent Slots**: Slot 1 (`Fn + 5` Rec, `Fn + 6` Play), Slot 2 (`Fn + 7` Rec, `Fn + 8` Play), and Slot 3 (`Fn + 9` Rec, `Fn + 0` Play) up to **256 steps** (Down/Up events) each. Starting a new recording instantly clears and overwrites the previous macro.
   * **Visual & Audio Feedback**: Slot 1 breathes Red while recording and flashes Red on play. Slot 2 breathes Purple while recording and flashes Purple on play. Slot 3 breathes Gold while recording and flashes Gold on play. When Master Sound is enabled, provides distinct audio cues (rising chime on rec start, double-beep on rec stop, click on playback, warning buzz on buffer full).
-  * **Safe 12ms Typing Interval**: Fixed 12ms step delay ensures reliable wireless transmission over Bluetooth Low Energy without dropped keystrokes.
+  * **Safe 16ms / 30ms Typing Interval**: 16ms base step delay with a 30ms modifier settle delay ensures reliable wireless transmission over BLE and prevents dropped Shift/Ctrl/Alt modifiers in VMs and remote desktops.
 * **Smart Hybrid Output Auto-Switching (Safe NVS Flash Persistence)**:
   * **Unplug USB / Power Switch ON on Battery**: Instantly defaults to Bluetooth Low Energy (BLE) mode on the last-active profile (0..3), seamlessly persisting to NVS Flash.
   * **PC USB Connection**: Automatically switches to USB mode as soon as USB HID communication is ready, illuminating the butterfly logo in Clean White.
@@ -152,10 +153,11 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 [Keyboardio(키보디오)](https://keyboard.io) 사에서 개발 및 제조한 **Keyboardio Preonic** 기계식 키보드 전용 ZMK 펌웨어 설정 저장소입니다.
 
 > [!TIP]
-> **최신 릴리즈 v2.0.5**: **로터리 인코더 마우스 스크롤(`&msc`) 동작 버그 해결 & 스튜디오 레이어 안내 추가**:
-> - **인코더 마우스 스크롤 직접 보고 지원**: ZMK의 `behavior_input_two_axis`에서 순간 클릭(0ms 누름+뗌) 시 지연 타이머가 즉시 취소되어 스크롤 이벤트가 0건 전송되던 근본 원인을 해결했습니다. 이제 노브 회전 시 Zephyr 입력 서브시스템(`input_report_rel`)을 통해 휠 스크롤(`INPUT_REL_WHEEL` / `INPUT_REL_HWHEEL`)을 즉시 호스트로 전송합니다.
-> - **스튜디오 파라미터 정밀 보정 & 레이어 안내 배너**: 마우스 스크롤 파라미터를 ZMK 표준 사양(`0x0000000A`, `0x0000FFF6`, `0x000A0000`, `0xFFF60000`)으로 정밀 수정하고, 스튜디오 상단에 레이어별 노브 안내 배너를 추가하여 Layer 2(Raise) 설정 시 `Raise` 키를 누른 상태에서 노브를 돌려야 함을 명확히 안내하며 기본 상태 사용을 위한 `0: Base` 전환 버튼을 제공합니다.
-> - **하드웨어 인터셉트 안전 유지**: Layer 3(Func) 및 Layer 4(Tri)의 하드웨어 비밀번호 생성기 길이 조절(`12 ➡️ 16 ➡️ 20 ➡️ 24`) 기능은 안전하게 유지됩니다.
+> **최신 릴리즈 v2.1.0**: **256스텝 Down/Up 다이나믹 매크로, 커스텀 액션 리매핑(`&preonic_fn`), BLE/오디오/RGB 안정화 & Preonic Studio Web 전면 고도화**:
+> - **256스텝 Down/Up 다이나믹 매크로 & VM/원격데스크톱 모디파이어 안정화**: 동적 매크로 용량을 128스텝에서 **256스텝**으로 확장하고, 청크 기반 `CMD_GET_MACRO_STEPS` / `CMD_SET_MACRO_STEPS` 프로토콜로 키 **Down/Up** 스텝을 손실 없이 읽고 저장합니다. `hid_to_ascii()` 32비트 키코드 마스킹 수정, `16ms` 기본 간격 + **`30ms` 모디파이어 안정화 지연**으로 VM 및 원격 환경에서 Shift/Ctrl/Alt 누락을 방지하며, 중단 시 눌린 키를 자동 해제하는 안전장치를 추가했습니다.
+> - **커스텀 액션 자유 리매핑 (`&preonic_fn`)**: 전용 ZMK Behavior(`&preonic_fn`)를 도입하여 TRNG 패스워드, 배터리 게이지/타이퍼, 다이나믹 매크로, 사운드 토글 등 Preonic 전용 액션을 Preonic Studio에서 원하는 키 위치로 자유롭게 배치할 수 있으며, BLE 프로필(`0..3`) 및 `&studio_unlock` 키맵 편집도 완벽 지원합니다.
+> - **BLE 연결성 & 논블로킹 하드웨어 아키텍처 개선**: XTAL 32kHz LFCLK 복원, 균형 잡힌 `+4 dBm` BLE 송신 출력 및 `CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE=3072` 적용, 블로킹 `k_msleep` 및 매 키 입력마다 발생하던 SPI3 RGB 갱신 제거, EC11 4.5° 인코더 펄스 정규화(`ppd=4`), Serial CDC USB/DTR 가드 추가.
+> - **Preonic Studio Web (`web/preonic-studio.html`)**: 한국어/영어(EN/KO) 다국어 완벽 지원, 브라우저 키 입력 레코더 및 Down/Up 스텝 에디터, 동적 오디오 설정 및 피에조 테스트 버튼, 연결 시 기기 설정 자동 동기화, 실시간 레이어 동기화, 30초 주기 상태 폴링 적용.
 
 > [!IMPORTANT]
 > **하드웨어 호환성 안내**:
@@ -166,7 +168,7 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 
 * **5×12 직교 배열 (MIT Layout)**: 중앙 2U 스페이스바, 상단 2개 보조 키 및 로터리 인코더 푸시 스위치 포함 총 62개 키 지원.
 * **로터리 인코더 (EC11)**: 부드러운 볼륨 조절(`Volume Up / Down`) 및 클릭 시 음소거(`C_MUTE`) 동작.
-* **안정적인 무선 연결**: 블루투스 저전력(BLE) 4개 프로필 슬롯 및 **+8 dBm 최대 송신 출력** 설정으로 연결 끊김 최소화.
+* **안정적인 무선 연결**: 블루투스 저전력(BLE) 4개 프로필 슬롯 및 **+4 dBm 균형 송신 출력** 설정으로 안정적인 무선 연결 유지.
 * **초저지연 디바운스**: 1ms 누름 / 5ms 릴리즈 설정으로 키 입력 반응성 극대화 및 채터링 방지.
 * **NKRO 완벽 지원**: 무한 동시 입력(N-Key Rollover) 지원.
 * **Keyboardio 나비 로고 RGB 언더글로우**: 부팅 시 시그니처 스카이블루 숨쉬기(Cyan Breathing, `HSV: 195, 100, 100`) 효과 자동 점등.
@@ -178,9 +180,9 @@ The Keyboardio Preonic features a distinctive butterfly logo illuminated by 4 ad
 * **QMK 호환 다이나믹 매크로 시스템 (Dynamic Macro)**:
   * **실시간 온더플라이 녹화 및 재생**: 별도 소프트웨어나 재빌드 없이 키보드에서 즉시 키 입력을 녹화하고 반복 실행.
   * **NVS 플래시 메모리 영구 보존**: 녹화 완료 시 Zephyr NVS(Non-Volatile Storage) 플래시에 자동 저장되어 전원 차단이나 방전, 재부팅 후에도 매크로 영구 유지.
-  * **3개 독립 슬롯 지원**: 슬롯 1 (`Fn + 5` 녹화 토글, `Fn + 6` 재생), 슬롯 2 (`Fn + 7` 녹화 토글, `Fn + 8` 재생), 슬롯 3 (`Fn + 9` 녹화 토글, `Fn + 0` 재생) 각 최대 128키 저장. 새 녹화 시작 시 기존 매크로를 즉시 삭제하고 덮어쓰기.
+  * **3개 독립 슬롯 지원**: 슬롯 1 (`Fn + 5` 녹화 토글, `Fn + 6` 재생), 슬롯 2 (`Fn + 7` 녹화 토글, `Fn + 8` 재생), 슬롯 3 (`Fn + 9` 녹화 토글, `Fn + 0` 재생) 각 최대 **256스텝**(Down/Up 이벤트) 저장. 새 녹화 시작 시 기존 매크로를 즉시 삭제하고 덮어쓰기.
   * **슬롯별 독립 LED 색상 및 사운드 피드백**: 슬롯 1 녹화 중 **빨간색 숨쉬기**, 재생 시 **빨간색 점등**. 슬롯 2 녹화 중 **보라색 숨쉬기**, 재생 시 **보라색 점등**. 슬롯 3 녹화 중 **골드 숨쉬기**, 재생 시 **골드 점등**. 마스터 사운드 ON 상태일 때 시작 상승음, 종료 더블 비프, 재생 클릭음, 버퍼 초과 경고음 출력.
-  * **12ms 무선 안정 고정 딜레이**: BLE 무선 통신 시 키 누락(키 씹힘)을 완벽 방지하는 12ms 안전 딜레이 인터벌 적용.
+  * **16ms(모디파이어 30ms) 무선/원격 안전 딜레이**: 기본 16ms 스텝 간격과 모디파이어(Shift/Ctrl/Alt) 입력 후 30ms 안정화 지연을 적용하여 BLE 무선 및 VM/원격 데스크톱 환경에서도 키 누락이나 대소문자 씹힘을 완벽 방지.
 * **스마트 하이브리드 USB/BLE 자동 전환 (NVS Flash 안전 보존)**:
   * **USB 분리 & 배터리 전원 스위치 ON**: USB 케이블을 뽑거나 외부 전원 스위치를 켤 때 자동으로 마지막으로 활성화되었던 블루투스(BLE) 슬롯(0~3번)으로 즉시 전환됩니다.
   * **안정적인 NVS 플래시 저장**: 전환된 출력 모드는 Zephyr NVS 플래시에 안전하게 커밋되어 재부팅이나 전원 차단 후에도 유지됩니다.
