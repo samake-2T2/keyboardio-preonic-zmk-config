@@ -208,28 +208,31 @@ static bool check_locked_rejection(uint8_t cmd, uint8_t seq) {
 }
 
 static char hid_to_ascii(uint32_t keycode, bool shifted) {
-    if (keycode >= 0x04 && keycode <= 0x1D) {
-        return shifted ? ('A' + (keycode - 0x04)) : ('a' + (keycode - 0x04));
+    uint16_t usage = (uint16_t)(keycode & 0xFFFF);
+    bool is_shifted = shifted || ((keycode & 0x22000000U) != 0);
+
+    if (usage >= 0x04 && usage <= 0x1D) {
+        return is_shifted ? ('A' + (usage - 0x04)) : ('a' + (usage - 0x04));
     }
-    if (keycode >= 0x1E && keycode <= 0x26) {
+    if (usage >= 0x1E && usage <= 0x26) {
         static const char shifted_nums[] = "!@#$%^&*(";
-        return shifted ? shifted_nums[keycode - 0x1E] : ('1' + (keycode - 0x1E));
+        return is_shifted ? shifted_nums[usage - 0x1E] : ('1' + (usage - 0x1E));
     }
-    if (keycode == 0x27) return shifted ? ')' : '0';
-    if (keycode == 0x28) return '\n';
-    if (keycode == 0x2B) return '\t';
-    if (keycode == 0x2C) return ' ';
-    if (keycode == 0x2D) return shifted ? '_' : '-';
-    if (keycode == 0x2E) return shifted ? '+' : '=';
-    if (keycode == 0x2F) return shifted ? '{' : '[';
-    if (keycode == 0x30) return shifted ? '}' : ']';
-    if (keycode == 0x31) return shifted ? '|' : '\\';
-    if (keycode == 0x33) return shifted ? ':' : ';';
-    if (keycode == 0x34) return shifted ? '"' : '\'';
-    if (keycode == 0x35) return shifted ? '~' : '`';
-    if (keycode == 0x36) return shifted ? '<' : ',';
-    if (keycode == 0x37) return shifted ? '>' : '.';
-    if (keycode == 0x38) return shifted ? '?' : '/';
+    if (usage == 0x27) return is_shifted ? ')' : '0';
+    if (usage == 0x28) return '\n';
+    if (usage == 0x2B) return '\t';
+    if (usage == 0x2C) return ' ';
+    if (usage == 0x2D) return is_shifted ? '_' : '-';
+    if (usage == 0x2E) return is_shifted ? '+' : '=';
+    if (usage == 0x2F) return is_shifted ? '{' : '[';
+    if (usage == 0x30) return is_shifted ? '}' : ']';
+    if (usage == 0x31) return is_shifted ? '|' : '\\';
+    if (usage == 0x33) return is_shifted ? ':' : ';';
+    if (usage == 0x34) return is_shifted ? '"' : '\'';
+    if (usage == 0x35) return is_shifted ? '~' : '`';
+    if (usage == 0x36) return is_shifted ? '<' : ',';
+    if (usage == 0x37) return is_shifted ? '>' : '.';
+    if (usage == 0x38) return is_shifted ? '?' : '/';
     return '?';
 }
 
@@ -237,7 +240,8 @@ static uint8_t macro_steps_to_ascii(const struct dyn_macro_step *steps, uint16_t
     uint8_t text_len = 0;
     bool shift_active = false;
     for (uint16_t i = 0; i < step_count && text_len < max_len; i++) {
-        if (steps[i].keycode == 0xE1 /* HID_KEY_LEFTSHIFT */) {
+        uint16_t usage = (uint16_t)(steps[i].keycode & 0xFFFF);
+        if (usage == 0xE1 /* LEFT_SHIFT */ || usage == 0xE5 /* RIGHT_SHIFT */) {
             shift_active = (steps[i].pressed != 0);
             continue;
         }

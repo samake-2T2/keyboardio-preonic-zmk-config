@@ -26,7 +26,8 @@
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #define DYN_MACRO_MAX_STEPS 128
-#define DYN_MACRO_STEP_INTERVAL_MS 12
+#define DYN_MACRO_STEP_INTERVAL_MS 16
+#define DYN_MACRO_MOD_INTERVAL_MS 30
 
 #define FN_LAYER_INDEX 3
 #define TRI_LAYER_INDEX 4
@@ -386,7 +387,9 @@ static void play_work_handler(struct k_work *work) {
     if (play_step_idx < slot->count) {
         struct dyn_macro_step step = slot->steps[play_step_idx++];
         raise_zmk_keycode_state_changed_from_encoded(step.keycode, (step.pressed != 0), k_uptime_get());
-        k_work_reschedule(&play_work, K_MSEC(DYN_MACRO_STEP_INTERVAL_MS));
+        uint16_t usage = (uint16_t)(step.keycode & 0xFFFF);
+        uint32_t delay_ms = (usage >= 0xE0 && usage <= 0xE7) ? DYN_MACRO_MOD_INTERVAL_MS : DYN_MACRO_STEP_INTERVAL_MS;
+        k_work_reschedule(&play_work, K_MSEC(delay_ms));
     } else {
         LOG_INF("Dynamic Macro %u playback finished", playing_slot);
         playing_slot = 0;
