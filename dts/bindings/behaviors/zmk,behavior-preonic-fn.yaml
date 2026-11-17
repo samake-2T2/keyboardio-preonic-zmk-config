@@ -1,0 +1,5 @@
+description: Keyboardio Preonic custom functions behavior
+
+compatible: "zmk,behavior-preonic-fn"
+
+include: one_param.yaml

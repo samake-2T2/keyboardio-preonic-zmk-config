@@ -493,20 +493,6 @@ static int preonic_sound_event_listener(const zmk_event_t *eh) {
             return 0;
         }
 
-        // Check for Fn + S toggle keypress (Master Sound On/Off)
-        if (pos_ev->position == S_KEY_POSITION &&
-            (zmk_keymap_layer_active(FN_LAYER_INDEX) || zmk_keymap_layer_active(TRI_LAYER_INDEX))) {
-            preonic_sound_toggle_master();
-            return 0;
-        }
-
-        // Check for Fn + C toggle keypress (Audio Clicky On/Off)
-        if (pos_ev->position == C_KEY_POSITION &&
-            (zmk_keymap_layer_active(FN_LAYER_INDEX) || zmk_keymap_layer_active(TRI_LAYER_INDEX))) {
-            preonic_sound_toggle_clicky();
-            return 0;
-        }
-
         // Output crisp clicky tick for general keypress
         preonic_sound_play_click();
         return 0;

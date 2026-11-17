@@ -411,31 +411,6 @@ static int dynamic_macro_event_listener(const zmk_event_t *eh) {
         return 0;
     }
 
-    const struct zmk_position_state_changed *pos_ev = as_zmk_position_state_changed(eh);
-    if (pos_ev != NULL && pos_ev->state) {
-        if (zmk_keymap_layer_active(FN_LAYER_INDEX) || zmk_keymap_layer_active(TRI_LAYER_INDEX)) {
-            if (pos_ev->position == MACRO_1_REC_POSITION) {
-                dynamic_macro_record_toggle(1);
-                return ZMK_EV_EVENT_HANDLED;
-            } else if (pos_ev->position == MACRO_1_PLAY_POSITION) {
-                dynamic_macro_play(1);
-                return ZMK_EV_EVENT_HANDLED;
-            } else if (pos_ev->position == MACRO_2_REC_POSITION) {
-                dynamic_macro_record_toggle(2);
-                return ZMK_EV_EVENT_HANDLED;
-            } else if (pos_ev->position == MACRO_2_PLAY_POSITION) {
-                dynamic_macro_play(2);
-                return ZMK_EV_EVENT_HANDLED;
-            } else if (pos_ev->position == MACRO_3_REC_POSITION) {
-                dynamic_macro_record_toggle(3);
-                return ZMK_EV_EVENT_HANDLED;
-            } else if (pos_ev->position == MACRO_3_PLAY_POSITION) {
-                dynamic_macro_play(3);
-                return ZMK_EV_EVENT_HANDLED;
-            }
-        }
-    }
-
     const struct zmk_keycode_state_changed *kc_ev = as_zmk_keycode_state_changed(eh);
     if (kc_ev != NULL && recording_slot != 0 && playing_slot == 0) {
         struct dyn_macro_slot *slot = get_slot_ptr(recording_slot);

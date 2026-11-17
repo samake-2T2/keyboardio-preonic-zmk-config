@@ -306,6 +306,9 @@ static uint8_t behavior_dev_to_type(const char *dev_name) {
     if (strstr(dev_name, "reset") != NULL || strstr(dev_name, "bootload") != NULL) {
         return PREONIC_BEH_SYS_RESET;
     }
+    if (strstr(dev_name, "preonic_fn") != NULL) {
+        return PREONIC_BEH_PREONIC_FN;
+    }
     return PREONIC_BEH_KP;
 }
 
@@ -418,6 +421,12 @@ static const char *behavior_type_to_dev(uint8_t beh_type) {
         return DEVICE_DT_NAME(DT_NODELABEL(studio_unlock));
 #else
         return "studio_unlock";
+#endif
+    case PREONIC_BEH_PREONIC_FN:
+#if DT_NODE_EXISTS(DT_NODELABEL(preonic_fn))
+        return DEVICE_DT_NAME(DT_NODELABEL(preonic_fn));
+#else
+        return "preonic_fn";
 #endif
     default:
         return NULL;

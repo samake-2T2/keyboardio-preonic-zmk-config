@@ -99,6 +99,13 @@
 		sensors = <&encoder3>;
 		triggers-per-rotation = <20>;
 	};
+
+	behaviors {
+		preonic_fn: preonic_fn {
+			compatible = "zmk,behavior-preonic-fn";
+			#binding-cells = <1>;
+		};
+	};
 };
 
 &gpio0 {

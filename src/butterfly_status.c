@@ -387,6 +387,14 @@ void butterfly_show_battery(void) {
     k_work_reschedule(&butterfly_work, K_NO_WAIT);
 }
 
+void butterfly_hide_battery(void) {
+    if (is_battery_gauge) {
+        is_battery_gauge = false;
+        state_change_time = k_uptime_get();
+        k_work_reschedule(&butterfly_work, K_NO_WAIT);
+    }
+}
+
 void butterfly_set_macro_mode(enum butterfly_macro_mode mode) {
     current_macro_mode = mode;
     if (mode == BUTTERFLY_MACRO_REC_1 || mode == BUTTERFLY_MACRO_REC_2 || mode == BUTTERFLY_MACRO_REC_3) {
@@ -467,31 +475,11 @@ static int butterfly_event_listener(const zmk_event_t *eh) {
         boot_anim_done = true;
 
         if (pos_ev->state) {
-            // Key press
-            if (zmk_keymap_layer_active(FN_LAYER_INDEX) || zmk_keymap_layer_active(TRI_LAYER_INDEX)) {
-                if (pos_ev->position == B_KEY_POSITION) {
-                    butterfly_show_battery();
-                    return 0;
-                } else if (pos_ev->position == P_KEY_POSITION) {
-                    preonic_type_battery_status();
-                    return 0;
-                }
-            }
             if (was_boot_anim) {
                 butterfly_status_refresh();
             }
             return 0;
         } else {
-            // Key release: if battery gauge is currently showing, turn off immediately on B release or layer exit
-            if (is_battery_gauge) {
-                if (pos_ev->position == B_KEY_POSITION ||
-                    (!zmk_keymap_layer_active(FN_LAYER_INDEX) && !zmk_keymap_layer_active(TRI_LAYER_INDEX))) {
-                    is_battery_gauge = false;
-                    state_change_time = k_uptime_get();
-                    k_work_reschedule(&butterfly_work, K_NO_WAIT);
-                    return 0;
-                }
-            }
             return 0;
         }
     }

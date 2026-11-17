@@ -2412,7 +2412,8 @@
           <button class="picker-cat-btn" data-cat="mouse">🖱️ Mouse Keys</button>
           <button class="picker-cat-btn" data-cat="layers">Layers (&mo/to/tog)</button>
           <button class="picker-cat-btn" data-cat="system">Special & System</button>
-          <button class="picker-cat-btn" data-cat="dual" style="border-color: rgba(245, 158, 11, 0.5); color: #fbbf24;">⚡ Dual-Action (Tap-Hold)</button>
+          <button class="picker-cat-btn" data-cat="preonic">Preonic Custom</button>
+          <button class="picker-cat-btn" data-cat="dual" style="border-color: rgba(245, 158, 11, 0.5); color: #fbbf24;">Dual-Action (Tap-Hold)</button>
         </div>
 
         <!-- Keycode Item Grid -->
@@ -2535,6 +2536,7 @@
     const BEH_SL            = 0x10; // &sl
     const BEH_MMV           = 0x11; // &mmv (Mouse Move)
     const BEH_MSC           = 0x12; // &msc (Mouse Scroll)
+    const BEH_PREONIC_FN    = 0x13; // &preonic_fn (Custom Hardware Actions)
 
     const NUM_LAYERS = 8;
     const LAYER_NAMES = ["Base", "Lower", "Raise", "Func", "Tri", "Extra 1", "Extra 2", "Extra 3"];
@@ -2853,6 +2855,21 @@
       { beh: BEH_BT, p1: 0, p2: 3, name: "BT Sel 3", cat: "system", desc: "Select BLE Profile 3" },
       { beh: BEH_BT, p1: 5, p2: 0, name: "BT Clear", cat: "system", desc: "Clear BLE Profile" },
       { beh: BEH_OUT, p1: 2, p2: 0, name: "Out Tog", cat: "system", desc: "Toggle USB / BLE Output" },
+
+      // Preonic Custom Functions (&preonic_fn)
+      { beh: BEH_PREONIC_FN, p1: 0x01, name: "REC 1", cat: "preonic", desc: "Dynamic Macro 1 Record/Stop" },
+      { beh: BEH_PREONIC_FN, p1: 0x02, name: "PLAY 1", cat: "preonic", desc: "Dynamic Macro 1 Playback" },
+      { beh: BEH_PREONIC_FN, p1: 0x03, name: "REC 2", cat: "preonic", desc: "Dynamic Macro 2 Record/Stop" },
+      { beh: BEH_PREONIC_FN, p1: 0x04, name: "PLAY 2", cat: "preonic", desc: "Dynamic Macro 2 Playback" },
+      { beh: BEH_PREONIC_FN, p1: 0x05, name: "REC 3", cat: "preonic", desc: "Dynamic Macro 3 Record/Stop" },
+      { beh: BEH_PREONIC_FN, p1: 0x06, name: "PLAY 3", cat: "preonic", desc: "Dynamic Macro 3 Playback" },
+      { beh: BEH_PREONIC_FN, p1: 0x10, name: "PW DB", cat: "preonic", desc: "Generate DB-Safe Password" },
+      { beh: BEH_PREONIC_FN, p1: 0x11, name: "PW WEB", cat: "preonic", desc: "Generate Web Extended Password" },
+      { beh: BEH_PREONIC_FN, p1: 0x12, name: "PW ALPHA", cat: "preonic", desc: "Generate Alphanumeric Password" },
+      { beh: BEH_PREONIC_FN, p1: 0x20, name: "SOUND", cat: "preonic", desc: "Toggle Master Piezo Sound" },
+      { beh: BEH_PREONIC_FN, p1: 0x21, name: "CLICKY", cat: "preonic", desc: "Toggle Audio Clicky" },
+      { beh: BEH_PREONIC_FN, p1: 0x30, name: "BATT LED", cat: "preonic", desc: "Show Butterfly Battery Gauge" },
+      { beh: BEH_PREONIC_FN, p1: 0x31, name: "BATT %", cat: "preonic", desc: "Type Battery Percentage" },
     ];
 
     // Helper to find keycode definition (handles 32-bit ZMK encoded, modifiers, 8-bit fallback)
@@ -2971,6 +2988,24 @@
         if (x < 0) return { primary: "Scrl ←", sub: "&msc" };
         if (x > 0) return { primary: "Scrl →", sub: "&msc" };
         return { primary: "Mouse Scrl", sub: "&msc" };
+      }
+      if (beh === BEH_PREONIC_FN) {
+        const fnMap = {
+          0x01: { primary: "REC 1", sub: "Macro 1" },
+          0x02: { primary: "PLAY 1", sub: "Macro 1" },
+          0x03: { primary: "REC 2", sub: "Macro 2" },
+          0x04: { primary: "PLAY 2", sub: "Macro 2" },
+          0x05: { primary: "REC 3", sub: "Macro 3" },
+          0x06: { primary: "PLAY 3", sub: "Macro 3" },
+          0x10: { primary: "PW DB", sub: "DB Safe" },
+          0x11: { primary: "PW WEB", sub: "Special" },
+          0x12: { primary: "PW ALPHA", sub: "A-Z, 0-9" },
+          0x20: { primary: "SOUND", sub: "Master" },
+          0x21: { primary: "CLICKY", sub: "Audio" },
+          0x30: { primary: "BATT LED", sub: "Gauge" },
+          0x31: { primary: "BATT %", sub: "Type" }
+        };
+        return fnMap[p1] || { primary: `FN 0x${p1.toString(16)}`, sub: "&preonic_fn" };
       }
       if (beh === BEH_TRANS) {
         return { primary: "▽", sub: "&trans" };
@@ -3823,79 +3858,6 @@
         return;
       }
 
-      // Handle Hardware Intercepted Features on Layer 3 (Fn) and Layer 4 (Tri)
-      if (layer === 3 || layer === 4) {
-        // Dynamic Macro 1..3 Record & Play (Indices 8..13)
-        if (idx >= 8 && idx <= 13) {
-          const slotNum = Math.floor((idx - 8) / 2) + 1;
-          const isRec = (idx % 2 === 0);
-          if (priElem) priElem.innerText = isRec ? `REC ${slotNum}` : `PLAY ${slotNum}`;
-          if (subElem) subElem.innerText = `Macro ${slotNum}`;
-          keycap.classList.add(isRec ? "key-macro-rec" : "key-macro-play");
-          if (state.selectedKeyIndex === idx) {
-            keycap.classList.add("selected");
-          } else {
-            keycap.classList.remove("selected");
-          }
-          return;
-        }
-
-        // Hardware Password Generator (Indices 17, 28, 30)
-        if (idx === 17) {
-          if (priElem) priElem.innerText = "PW WEB";
-          if (subElem) subElem.innerText = "Special";
-          keycap.classList.add("key-pw");
-          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
-          return;
-        }
-        if (idx === 28) {
-          if (priElem) priElem.innerText = "PW ALPHA";
-          if (subElem) subElem.innerText = "A-Z, 0-9";
-          keycap.classList.add("key-pw");
-          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
-          return;
-        }
-        if (idx === 30) {
-          if (priElem) priElem.innerText = "PW DB";
-          if (subElem) subElem.innerText = "DB Safe";
-          keycap.classList.add("key-pw");
-          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
-          return;
-        }
-
-        // Hardware Piezo Sound Toggles (Indices 29: S, 42: C)
-        if (idx === 29) {
-          if (priElem) priElem.innerText = "SOUND";
-          if (subElem) subElem.innerText = "Master";
-          keycap.classList.add("key-sound");
-          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
-          return;
-        }
-        if (idx === 42) {
-          if (priElem) priElem.innerText = "CLICKY";
-          if (subElem) subElem.innerText = "Audio";
-          keycap.classList.add("key-sound");
-          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
-          return;
-        }
-
-        // Hardware Battery Status (Indices 44: B, 25: P)
-        if (idx === 44) {
-          if (priElem) priElem.innerText = "BATT LED";
-          if (subElem) subElem.innerText = "Gauge";
-          keycap.classList.add("key-battery");
-          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
-          return;
-        }
-        if (idx === 25) {
-          if (priElem) priElem.innerText = "BATT %";
-          if (subElem) subElem.innerText = "Type";
-          keycap.classList.add("key-battery");
-          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
-          return;
-        }
-      }
-
       if (!binding) {
         if (priElem) priElem.innerText = "";
         if (subElem) subElem.innerText = "";
@@ -3922,6 +3884,18 @@
         keycap.classList.add("key-layer");
       } else if (binding.beh === BEH_STUDIO_UNLOCK) {
         keycap.classList.add("key-unlock");
+      } else if (binding.beh === BEH_PREONIC_FN) {
+        if (binding.p1 === 0x01 || binding.p1 === 0x03 || binding.p1 === 0x05) {
+          keycap.classList.add("key-macro-rec");
+        } else if (binding.p1 === 0x02 || binding.p1 === 0x04 || binding.p1 === 0x06) {
+          keycap.classList.add("key-macro-play");
+        } else if (binding.p1 >= 0x10 && binding.p1 <= 0x12) {
+          keycap.classList.add("key-pw");
+        } else if (binding.p1 === 0x20 || binding.p1 === 0x21) {
+          keycap.classList.add("key-sound");
+        } else if (binding.p1 === 0x30 || binding.p1 === 0x31) {
+          keycap.classList.add("key-battery");
+        }
       } else if ([0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0x28, 0x29, 0x2A, 0x2B].includes(binding.p1 & 0xFFFF)) {
         keycap.classList.add("key-mod");
       }
@@ -3985,45 +3959,10 @@
         return;
       }
 
-      if ((layer === 3 || layer === 4) && (idx === 29 || idx === 42)) {
-        const isMaster = (idx === 29);
-        document.getElementById("inspectKeyName").innerText = isMaster
-          ? `Key #29 (Fn + S): Master Piezo Sound Toggle`
-          : `Key #42 (Fn + C): Audio Clicky Toggle`;
-        document.getElementById("inspectKeyDetails").innerText = currentLang === "ko"
-          ? `펌웨어 인터셉트: 키맵상 NONE이지만 펌웨어가 물리 위치를 감지해 ${isMaster ? "마스터 사운드" : "타건 클릭음"}를 ON/OFF 합니다.`
-          : `Firmware Intercept: Keymap slot is NONE; firmware intercepts this matrix position to toggle ${isMaster ? "Master Sound" : "Audio Clicky"}.`;
-        if (btnAudio) btnAudio.style.display = "inline-flex";
-        return;
-      }
-
-      if ((layer === 3 || layer === 4) && (idx === 44 || idx === 25)) {
-        const isGauge = (idx === 44);
-        document.getElementById("inspectKeyName").innerText = isGauge
-          ? `Key #44 (Fn + B): Butterfly Battery Gauge`
-          : `Key #25 (Fn + P): Type Battery Percentage`;
-        document.getElementById("inspectKeyDetails").innerText = currentLang === "ko"
-          ? `펌웨어 인터셉트: 키맵상 NONE이지만 펌웨어가 ${isGauge ? "나비 LED로 배터리 잔량 표시" : "배터리 잔량(%)을 키보드로 타이핑"}합니다.`
-          : `Firmware Intercept: Keymap slot is NONE; firmware ${isGauge ? "shows battery gauge on Butterfly LEDs" : "types battery percentage as keystrokes"}.`;
-        return;
-      }
-
-      if ((layer === 3 || layer === 4) && (idx >= 8 && idx <= 13)) {
-        const slotNum = Math.floor((idx - 8) / 2) + 1;
-        const isRec = (idx % 2 === 0);
-        document.getElementById("inspectKeyName").innerText = `Key #${idx} (Fn + ${slotNum * 2 - (isRec ? 1 : 0) + 4}): Dynamic Macro ${slotNum} (${isRec ? "Record" : "Play"})`;
-        document.getElementById("inspectKeyDetails").innerText = `⚡ Firmware Intercept: Hardware matrix listener ${isRec ? "starts/stops recording to" : "plays back keystrokes from"} Slot ${slotNum} in flash NVS.`;
-        if (btnMacro) btnMacro.style.display = "inline-flex";
-        return;
-      }
-
-      if ((layer === 3 || layer === 4) && (idx === 17 || idx === 28 || idx === 30)) {
-        const modeName = (idx === 30) ? "DB Safe" : (idx === 17) ? "Web Extended" : "Alphanumeric";
-        const keyChar = (idx === 30) ? "D" : (idx === 17) ? "W" : "A";
-        document.getElementById("inspectKeyName").innerText = `Key #${idx} (Fn + ${keyChar}): Hardware Password Generator (${modeName})`;
-        document.getElementById("inspectKeyDetails").innerText = `⚡ Firmware Intercept: Uses Nordic nRF52840 hardware TRNG to generate and auto-type secure passwords.`;
-        if (btnPw) btnPw.style.display = "inline-flex";
-        return;
+      if (b.beh === BEH_PREONIC_FN) {
+        if (b.p1 >= 0x01 && b.p1 <= 0x06 && btnMacro) btnMacro.style.display = "inline-flex";
+        if (b.p1 >= 0x10 && b.p1 <= 0x12 && btnPw) btnPw.style.display = "inline-flex";
+        if ((b.p1 === 0x20 || b.p1 === 0x21) && btnAudio) btnAudio.style.display = "inline-flex";
       }
 
       document.getElementById("inspectKeyName").innerText = `Key #${idx} on Layer ${layer}: ${primary}`;

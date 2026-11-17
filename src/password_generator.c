@@ -457,28 +457,7 @@ static int password_generator_event_listener(const zmk_event_t *eh) {
     const struct zmk_position_state_changed *pos_ev = as_zmk_position_state_changed(eh);
     if (pos_ev != NULL) {
         if (zmk_keymap_layer_active(FN_LAYER_INDEX) || zmk_keymap_layer_active(TRI_LAYER_INDEX)) {
-            // 1. Direct Mnemonic Keys (D, W, A)
-            if (pos_ev->position == D_KEY_POSITION) {
-                if (pos_ev->state) {
-                    LOG_INF("Fn + D pressed -> DB Safe mode");
-                    password_generator_trigger(PW_MODE_DB_SAFE);
-                }
-                return ZMK_EV_EVENT_HANDLED;
-            } else if (pos_ev->position == W_KEY_POSITION) {
-                if (pos_ev->state) {
-                    LOG_INF("Fn + W pressed -> Web Extended mode");
-                    password_generator_trigger(PW_MODE_WEB_EXTENDED);
-                }
-                return ZMK_EV_EVENT_HANDLED;
-            } else if (pos_ev->position == A_KEY_POSITION) {
-                if (pos_ev->state) {
-                    LOG_INF("Fn + A pressed -> Alphanumeric mode");
-                    password_generator_trigger(PW_MODE_ALPHANUMERIC);
-                }
-                return ZMK_EV_EVENT_HANDLED;
-            }
-
-            // 2. Knob Push Switch (Position 2)
+            // Knob Push Switch (Position 2)
             if (pos_ev->position == KNOB_SWITCH_POSITION) {
                 if (pos_ev->state) {
                     // Pressed down: start long-press timer

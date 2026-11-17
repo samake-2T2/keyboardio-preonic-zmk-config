@@ -70,6 +70,7 @@ extern "C" {
 #define PREONIC_BEH_SL            0x10
 #define PREONIC_BEH_MMV           0x11
 #define PREONIC_BEH_MSC           0x12
+#define PREONIC_BEH_PREONIC_FN    0x13
 
 #define STATUS_OK           0x00
 #define STATUS_ERR_INVALID  0x01

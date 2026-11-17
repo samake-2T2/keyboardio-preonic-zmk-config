@@ -9,6 +9,7 @@
 #include <dt-bindings/zmk/ext_power.h>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/outputs.h>
+#include <dt-bindings/zmk/preonic_fn.h>
 
 #define ZMK_POINTING_DEFAULT_MOVE_VAL 1800
 #include <dt-bindings/zmk/pointing.h>
@@ -121,10 +122,10 @@
             label = "Function";
             bindings = <
                                                                                                               &trans  &trans  &none
-&out OUT_TOG  &bt_sel_0       &bt_sel_1     &bt_sel_2     &bt_sel_3       &none         &none   &none   &none   &none   &none   &trans
-&trans        &trans          &none         &trans        &trans          &trans        &trans  &trans  &trans  &trans  &none   &trans
-&trans        &none           &none         &none         &trans          &trans        &trans  &trans  &trans  &trans  &trans  &trans
-&trans        &studio_unlock  &trans        &none         &trans          &none         &trans  &trans  &trans  &trans  &trans  &trans
+&out OUT_TOG  &bt_sel_0       &bt_sel_1     &bt_sel_2     &bt_sel_3       &preonic_fn PREONIC_FN_MACRO_REC_1 &preonic_fn PREONIC_FN_MACRO_PLAY_1 &preonic_fn PREONIC_FN_MACRO_REC_2 &preonic_fn PREONIC_FN_MACRO_PLAY_2 &preonic_fn PREONIC_FN_MACRO_REC_3 &preonic_fn PREONIC_FN_MACRO_PLAY_3 &trans
+&trans        &trans          &preonic_fn PREONIC_FN_PW_WEB_EXT &trans        &trans          &trans        &trans  &trans  &trans  &trans  &preonic_fn PREONIC_FN_BATT_TYPE &trans
+&trans        &preonic_fn PREONIC_FN_PW_ALPHA &preonic_fn PREONIC_FN_SOUND_MASTER &preonic_fn PREONIC_FN_PW_DB_SAFE &trans          &trans        &trans  &trans  &trans  &trans  &trans  &trans
+&trans        &studio_unlock  &trans        &preonic_fn PREONIC_FN_SOUND_CLICKY &trans          &preonic_fn PREONIC_FN_BATT_GAUGE &trans  &trans  &trans  &trans  &trans  &trans
 &bootloader   &trans          &trans        &trans        &trans          &trans                &trans  &trans  &trans  &trans  &bt BT_CLR
             >;
 
@@ -135,10 +136,10 @@
             label = "TriFunction";
             bindings = <
                                                                                                               &trans  &trans  &none
-&out OUT_TOG  &bt_sel_0       &bt_sel_1     &bt_sel_2     &bt_sel_3       &none         &none   &none   &none   &none   &none   &trans
-&trans        &trans          &none         &trans        &trans          &trans        &trans  &trans  &trans  &trans  &none   &trans
-&trans        &none           &none         &none         &trans          &trans        &trans  &trans  &trans  &trans  &trans  &trans
-&trans        &studio_unlock  &trans        &none         &trans          &none         &trans  &trans  &trans  &trans  &trans  &trans
+&out OUT_TOG  &bt_sel_0       &bt_sel_1     &bt_sel_2     &bt_sel_3       &preonic_fn PREONIC_FN_MACRO_REC_1 &preonic_fn PREONIC_FN_MACRO_PLAY_1 &preonic_fn PREONIC_FN_MACRO_REC_2 &preonic_fn PREONIC_FN_MACRO_PLAY_2 &preonic_fn PREONIC_FN_MACRO_REC_3 &preonic_fn PREONIC_FN_MACRO_PLAY_3 &trans
+&trans        &trans          &preonic_fn PREONIC_FN_PW_WEB_EXT &trans        &trans          &trans        &trans  &trans  &trans  &trans  &preonic_fn PREONIC_FN_BATT_TYPE &trans
+&trans        &preonic_fn PREONIC_FN_PW_ALPHA &preonic_fn PREONIC_FN_SOUND_MASTER &preonic_fn PREONIC_FN_PW_DB_SAFE &trans          &trans        &trans  &trans  &trans  &trans  &trans  &trans
+&trans        &studio_unlock  &trans        &preonic_fn PREONIC_FN_SOUND_CLICKY &trans          &preonic_fn PREONIC_FN_BATT_GAUGE &trans  &trans  &trans  &trans  &trans  &trans
 &bootloader   &trans          &trans        &trans        &trans          &trans                &trans  &trans  &trans  &trans  &bt BT_CLR
             >;
 
