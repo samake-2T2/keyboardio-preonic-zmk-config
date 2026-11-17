@@ -17,32 +17,32 @@
   <title>Preonic Studio — Real-Time Keyboard Configurator</title>
   <style>
     :root {
-      --bg-main: #121316;
-      --bg-panel: #1a1c23;
-      --bg-card: #20232a;
-      --bg-card-hover: #262a33;
-      --bg-input: #16181d;
-      --border-color: #2e3440;
-      --border-focus: #3b82f6;
-      --accent-blue: #3b82f6;
-      --accent-blue-hover: #2563eb;
-      --accent-green: #10b981;
-      --accent-amber: #f59e0b;
-      --accent-red: #ef4444;
-      --accent-purple: #8b5cf6;
-      --text-primary: #f3f4f6;
-      --text-secondary: #9ca3af;
-      --text-muted: #6b7280;
-      --key-alpha: #2d3139;
-      --key-mod: #20232a;
-      --key-fn: #374151;
-      --key-active: #3b82f6;
-      --key-highlight: #f59e0b;
-      --shadow-elevation: 0 4px 12px rgba(0, 0, 0, 0.4);
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 14px;
-      --transition-fast: 0.15s ease;
+      --bg-main: #0d0e11;
+      --bg-panel: #14161a;
+      --bg-card: #1a1d22;
+      --bg-card-hover: #21252c;
+      --bg-input: #101215;
+      --border-color: #2a2e36;
+      --border-focus: #4c8bf5;
+      --accent-blue: #4c8bf5;
+      --accent-blue-hover: #3b76db;
+      --accent-green: #22a06b;
+      --accent-amber: #d97724;
+      --accent-red: #dc4c46;
+      --accent-purple: #7c69ef;
+      --text-primary: #eceef2;
+      --text-secondary: #9aa1ad;
+      --text-muted: #68707d;
+      --key-alpha: #23272e;
+      --key-mod: #191c21;
+      --key-fn: #2d323b;
+      --key-active: #4c8bf5;
+      --key-highlight: #d97724;
+      --shadow-elevation: 0 2px 6px rgba(0, 0, 0, 0.35);
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+      --transition-fast: 0.12s ease;
     }
 
     * {
@@ -54,50 +54,86 @@
     body {
       background-color: var(--bg-main);
       color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      font-size: 14px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Helvetica, Arial, sans-serif;
+      font-size: 13.5px;
       line-height: 1.5;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
     /* Top Bar */
     header.top-bar {
       background-color: var(--bg-panel);
       border-bottom: 1px solid var(--border-color);
-      padding: 10px 24px;
+      padding: 9px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 14px;
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
     .brand-group {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .brand-logo {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 38px;
-      height: 38px;
-      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-      border-radius: var(--radius-md);
-      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
+      width: 32px;
+      height: 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
     }
 
     .brand-logo svg {
-      width: 22px;
-      height: 22px;
+      width: 18px;
+      height: 18px;
+      color: var(--text-primary);
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: var(--bg-input);
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: background var(--transition-fast), color var(--transition-fast);
+    }
+
+    .lang-btn.active {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    .keycap.key-sound {
+      border-color: #2b6cb0;
+      background: #172334;
+    }
+    .keycap.key-battery {
+      border-color: #22a06b;
+      background: #142820;
+    }
       fill: #fff;
     }
 
@@ -1459,58 +1495,59 @@
       </div>
 
       <div id="lockBadge" class="pill-badge locked" title="Click for unlock instructions">
-        <span>🔒</span>
         <span id="lockBadgeText">Locked (Fn + Z)</span>
       </div>
 
       <div id="batteryBadge" class="pill-badge battery">
-        <span id="batteryIcon">🔋</span>
         <span id="batteryText">--% (-- mV)</span>
       </div>
 
-      <div id="liveLayerBadge" class="pill-badge" style="border-color: rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.15); color: #a5b4fc;" title="Active Layer synced in real time from keyboard">
-        <span class="indicator-dot" style="background-color: #818cf8;"></span>
-        <span>Active: <strong id="liveLayerName">Base</strong></span>
+      <div id="liveLayerBadge" class="pill-badge" style="border-color: var(--border-color); background: var(--bg-card); color: var(--text-secondary);" title="Active Layer synced in real time from keyboard">
+        <span class="indicator-dot" style="background-color: var(--accent-blue);"></span>
+        <span>Layer: <strong id="liveLayerName">Base</strong></span>
       </div>
 
       <div id="githubBadge" class="pill-badge badge-github" title="GitHub Firmware Status (Click to view updates)">
-        <span style="font-size: 13px;">🐙</span>
         <span id="githubBadgeText">GitHub: checking...</span>
       </div>
     </div>
 
     <div class="actions-group">
-      <button id="btnBackupProfile" class="btn btn-secondary" title="Export full settings (.preonic.json) to PC">
-        📥 Backup All
+      <div class="lang-switch" title="Language">
+        <button id="btnLangEn" class="lang-btn active" type="button">EN</button>
+        <button id="btnLangKo" class="lang-btn" type="button">KO</button>
+      </div>
+      <button id="btnBackupProfile" class="btn btn-secondary" data-i18n="btnBackup" title="Export full settings (.preonic.json) to PC">
+        Backup
       </button>
-      <button id="btnRestoreProfile" class="btn btn-secondary" title="Import full settings (.preonic.json) from PC">
-        📤 Restore All
+      <button id="btnRestoreProfile" class="btn btn-secondary" data-i18n="btnRestore" title="Import full settings (.preonic.json) from PC">
+        Restore
       </button>
       <input type="file" id="fileProfileInput" accept=".json" style="display: none;">
-      <button id="btnDemoMode" class="btn btn-secondary" title="Test all features without physical hardware">
-        🎮 Demo Mode
+      <button id="btnDemoMode" class="btn btn-secondary" data-i18n="btnDemo" title="Test all features without physical hardware">
+        Demo
       </button>
 
-      <button id="btnLockToggle" class="btn btn-warning" title="Toggle security lock">
-        🔓 Unlock Info
+      <button id="btnLockToggle" class="btn btn-warning" data-i18n="btnUnlockInfo" title="Toggle security lock">
+        Unlock
       </button>
 
-      <button id="btnConnect" class="btn btn-primary">
-        🔌 Connect USB
+      <button id="btnConnect" class="btn btn-primary" data-i18n="btnConnect">
+        Connect USB
       </button>
     </div>
   </header>
 
   <!-- Tabs Navigation -->
   <nav class="tabs-nav">
-    <button class="tab-btn active" data-tab="tab-keymap">⌨️ Keymap Editor</button>
-    <button class="tab-btn" data-tab="tab-macros">📜 Macro Manager</button>
-    <button class="tab-btn" data-tab="tab-knob">🎛️ Rotary Knob</button>
-    <button class="tab-btn" data-tab="tab-password">🔑 Password Generator</button>
-    <button class="tab-btn" data-tab="tab-mouse">🖱️ Mouse & Scroll</button>
-    <button class="tab-btn" data-tab="tab-audio">🔊 Audio & Status</button>
-    <button class="tab-btn" data-tab="tab-tester">🔍 Key Tester</button>
-    <button class="tab-btn" data-tab="tab-firmware">🚀 Firmware & Updates</button>
+    <button class="tab-btn active" data-tab="tab-keymap" data-i18n="tabKeymap">Keymap</button>
+    <button class="tab-btn" data-tab="tab-macros" data-i18n="tabMacros">Macros</button>
+    <button class="tab-btn" data-tab="tab-knob" data-i18n="tabKnob">Rotary Knob</button>
+    <button class="tab-btn" data-tab="tab-password" data-i18n="tabPassword">Password</button>
+    <button class="tab-btn" data-tab="tab-mouse" data-i18n="tabMouse">Mouse</button>
+    <button class="tab-btn" data-tab="tab-audio" data-i18n="tabAudio">Audio & Status</button>
+    <button class="tab-btn" data-tab="tab-tester" data-i18n="tabTester">Key Tester</button>
+    <button class="tab-btn" data-tab="tab-firmware" data-i18n="tabFirmware">Firmware</button>
   </nav>
 
   <!-- Main Content Area -->
@@ -1519,14 +1556,13 @@
     <!-- Security Lock Banner -->
     <div id="lockBanner" class="lock-banner">
       <div class="lock-banner-text">
-        <span style="font-size: 22px;">🔐</span>
         <div>
-          <strong>Locked for Physical Security</strong>
-          <div>To prevent unauthorized web modifications, press <strong>Fn + Z</strong> on your Preonic keyboard to enable editing.</div>
+          <strong data-i18n="lockBannerTitle">Locked for Physical Security</strong>
+          <div data-i18n="lockBannerDesc">To prevent unauthorized web modifications, press <strong>Fn + Z</strong> on your Preonic keyboard to enable editing.</div>
         </div>
       </div>
-      <button id="btnBannerUnlockHint" class="btn btn-warning">
-        Unlock Instructions
+      <button id="btnBannerUnlockHint" class="btn btn-warning" data-i18n="btnUnlockGuide">
+        Unlock Guide
       </button>
     </div>
 
@@ -1535,25 +1571,25 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="card-title">⌨️ Keyboard Matrix & Layer Remapper</div>
-            <div class="card-subtitle">Keyboardio Preonic MIT Layout (5x12 ortholinear grid + 3 top keys + 2u spacebar)</div>
+            <div class="card-title" data-i18n="keymapCardTitle">Keyboard Matrix & Layer Remapper</div>
+            <div class="card-subtitle" data-i18n="keymapCardSub">Keyboardio Preonic MIT Layout (5x12 ortholinear grid + 3 top keys + 2u spacebar)</div>
           </div>
           <div class="keymap-action-bar">
-            <button id="btnSaveKeymap" class="btn btn-success" title="Persist changes to NVS Flash memory">
-              💾 Save to Flash
+            <button id="btnSaveKeymap" class="btn btn-success" data-i18n="btnSaveFlash" title="Persist changes to NVS Flash memory">
+              Save to Flash
             </button>
-            <button id="btnDiscardKeymap" class="btn btn-danger" title="Revert uncommitted changes in RAM">
-              ↩ Revert Changes
+            <button id="btnDiscardKeymap" class="btn btn-danger" data-i18n="btnRevert" title="Revert uncommitted changes in RAM">
+              Revert
             </button>
-            <button id="btnReadKeymap" class="btn btn-secondary" title="Read keybindings from Preonic">
-              🔄 Read Keymap
+            <button id="btnReadKeymap" class="btn btn-secondary" data-i18n="btnReadKeymap" title="Read keybindings from Preonic">
+              Reload Keymap
             </button>
           </div>
         </div>
 
         <!-- Layer Selector Pills -->
         <div class="layer-selector-bar">
-          <span style="font-weight: 600; color: var(--text-muted); margin-right: 4px;">LAYER:</span>
+          <span style="font-weight: 600; color: var(--text-muted); margin-right: 4px;" data-i18n="layerLabel">LAYER:</span>
           <button class="layer-btn active" data-layer="0">0: Base</button>
           <button class="layer-btn" data-layer="1">1: Lower</button>
           <button class="layer-btn" data-layer="2">2: Raise</button>
@@ -1565,8 +1601,8 @@
         </div>
 
         <!-- Dynamic Keymap Sync Status Banner -->
-        <div id="keymapSyncStatus" class="keymap-sync-banner">
-          🔌 키보드가 연결되지 않았습니다. 상단 우측 <strong>[Connect USB]</strong> 버튼을 눌러 연결하면 현재 저장된 키맵이 로드됩니다.
+        <div id="keymapSyncStatus" class="keymap-sync-banner" data-i18n="syncBannerDisconnected">
+          Not connected. Click <strong>Connect USB</strong> at the top right to load the current keymap.
         </div>
 
         <!-- Physical Visual Keyboard -->
@@ -1601,21 +1637,24 @@
         <!-- Selected Key Info Box -->
         <div id="selectedKeyCard" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-card); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-wrap: wrap; gap: 8px;">
           <div>
-            <span style="font-weight: 700; color: #fff;" id="inspectKeyName">Click any keycap above to edit its binding</span>
+            <span style="font-weight: 600; color: var(--text-primary);" id="inspectKeyName" data-i18n="inspectDefault">Click any keycap above to edit its binding</span>
             <div style="font-size: 12px; color: var(--text-muted);" id="inspectKeyDetails">Layer: 0 | Position: -- | Behavior: --</div>
           </div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-            <button id="btnOpenPicker" class="btn btn-primary" style="display: none;">
-              ✏️ Change Keycode
+            <button id="btnOpenPicker" class="btn btn-primary" data-i18n="btnChangeKey" style="display: none;">
+              Change Keycode
             </button>
-            <button id="btnOpenKnobTab" class="btn btn-secondary" style="display: none; background: #1e3a8a; border-color: #3b82f6;">
-              🎛️ Configure Knob
+            <button id="btnOpenKnobTab" class="btn btn-secondary" data-i18n="btnConfigKnob" style="display: none;">
+              Configure Knob
             </button>
-            <button id="btnOpenMacroTab" class="btn btn-secondary" style="display: none; background: #581c87; border-color: #a855f7;">
-              📜 Open Macro Manager
+            <button id="btnOpenMacroTab" class="btn btn-secondary" data-i18n="btnOpenMacro" style="display: none;">
+              Open Macro Manager
             </button>
-            <button id="btnOpenPwTab" class="btn btn-secondary" style="display: none; background: #78350f; border-color: #f59e0b;">
-              🔑 Open Password Tab
+            <button id="btnOpenPwTab" class="btn btn-secondary" data-i18n="btnOpenPw" style="display: none;">
+              Open Password Tab
+            </button>
+            <button id="btnOpenAudioTab" class="btn btn-secondary" data-i18n="btnOpenAudio" style="display: none;">
+              Open Audio Tab
             </button>
           </div>
         </div>
@@ -3745,7 +3784,8 @@
       keycap.classList.remove(
         "key-mod", "key-layer", "key-trans", "key-unlock", "key-dual",
         "key-toggle", "key-mouse", "key-empty", "key-macro-rec",
-        "key-macro-play", "key-pw", "keycap-knob", "knob-pw"
+        "key-macro-play", "key-pw", "key-sound", "key-battery",
+        "keycap-knob", "knob-pw"
       );
 
       // Handle Rotary Knob (Key 2) specifically on all layers
@@ -3762,9 +3802,9 @@
         if (layer === 3 || layer === 4) {
           // Fn / Tri Layer: Password Generator Knob Actions
           keycap.classList.add("knob-pw");
-          if (priElem) priElem.innerText = "🔑 PW KNOB";
+          if (priElem) priElem.innerText = "PW KNOB";
           if (subElem) subElem.innerText = "1x:DB 2x:W";
-          rotBadge.innerText = "↺/↻ Len (12..24)";
+          rotBadge.innerText = "Len (12..24)";
         } else {
           // Standard Layer: Rotary Knob volume / custom CW & CCW
           const defaultPri = binding ? formatBindingLabel(binding.beh, binding.p1, binding.p2).primary : "MUTE";
@@ -3789,7 +3829,7 @@
         if (idx >= 8 && idx <= 13) {
           const slotNum = Math.floor((idx - 8) / 2) + 1;
           const isRec = (idx % 2 === 0);
-          if (priElem) priElem.innerText = isRec ? `🔴 REC ${slotNum}` : `▶ PLAY ${slotNum}`;
+          if (priElem) priElem.innerText = isRec ? `REC ${slotNum}` : `PLAY ${slotNum}`;
           if (subElem) subElem.innerText = `Macro ${slotNum}`;
           keycap.classList.add(isRec ? "key-macro-rec" : "key-macro-play");
           if (state.selectedKeyIndex === idx) {
@@ -3802,23 +3842,55 @@
 
         // Hardware Password Generator (Indices 17, 28, 30)
         if (idx === 17) {
-          if (priElem) priElem.innerText = "🔑 PW WEB";
+          if (priElem) priElem.innerText = "PW WEB";
           if (subElem) subElem.innerText = "Special";
           keycap.classList.add("key-pw");
           if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
           return;
         }
         if (idx === 28) {
-          if (priElem) priElem.innerText = "🔑 PW ALPHA";
+          if (priElem) priElem.innerText = "PW ALPHA";
           if (subElem) subElem.innerText = "A-Z, 0-9";
           keycap.classList.add("key-pw");
           if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
           return;
         }
         if (idx === 30) {
-          if (priElem) priElem.innerText = "🔑 PW DB";
+          if (priElem) priElem.innerText = "PW DB";
           if (subElem) subElem.innerText = "DB Safe";
           keycap.classList.add("key-pw");
+          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
+          return;
+        }
+
+        // Hardware Piezo Sound Toggles (Indices 29: S, 42: C)
+        if (idx === 29) {
+          if (priElem) priElem.innerText = "SOUND";
+          if (subElem) subElem.innerText = "Master";
+          keycap.classList.add("key-sound");
+          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
+          return;
+        }
+        if (idx === 42) {
+          if (priElem) priElem.innerText = "CLICKY";
+          if (subElem) subElem.innerText = "Audio";
+          keycap.classList.add("key-sound");
+          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
+          return;
+        }
+
+        // Hardware Battery Status (Indices 44: B, 25: P)
+        if (idx === 44) {
+          if (priElem) priElem.innerText = "BATT LED";
+          if (subElem) subElem.innerText = "Gauge";
+          keycap.classList.add("key-battery");
+          if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
+          return;
+        }
+        if (idx === 25) {
+          if (priElem) priElem.innerText = "BATT %";
+          if (subElem) subElem.innerText = "Type";
+          keycap.classList.add("key-battery");
           if (state.selectedKeyIndex === idx) keycap.classList.add("selected"); else keycap.classList.remove("selected");
           return;
         }
@@ -3885,27 +3957,54 @@
       const btnKnob = document.getElementById("btnOpenKnobTab");
       const btnMacro = document.getElementById("btnOpenMacroTab");
       const btnPw = document.getElementById("btnOpenPwTab");
+      const btnAudio = document.getElementById("btnOpenAudioTab");
 
       if (btnPicker) btnPicker.style.display = "none";
       if (btnKnob) btnKnob.style.display = "none";
       if (btnMacro) btnMacro.style.display = "none";
       if (btnPw) btnPw.style.display = "none";
+      if (btnAudio) btnAudio.style.display = "none";
 
       if (idx === 2) {
         // Rotary Knob Push & Rotate
-        document.getElementById("inspectKeyName").innerText = `Key #2: 🎛️ EC11 Rotary Encoder (Layer ${layer})`;
+        document.getElementById("inspectKeyName").innerText = `Key #2: EC11 Rotary Encoder (Layer ${layer})`;
         if (layer === 3 || layer === 4) {
-          document.getElementById("inspectKeyDetails").innerText = `⚡ Firmware Intercept: 1-Click: DB Safe PW | 2-Click: Web Extended PW | Hold(0.4s): Alphanumeric PW | Rotate: PW Length (12/16/20/24)`;
+          document.getElementById("inspectKeyDetails").innerText = currentLang === "ko"
+            ? "펌웨어 인터셉트: 1회 클릭 DB Safe PW | 2회 클릭 Web Extended PW | 길게(0.4s) 영숫자 PW | 회전 길이(12/16/20/24)"
+            : "Firmware Intercept: 1-Click: DB Safe PW | 2-Click: Web Extended PW | Hold(0.4s): Alphanumeric PW | Rotate: PW Length (12/16/20/24)";
           if (btnPw) btnPw.style.display = "inline-flex";
         } else {
           const kc = (state.knobConfigs && state.knobConfigs[layer]) ? state.knobConfigs[layer] : null;
           const cwName = kc ? (findKeycode(kc.cwParam)?.name || "Vol+") : "Vol+";
           const ccwName = kc ? (findKeycode(kc.ccwParam)?.name || "Vol-") : "Vol-";
-          const ppd = kc ? kc.ppd : 2;
+          const ppd = kc ? kc.ppd : 4;
           document.getElementById("inspectKeyDetails").innerText = `Push: ${primary} | Rotate CW: ${cwName} | Rotate CCW: ${ccwName} | Sensitivity: ${ppd} pulses/click`;
           if (btnPicker) btnPicker.style.display = "inline-flex";
           if (btnKnob) btnKnob.style.display = "inline-flex";
         }
+        return;
+      }
+
+      if ((layer === 3 || layer === 4) && (idx === 29 || idx === 42)) {
+        const isMaster = (idx === 29);
+        document.getElementById("inspectKeyName").innerText = isMaster
+          ? `Key #29 (Fn + S): Master Piezo Sound Toggle`
+          : `Key #42 (Fn + C): Audio Clicky Toggle`;
+        document.getElementById("inspectKeyDetails").innerText = currentLang === "ko"
+          ? `펌웨어 인터셉트: 키맵상 NONE이지만 펌웨어가 물리 위치를 감지해 ${isMaster ? "마스터 사운드" : "타건 클릭음"}를 ON/OFF 합니다.`
+          : `Firmware Intercept: Keymap slot is NONE; firmware intercepts this matrix position to toggle ${isMaster ? "Master Sound" : "Audio Clicky"}.`;
+        if (btnAudio) btnAudio.style.display = "inline-flex";
+        return;
+      }
+
+      if ((layer === 3 || layer === 4) && (idx === 44 || idx === 25)) {
+        const isGauge = (idx === 44);
+        document.getElementById("inspectKeyName").innerText = isGauge
+          ? `Key #44 (Fn + B): Butterfly Battery Gauge`
+          : `Key #25 (Fn + P): Type Battery Percentage`;
+        document.getElementById("inspectKeyDetails").innerText = currentLang === "ko"
+          ? `펌웨어 인터셉트: 키맵상 NONE이지만 펌웨어가 ${isGauge ? "나비 LED로 배터리 잔량 표시" : "배터리 잔량(%)을 키보드로 타이핑"}합니다.`
+          : `Firmware Intercept: Keymap slot is NONE; firmware ${isGauge ? "shows battery gauge on Butterfly LEDs" : "types battery percentage as keystrokes"}.`;
         return;
       }
 
@@ -4655,6 +4754,10 @@
       const btnPw = document.getElementById("btnOpenPwTab");
       if (btnPw) {
         btnPw.addEventListener("click", () => switchTab("tab-password"));
+      }
+      const btnAudio = document.getElementById("btnOpenAudioTab");
+      if (btnAudio) {
+        btnAudio.addEventListener("click", () => switchTab("tab-audio"));
       }
       const btnJumpPw = document.getElementById("btnJumpToPwGen");
       if (btnJumpPw) {
@@ -5565,11 +5668,104 @@
       }
     }
 
+    let currentLang = localStorage.getItem("preonic_studio_lang") || (navigator.language && navigator.language.startsWith("ko") ? "ko" : "en");
+
+    const I18N = {
+      en: {
+        btnBackup: "Backup",
+        btnRestore: "Restore",
+        btnDemo: "Demo",
+        btnUnlockInfo: "Unlock",
+        btnConnect: "Connect USB",
+        tabKeymap: "Keymap",
+        tabMacros: "Macros",
+        tabKnob: "Rotary Knob",
+        tabPassword: "Password",
+        tabMouse: "Mouse",
+        tabAudio: "Audio & Status",
+        tabTester: "Key Tester",
+        tabFirmware: "Firmware",
+        lockBannerTitle: "Locked for Physical Security",
+        lockBannerDesc: "To prevent unauthorized web modifications, press <strong>Fn + Z</strong> on your Preonic keyboard to enable editing.",
+        btnUnlockGuide: "Unlock Guide",
+        keymapCardTitle: "Keyboard Matrix & Layer Remapper",
+        keymapCardSub: "Keyboardio Preonic MIT Layout (5x12 ortholinear grid + 3 top keys + 2u spacebar)",
+        btnSaveFlash: "Save to Flash",
+        btnRevert: "Revert",
+        btnReadKeymap: "Reload Keymap",
+        layerLabel: "LAYER:",
+        syncBannerDisconnected: "Not connected. Click <strong>Connect USB</strong> at the top right to load the current keymap.",
+        inspectDefault: "Click any keycap above to edit its binding",
+        btnChangeKey: "Change Keycode",
+        btnConfigKnob: "Configure Knob",
+        btnOpenMacro: "Open Macro Manager",
+        btnOpenPw: "Open Password Tab",
+        btnOpenAudio: "Open Audio Tab"
+      },
+      ko: {
+        btnBackup: "백업",
+        btnRestore: "복원",
+        btnDemo: "데모",
+        btnUnlockInfo: "잠금 해제 안내",
+        btnConnect: "USB 연결",
+        tabKeymap: "키맵 편집",
+        tabMacros: "매크로",
+        tabKnob: "로터리 노브",
+        tabPassword: "비밀번호 생성기",
+        tabMouse: "마우스/스크롤",
+        tabAudio: "오디오 및 상태",
+        tabTester: "키 테스터",
+        tabFirmware: "펌웨어",
+        lockBannerTitle: "물리적 보안 잠금 상태",
+        lockBannerDesc: "웹에서 임의 수정을 방지하기 위해 잠겨 있습니다. 키보드에서 <strong>Fn + Z</strong>를 눌러 잠금을 해제하세요.",
+        btnUnlockGuide: "해제 방법",
+        keymapCardTitle: "키보드 매트릭스 및 레이어 편집",
+        keymapCardSub: "Keyboardio Preonic MIT 레이아웃 (5x12 직교 배열 + 상단 3키 + 2u 스페이스바)",
+        btnSaveFlash: "Flash에 저장",
+        btnRevert: "되돌리기",
+        btnReadKeymap: "키맵 다시 읽기",
+        layerLabel: "레이어:",
+        syncBannerDisconnected: "연결되지 않았습니다. 우측 상단의 <strong>USB 연결</strong> 버튼을 눌러 현재 키맵을 불러오세요.",
+        inspectDefault: "위 키캡을 클릭해 동작을 확인하거나 수정하세요",
+        btnChangeKey: "키코드 변경",
+        btnConfigKnob: "노브 설정",
+        btnOpenMacro: "매크로 탭 열기",
+        btnOpenPw: "비밀번호 탭 열기",
+        btnOpenAudio: "오디오 탭 열기"
+      }
+    };
+
+    function setLanguage(lang) {
+      currentLang = (lang === "ko") ? "ko" : "en";
+      localStorage.setItem("preonic_studio_lang", currentLang);
+      document.documentElement.lang = currentLang;
+      const dict = I18N[currentLang];
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.dataset.i18n;
+        if (dict[key] !== undefined) {
+          if (key === "lockBannerDesc" || key === "syncBannerDisconnected") {
+            el.innerHTML = dict[key];
+          } else {
+            el.textContent = dict[key];
+          }
+        }
+      });
+      const btnEn = document.getElementById("btnLangEn");
+      const btnKo = document.getElementById("btnLangKo");
+      if (btnEn) btnEn.classList.toggle("active", currentLang === "en");
+      if (btnKo) btnKo.classList.toggle("active", currentLang === "ko");
+    }
+
     // Initialize application on DOM ready
     window.addEventListener("DOMContentLoaded", () => {
       initKeyboardGrid();
       initTesterGrid();
       setupEventHandlers();
+      const btnEn = document.getElementById("btnLangEn");
+      const btnKo = document.getElementById("btnLangKo");
+      if (btnEn) btnEn.addEventListener("click", () => setLanguage("en"));
+      if (btnKo) btnKo.addEventListener("click", () => setLanguage("ko"));
+      setLanguage(currentLang);
       refreshPasswordPreview();
       updateKnobUIForLayer(0);
       updateConnectionUI();
